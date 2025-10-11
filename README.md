@@ -37,7 +37,7 @@ Vous devez avoir installé sur votre machine :
 
 Node.js (recommandé : version LTS, ex: 18.x ou 20.x)
 
-npm ou Yarn (gestionnaire de paquets)
+npm  (gestionnaire de paquets)
 
 Installation
 Cloner le dépôt :
