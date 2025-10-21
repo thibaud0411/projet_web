@@ -10,7 +10,7 @@ import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { ImageWithFallback } from './ImgFallback/ImageWithFallback';
+import { ImageWithFallback } from './fallbackimg/ImageWithFallback';
 
 interface CheckoutPageProps {
   onNavigate: (page: string) => void;
@@ -23,25 +23,25 @@ const cartItems = [
     id: 1,
     name: 'Poulet Yassa',
     restaurant: 'ZeDuc@Space',
-    price: 8.50,
+    price: 1500,
     quantity: 2,
-    image: 'https://images.unsplash.com/photo-1665332195309-9d75071138f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwZm9vZCUyMGpvbGxvZnxlbnwxfHx8fDE3NTk3NDQ1MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080'
+    image: 'https://i.pinimg.com/1200x/e9/84/a9/e984a924010b724ccd3e03373edb1c52.jpg'
   },
   {
     id: 2,
-    name: 'Thiéboudienne',
+    name: 'Poisson Braisé',
     restaurant: 'ZeDuc@Space',
-    price: 9.00,
+    price: 1500,
     quantity: 1,
-    image: 'https://images.unsplash.com/photo-1717913491672-ec2c1921e81f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwY3Vpc2luZSUyMHRyYWRpdGlvbmFsfGVufDF8fHx8MTc1OTc3NzA4NHww&ixlib=rb-4.1.0&q=80&w=1080'
+    image: 'https://i.pinimg.com/736x/8d/4a/fc/8d4afc3c36d918b914a2730e7c3691dd.jpg'
   },
   {
     id: 3,
     name: 'Jus de Bissap',
     restaurant: 'ZeDuc@Space',
-    price: 3.50,
+    price: 500,
     quantity: 2,
-    image: 'https://images.unsplash.com/photo-1622961143370-50cf40dda7b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmVzaCUyMGp1aWNlJTIwZHJpbmt8ZW58MXx8fHwxNzU5ODQyMjM5fDA&ixlib=rb-4.1.0&q=80&w=1080'
+    image: 'https://i.pinimg.com/1200x/16/cb/6c/16cb6c4b4d6d908daae2702b93b7ca9d.jpg'
   }
 ];
 
@@ -153,7 +153,7 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
             <ShoppingBag className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-5xl text-[#000000] mb-4">
-            Finalise ta commande 🍽️
+            Finalise ta commande 
           </h1>
           <p className="text-lg text-[#5E4B3C]">
             Plus qu'une étape pour savourer ton repas
@@ -168,7 +168,7 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
             <Card className="p-8 bg-white border-0 rounded-3xl shadow-lg">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl text-[#000000]">
-                  Récapitulatif de ta commande 🍴
+                  Récapitulatif de ta commande 
                 </h2>
                 <Button
                   variant="ghost"
@@ -246,7 +246,7 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
             {/* Delivery Method */}
             <Card className="p-8 bg-[#FAF3E0] border-0 rounded-3xl shadow-lg">
               <h3 className="text-2xl text-[#000000] mb-6">
-                Où veux-tu récupérer ton repas ? 🏫
+                Où veux-tu récupérer ton repas ? 
               </h3>
 
               <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod} className="space-y-4">
@@ -263,11 +263,11 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="w-5 h-5 text-[#cfbd97]" />
                       <Label htmlFor="delivery" className="text-[#000000] cursor-pointer">
-                        Livraison sur le campus
+                        Livraison
                       </Label>
                     </div>
                     <p className="text-sm text-[#5E4B3C]">
-                      Yansoki, ZeDuc@Space - Livraison en 20-30 min
+                      Campus? Yansoki?   Livraison a domicile ?
                     </p>
                   </div>
                   {deliveryMethod === 'delivery' && (
@@ -292,7 +292,7 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
                       </Label>
                     </div>
                     <p className="text-sm text-[#5E4B3C]">
-                      Prêt dans 15 minutes
+                      J'arrive
                     </p>
                   </div>
                   {deliveryMethod === 'pickup' && (
@@ -306,11 +306,11 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
                   <div className="space-y-2">
                     <Label htmlFor="building" className="text-[#000000]">
                       <Building2 className="w-4 h-4 inline mr-2" />
-                      Bâtiment / Faculté / Bloc
+                      Lieu
                     </Label>
                     <Input
                       id="building"
-                      placeholder="Ex: Faculté de Droit, Bloc A"
+                      placeholder="Ex: IUI,Yansoki "
                       value={building}
                       onChange={(e) => setBuilding(e.target.value)}
                       className="rounded-2xl border-2 border-[#EFD9A7] focus:border-[#cfbd97] bg-white"
@@ -324,7 +324,7 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="+221 77 123 45 67"
+                      placeholder="+237 6 91 55 76 45"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       className="rounded-2xl border-2 border-[#EFD9A7] focus:border-[#cfbd97] bg-white"
@@ -381,25 +381,7 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
                   )}
                 </div>
 
-                <div 
-                  className={`flex items-center gap-4 p-6 rounded-2xl cursor-pointer transition-all ${
-                    paymentMethod === 'card' 
-                      ? 'border-2 border-[#cfbd97] bg-[#FAF3E0] shadow-md' 
-                      : 'border-2 border-[#EFD9A7] hover:border-[#cfbd97]'
-                  }`}
-                  onClick={() => setPaymentMethod('card')}
-                >
-                  <div className="w-12 h-12 rounded-xl bg-white border-2 border-[#EFD9A7] flex items-center justify-center">
-                    <CreditCard className="w-6 h-6 text-[#5E4B3C]" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-[#000000]">Carte bancaire</h4>
-                    <p className="text-sm text-[#5E4B3C]">Visa, Mastercard</p>
-                  </div>
-                  {paymentMethod === 'card' && (
-                    <Check className="w-5 h-5 text-[#cfbd97]" />
-                  )}
-                </div>
+ 
               </div>
 
               <div className="mt-8 pt-6 border-t-2 border-[#EFD9A7]">
