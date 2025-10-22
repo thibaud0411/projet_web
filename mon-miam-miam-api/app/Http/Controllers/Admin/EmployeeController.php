@@ -223,25 +223,81 @@ class EmployeeController extends Controller
 
     /**
      * Helper methods for Supabase integration
-     * These should be implemented based on your Supabase setup
      */
     private function createSupabaseUser($email, $password)
     {
-        // Use Supabase Admin API to create user
-        // Return the UUID
-        // This is a placeholder - implement based on Supabase documentation
-        return DB::raw('uuid_generate_v4()');
+        $supabaseUrl = env('SUPABASE_URL');
+        $supabaseServiceKey = env('SUPABASE_SERVICE_KEY');
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withOptions([
+                'verify' => false,
+            ])->withHeaders([
+                'apikey' => $supabaseServiceKey,
+                'Authorization' => "Bearer {$supabaseServiceKey}",
+                'Content-Type' => 'application/json',
+            ])->post("{$supabaseUrl}/auth/v1/admin/users", [
+                'email' => $email,
+                'password' => $password,
+                'email_confirm' => true,
+            ]);
+
+            if (!$response->successful()) {
+                throw new \Exception('Erreur Supabase: ' . $response->body());
+            }
+
+            $userData = $response->json();
+            return $userData['id'];
+
+        } catch (\Exception $e) {
+            throw new \Exception('Impossible de créer l\'utilisateur dans Supabase: ' . $e->getMessage());
+        }
     }
 
     private function updateSupabasePassword($userId, $password)
     {
-        // Update password in Supabase auth
-        // Implement based on Supabase documentation
+        $supabaseUrl = env('SUPABASE_URL');
+        $supabaseServiceKey = env('SUPABASE_SERVICE_KEY');
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withOptions([
+                'verify' => false,
+            ])->withHeaders([
+                'apikey' => $supabaseServiceKey,
+                'Authorization' => "Bearer {$supabaseServiceKey}",
+                'Content-Type' => 'application/json',
+            ])->put("{$supabaseUrl}/auth/v1/admin/users/{$userId}", [
+                'password' => $password,
+            ]);
+
+            if (!$response->successful()) {
+                throw new \Exception('Erreur Supabase: ' . $response->body());
+            }
+
+        } catch (\Exception $e) {
+            \Log::warning('Failed to update Supabase password: ' . $e->getMessage());
+        }
     }
 
     private function deleteSupabaseUser($userId)
     {
-        // Delete user from Supabase auth
-        // Implement based on Supabase documentation
+        $supabaseUrl = env('SUPABASE_URL');
+        $supabaseServiceKey = env('SUPABASE_SERVICE_KEY');
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withOptions([
+                'verify' => false,
+            ])->withHeaders([
+                'apikey' => $supabaseServiceKey,
+                'Authorization' => "Bearer {$supabaseServiceKey}",
+            ])->delete("{$supabaseUrl}/auth/v1/admin/users/{$userId}");
+
+            if (!$response->successful()) {
+                throw new \Exception('Erreur Supabase: ' . $response->body());
+            }
+
+        } catch (\Exception $e) {
+            \Log::warning('Failed to delete Supabase user: ' . $e->getMessage());
+        }
     }
 }

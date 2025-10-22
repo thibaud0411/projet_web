@@ -14,11 +14,26 @@ class StatisticsController extends Controller
     public function dashboard(Request $request)
     {
         try {
+            // Check if tables exist
+            $tablesExist = $this->checkTablesExist(['commandes', 'reclamations']);
+            
+            if (!$tablesExist) {
+                // Return empty data if tables don't exist yet
+                return response()->json([
+                    'daily_revenue' => 0,
+                    'total_orders' => 0,
+                    'active_customers' => 0,
+                    'satisfaction_rate' => 100,
+                    'recent_orders' => [],
+                    'message' => 'Tables de données non initialisées'
+                ]);
+            }
+
             // Today's revenue
             $dailyRevenue = DB::table('commandes')
                 ->whereDate('date_commande', today())
                 ->where('statut', 'livree')
-                ->sum('montant_total');
+                ->sum('montant_total') ?? 0;
 
             // Total orders count
             $totalOrders = DB::table('commandes')
@@ -73,6 +88,24 @@ class StatisticsController extends Controller
     }
 
     /**
+     * Check if tables exist in database
+     */
+    private function checkTablesExist(array $tables)
+    {
+        try {
+            foreach ($tables as $table) {
+                $exists = DB::select("SELECT to_regclass('public.{$table}') as exists");
+                if (empty($exists) || $exists[0]->exists === null) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
      * Get revenue data by period
      */
     public function revenue(Request $request)
@@ -80,6 +113,11 @@ class StatisticsController extends Controller
         $period = $request->get('period', 'week');
         
         try {
+            // Check if table exists
+            if (!$this->checkTablesExist(['commandes'])) {
+                return response()->json([]);
+            }
+
             $query = DB::table('commandes')
                 ->where('statut', 'livree');
 
@@ -99,7 +137,7 @@ class StatisticsController extends Controller
                 case 'week':
                     $query->whereDate('date_commande', '>=', now()->subWeeks(8));
                     $data = $query->select(
-                        DB::raw('YEARWEEK(date_commande) as periode'),
+                        DB::raw("TO_CHAR(date_commande, 'IYYY-IW') as periode"),
                         DB::raw('COUNT(id) as nombre_commandes'),
                         DB::raw('COALESCE(SUM(montant_total), 0) as chiffre_affaires')
                     )
@@ -111,7 +149,7 @@ class StatisticsController extends Controller
                 case 'month':
                     $query->whereDate('date_commande', '>=', now()->subMonths(12));
                     $data = $query->select(
-                        DB::raw('DATE_FORMAT(date_commande, "%Y-%m") as periode'),
+                        DB::raw("TO_CHAR(date_commande, 'YYYY-MM') as periode"),
                         DB::raw('COUNT(id) as nombre_commandes'),
                         DB::raw('COALESCE(SUM(montant_total), 0) as chiffre_affaires')
                     )
