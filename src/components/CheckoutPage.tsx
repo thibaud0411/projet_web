@@ -10,14 +10,14 @@ import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { ImageWithFallback } from './fallbackimg/ImageWithFallback';
+import { ImageWithFallback } from './ImgFallback/ImageWithFallback';
 
 interface CheckoutPageProps {
   onNavigate: (page: string) => void;
   userRole: string;
 }
 
-// Mock cart data - in real app this would come from props/context
+
 const cartItems = [
   {
     id: 1,
@@ -361,7 +361,7 @@ export function CheckoutPage({ onNavigate, userRole }: CheckoutPageProps) {
                   )}
                 </div>
 
-                <div 
+               <div 
                   className={`flex items-center gap-4 p-6 rounded-2xl cursor-pointer transition-all ${
                     paymentMethod === 'cash' 
                       ? 'border-2 border-[#cfbd97] bg-[#FAF3E0] shadow-md' 

@@ -55,8 +55,8 @@ const testimonials = [
   {
     name: 'Benie Cecilda',
     faculty: 'Institut Ucac-Icam',
-    comment: 'Le ndolé qu’ils font là-bas c’est le feu 🔥 et le système de points de fidélité est génial... J\'ai déjà mes 2 plat njoh !',
-    avatar: ''
+    comment: 'Le ndolé qu’ils font là-bas c’est le feu et le système de points de fidélité est génial... J\'ai déjà mes 2 plat njoh !',
+    avatar: 'blob:https://web.whatsapp.com/fab4ef73-3532-4426-a55a-aaafdc250201'
   },
   {
     name: 'Vanga Army',
