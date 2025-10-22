@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Complaint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -50,7 +51,37 @@ class UserController extends Controller
         return response()->json($newUser, 201);
     }
 
-    // Méthodes update et destroy similaires (non détaillées pour brièveté, implémentez avec validation rôle)
+    public function update(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'gerant'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $targetUser = User::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
+            'phone' => 'sometimes|string|max:255|unique:users,phone,' . $id,
+            'role' => 'sometimes|in:employee,gerant',
+            'status' => 'sometimes|in:active,inactive',
+        ]);
+
+        $targetUser->update($validated);
+        return response()->json($targetUser);
+    }
+
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin', 'gerant'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $targetUser = User::findOrFail($id);
+        $targetUser->delete();
+        return response()->json(['message' => 'User deleted']);
+    }
 
     public function generateReferralCode()
     {
@@ -72,5 +103,20 @@ class UserController extends Controller
         $user->save();
 
         return response()->json(['code' => $code]);
+    }
+
+    public function submitComplaint(Request $request)
+    {
+        $user = Auth::user();
+        $validated = $request->validate([
+            'description' => 'required|string|max:1000',
+        ]);
+
+        $complaint = Complaint::create([
+            'user_id' => $user->id,
+            'description' => $validated['description'],
+        ]);
+
+        return response()->json($complaint, 201);
     }
 }
