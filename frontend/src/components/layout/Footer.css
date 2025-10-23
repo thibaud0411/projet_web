@@ -1,0 +1,10 @@
+.manager-footer {
+  text-align: center;
+  padding: 1.5rem 2rem;
+  
+  /* --- CHANGEMENTS ICI --- */
+  background-color: #000000; /* CHANGEMENT: Fond noir pur (Secondaire) */
+  border-top: 1px solid #374151; /* Bordure foncée */
+  color: #9CA3AF; /* Texte gris clair */
+  font-size: 0.875rem;
+}

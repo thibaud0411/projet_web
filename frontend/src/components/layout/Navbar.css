@@ -1,0 +1,51 @@
+/* Fichier CSS pour Navbar.tsx */
+
+.manager-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 65px;
+  
+  background-color: #000000; /* CHANGEMENT: Fond noir pur (Secondaire) */
+  border-bottom: 1px solid #374151; /* Bordure foncée (inchangée, reste subtile) */
+  color: #FFFFFF; /* Texte blanc par défaut */
+}
+
+.header-logo {
+  color: #FFFFFF; /* Texte blanc */
+}
+
+.header-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.header-nav a {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: #9CA3AF; /* Texte gris clair (inactif) */
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+/* Style de "l'overlay" au survol */
+.header-nav a:hover {
+  background-color: #cfbd97; /* Couleur OR (Primaire) */
+  color: #000000; /* Texte noir (Secondaire) */
+}
+
+/* Lien actif utilise VOTRE couleur primaire comme "overlay" */
+.header-nav a.active {
+  background-color: #cfbd97; /* Couleur OR (Primaire) */
+  color: #000000; /* Texte noir (Secondaire) */
+  font-weight: 600;
+}
+
+.header-profile {
+  color: #FFFFFF; /* Texte blanc */
+  font-weight: 500;
+}

@@ -1,0 +1,19 @@
+.dashboard-header {
+  margin-bottom: 2rem;
+  background-color: #FFFFFF; /* Fond blanc, comme une carte */
+  padding: 1.5rem 2rem;
+  border-radius: 12px; /* Coins arrondis */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-header h1 {
+  font-size: 1.875rem; /* 30px */
+  font-weight: 700;
+  color: #000000; /* Plus sombre (Secondaire) */
+}
+
+.dashboard-header p {
+  font-size: 1rem;
+  color: #6B7280; /* Texte gris */
+  margin-bottom: 0;
+}

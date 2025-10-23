@@ -1,0 +1,29 @@
+/* Couleurs de la maquette */
+:root {
+  --bg-color: #F9FAFB; /* Fond général gris très clair */
+  --card-bg: #FFFFFF; /* Fond des cartes */
+  --text-dark: #1F2937;
+  --text-muted: #6B7280;
+  --border-color: #E5E7EB; /* Bordure légère */
+  --nav-active-bg: #1F2937; /* Fond du lien actif */
+  --nav-active-text: #FFFFFF;
+}
+
+.manager-layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+/* TOUS LES STYLES POUR .manager-header ONT ÉTÉ SUPPRIMÉS D'ICI
+  CAR ILS SONT DÉJÀ DANS Navbar.css
+*/
+
+.manager-main-content {
+  flex-grow: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}

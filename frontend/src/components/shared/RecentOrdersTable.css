@@ -1,0 +1,75 @@
+.orders-table-card {
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
+  overflow: hidden; /* Pour les coins arrondis de la table */
+}
+
+/* Les styles .card-header et .card-title sont maintenant gérés par index.css */
+
+/* MODIFICATION ICI */
+.update-status {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #000000; /* Changé pour noir pour contraster sur l'or */
+  opacity: 0.8;
+}
+.update-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #000000; /* Changé pour noir */
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+.table {
+  color: #1F2937;
+}
+.table thead th {
+  background-color: #F9FAFB; /* Fond d'en-tête gris clair */
+  color: #6B7280;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 0.75rem 1.5rem;
+}
+.table tbody tr {
+  font-size: 0.875rem;
+}
+.table tbody td {
+  padding: 1rem 1.5rem;
+  color: #374151;
+  border-bottom: 1px solid #F3F4F6; /* Ligne de séparation très claire */
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table-hover tbody tr:hover {
+  background-color: #F9FAFB;
+}
+
+/* Badges de statut */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.status-warning { /* En Préparation */
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+.status-info { /* Confirmée */
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+.status-success { /* Prête */
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+.status-secondary { /* Livrée */
+  background-color: #F3F4F6;
+  color: #374151;
+}

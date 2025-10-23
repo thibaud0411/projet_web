@@ -1,0 +1,83 @@
+/* ---------------------------------- */
+/* STYLES GLOBAUX DE L'APPLICATION    */
+/* ---------------------------------- */
+
+/* 1. Définir le fond de la page (gris clair) et la police par défaut */
+body {
+  background-color: #F9FAFB; /* Fond gris très clair */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1F2937;
+}
+
+/* 2. Redéfinir le style de TOUTES les cartes (.card) */
+.card {
+  /* On remplace la bordure Bootstrap par une ombre plus moderne */
+  border: none !important; 
+  border-radius: 12px !important; /* Coins plus arrondis */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07) !important;
+  transform: translateY(-3px); /* Ajoute un léger "lift" */
+}
+
+/* 3. Redéfinir l'en-tête de carte par défaut (AVEC LA COULEUR PRIMAIRE) */
+.card-header {
+  background-color: #cfbd97 !important; /* VOTRE COULEUR PRIMAIRE */
+  border-bottom: 1px solid #bfae86 !important; /* Bordure plus foncée assortie */
+  padding: 1.25rem 1.5rem !important;
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
+
+.card-title, .h5 {
+  color: #000000 !important; /* VOTRE COULEUR SECONDAIRE (Noir) */
+  font-weight: 600;
+  margin-bottom: 0 !important; /* Aligne mieux les titres */
+}
+
+/* 4. Définir le bouton primaire avec VOTRE couleur */
+.btn-primary {
+  background-color: #cfbd97 !important;
+  border-color: #cfbd97 !important;
+  color: #000000 !important; /* Texte noir sur fond or */
+  font-weight: 600 !important;
+  padding: 0.6rem 1.5rem !important;
+}
+.btn-primary:hover {
+  background-color: #bfae86 !important; /* Version foncée */
+  border-color: #bfae86 !important;
+  color: #000000 !important;
+}
+
+/* 5. Définir le bouton secondaire (outline) avec VOTRE couleur */
+.btn-outline-primary {
+  border-color: #cfbd97 !important;
+  color: #cfbd97 !important;
+  font-weight: 600 !important;
+}
+.btn-outline-primary:hover {
+  background-color: #cfbd97 !important;
+  color: #000000 !important;
+}
+
+/* 6. En-tête de table personnalisé */
+.table-custom-header th {
+  background-color: #F9FAFB;
+  color: #6B7280;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 0.75rem 1.5rem;
+}
+.table-custom-cell {
+  padding: 1rem 1.5rem;
+  color: #374151;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}

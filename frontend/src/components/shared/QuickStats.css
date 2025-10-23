@@ -1,0 +1,74 @@
+.quick-stats-card {
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+/* L'en-tête de carte est maintenant géré par index.css */
+.quick-stats-card .card-header {
+  background-color: #cfbd97 !important; /* Force la couleur primaire */
+}
+.card-title {
+  color: #000000 !important; /* Force la couleur secondaire */
+  font-weight: 600;
+}
+
+
+/* --- MODIFICATION DES ONGLETS --- */
+.tabs-container {
+  /* On enlève le fond gris */
+  background-color: transparent; 
+  border-radius: 8px;
+  padding: 0; /* Pas de padding nécessaire */
+}
+.tab-btn {
+  border: none;
+  background-color: transparent; /* Fond transparent par défaut */
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #FFFFFF; /* Texte blanc (ou #000000 si vous préférez) */
+  opacity: 0.7; /* L'inactif est plus transparent */
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.tab-btn:hover {
+  opacity: 1;
+  background-color: rgba(0,0,0,0.1); /* Léger fond noir au survol */
+}
+.tab-btn.active {
+  background-color: #FFFFFF; /* Fond BLANC pour l'actif */
+  color: #000000;          /* Texte NOIR */
+  opacity: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+/* --- FIN MODIFICATION DES ONGLETS --- */
+
+
+.stats-subtitle {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin-bottom: 1rem;
+}
+.bar-chart-custom .bar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.bar-item .bar-label { width: 50px; font-size: 0.8rem; color: #6B7280; }
+.bar-item .bar-value { width: 40px; font-size: 0.8rem; font-weight: 500; color: #1F2937; text-align: right; }
+.bar-item .bar-bg { flex: 1; height: 10px; background-color: #F3F4F6; border-radius: 5px; overflow: hidden; }
+.bar-item .bar-fg { height: 100%; background-color: #FCD34D; /* Jaune */ border-radius: 5px; }
+
+.stats-list { list-style: none; padding: 0; margin: 0; }
+.stats-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: #1F2937;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+.stats-list li:last-child { border-bottom: none; }
+.stats-list li span { color: #6B7280; }
