@@ -29,7 +29,11 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('Making login request to:', api.defaults.baseURL + '/login');
+      console.log('Request method: POST');
+      console.log('Request data:', { email, password });
       const response = await api.post('/login', { email, password });
+      console.log('Login response:', response.data);
       const { token, user } = response.data;
       
       // Check if user is admin or gerant
