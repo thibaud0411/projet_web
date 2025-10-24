@@ -47,6 +47,17 @@ class Utilisateur extends Authenticatable
     ];
 
     /**
+     * Les attributs à convertir (cast).
+     */
+    protected $casts = [
+        'statut_compte' => 'boolean',
+        'points_fidelite' => 'integer',
+        'date_inscription' => 'datetime',
+        'date_modification' => 'datetime',
+        'derniere_connexion' => 'datetime',
+    ];
+
+    /**
      * Un Utilisateur APPARTIENT A un Rôle.
      */
     public function role(): BelongsTo
