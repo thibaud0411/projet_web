@@ -1,10 +1,21 @@
+/* src/components/layout/Footer.css */
 .manager-footer {
   text-align: center;
-  padding: 1.5rem 2rem;
-  
-  /* --- CHANGEMENTS ICI --- */
-  background-color: #000000; /* CHANGEMENT: Fond noir pur (Secondaire) */
+  padding: 1rem 1.5rem; /* Padding ajusté */
+  background-color: var(--secondary-color); /* Fond noir */
   border-top: 1px solid #374151; /* Bordure foncée */
   color: #9CA3AF; /* Texte gris clair */
-  font-size: 0.875rem;
+  font-size: 0.8rem; /* Plus petit */
+  margin-top: auto; /* Reste en bas */
+  transition: margin-left 0.3s ease-in-out; /* Animation */
+}
+
+/* Applique la marge gauche quand la sidebar est présente */
+@media (min-width: 992px) {
+  .manager-footer {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    padding: 1.5rem 2rem; /* Retour au padding normal */
+    font-size: 0.875rem; /* Taille normale */
+  }
 }

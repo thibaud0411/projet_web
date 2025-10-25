@@ -1,33 +1,68 @@
+/* src/components/shared/ClaimsPreview.css */
 .claims-card {
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
+  /* Style .card vient d'index.css */
 }
 
-/* Les styles .card-header et .card-title sont maintenant gérés par index.css */
+/* En-tête spécifique */
+ .claims-card .card-header {
+  background-color: var(--card-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+ .claims-card .card-header .card-title {
+  color: var(--text-dark) !important;
+}
 
+/* Badge 'En attente' (rouge léger) */
 .badge.bg-danger-light {
-  background-color: #FEF2F2;
-  color: #EF4444;
+  background-color: var(--danger-light-bg) !important;
+  color: var(--danger-dark-text) !important;
   font-weight: 500;
   padding: 0.3rem 0.6rem;
+  border-radius: 20px;
 }
+/* Badge 'Aucune en attente' (vert léger) */
+.badge.bg-success-light {
+  background-color: var(--success-light-bg) !important;
+  color: var(--success-dark-text) !important;
+  font-weight: 500;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+}
+ /* Badge 'Erreur' (gris léger) */
+.badge.bg-secondary-light {
+  background-color: var(--secondary-light-bg) !important;
+  color: var(--secondary-dark-text) !important;
+  font-weight: 500;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+}
+
+
+/* Style des items de réclamation */
 .claim-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 0;
+  padding: 0.75rem 0; /* Un peu moins de padding vertical */
   border-bottom: 1px solid #F3F4F6;
 }
 .claim-item:last-child { border-bottom: none; }
-.claim-title { font-weight: 500; color: #1F2937; margin-bottom: 0.1rem; }
-.claim-client { font-size: 0.875rem; color: #6B7280; }
-.btn-outline-secondary {
-  border-color: #D1D5DB;
-  color: #374151;
-  font-size: 0.875rem;
-  font-weight: 500;
+.claim-item:first-child { padding-top: 0.2rem; } /* Moins d'espace en haut */
+
+.claim-info {}
+.claim-title {
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 0.1rem;
+    font-size: 0.9rem; /* Légèrement plus petit */
 }
-.btn-outline-secondary:hover {
-  background-color: #F9FAFB;
+.claim-client {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Bouton 'Traiter' */
+.claim-item .btn {
+    /* Utilise les styles globaux .btn-sm et .btn-outline-secondary */
+    font-weight: 500 !important;
 }

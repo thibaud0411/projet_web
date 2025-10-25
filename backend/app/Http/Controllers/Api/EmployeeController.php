@@ -1,11 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use App\Models\Employe;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-// Correction de la faute de frappe ici : il faut utiliser le namespace complet du Modèle
-use App\Models\Employe; // <<<--- CORRIGÉ ICI 
 use App\Models\Utilisateur;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +16,7 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        // Maintenant, PHP sait où trouver la classe 'Employe'
+        // Renvoie les employés actifs avec leur relation utilisateur (parfait pour React)
         $employes = Employe::with('utilisateur')
                             ->where('est_actif', true)
                             ->get();
@@ -32,13 +30,13 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        // Validation (Vérifiez que les clés correspondent à ce que React envoie : 'phone', 'password')
+        // Validation (Mise à jour pour inclure 'prenom')
         $data = $request->validate([
             'nom' => 'required|string|max:255',
-            // 'prenom' => 'required|string|max:255', // Décommentez si votre formulaire envoie 'prenom'
+            'prenom' => 'required|string|max:255', // <<<--- MODIFIÉ ICI (décommenté et requis)
             'email' => 'required|email|unique:utilisateur,email',
-            'phone' => 'required|string|max:20', // React envoie 'phone'
-            'password' => 'required|string|min:6', // React envoie 'password', min 6 ou 8 selon votre choix
+            'phone' => 'required|string|max:20', 
+            'password' => 'required|string|min:6', 
         ]);
 
         $roleEmploye = Role::where('nom_role', 'Employe')->firstOrFail();
@@ -46,10 +44,10 @@ class EmployeeController extends Controller
         // Création Utilisateur
         $utilisateur = Utilisateur::create([
             'nom' => $data['nom'],
-            'prenom' => $data['prenom'] ?? '', // Utilise 'prenom' s'il existe, sinon ''
+            'prenom' => $data['prenom'], // <<<--- MODIFIÉ ICI (on utilise la donnée validée)
             'email' => $data['email'],
-            'telephone' => $data['phone'], // La BDD attend 'telephone'
-            'mot_de_passe' => Hash::make($data['password']), // La BDD attend 'mot_de_passe' (mais on crypte 'password' reçu)
+            'telephone' => $data['phone'], // Mappage correct (phone -> telephone)
+            'mot_de_passe' => Hash::make($data['password']), // Mappage correct (password -> mot_de_passe)
             'id_role' => $roleEmploye->id_role,
         ]);
 
@@ -61,6 +59,7 @@ class EmployeeController extends Controller
             'est_actif' => true,
         ]);
 
+        // Recharge la relation pour la renvoyer au frontend (très bonne pratique)
         $employe->load('utilisateur');
 
         return response()->json($employe, 201);
@@ -72,12 +71,12 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
+        // Le $id reçu est id_employe, ce qui est correct
         $employe = Employe::findOrFail($id);
         $employe->update(['est_actif' => false]);
 
-        // La ligne $employe->save(); est inutile après update()
-        // return response()->json(['message' => 'Employé désactivé avec succès.']); // Renvoie un message
-        return response()->json(null, 204); // Ou renvoie juste un succès vide (standard REST)
+
+        return response()->json(null, 204); // Réponse standard
     }
 
     // Les méthodes show() et update() sont vides par défaut avec --api

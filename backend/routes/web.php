@@ -1,11 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\EmployeeController;
+// N'importez plus EmployeeController ici
 
 Route::get('/', function () {
     return view('welcome');
 });
-Route::prefix('api')->group(function () {
-    Route::apiResource('employees', EmployeeController::class);
-});
+
+// Le groupe Route::prefix('api')->... a été SUPPRIMÉ d'ici.

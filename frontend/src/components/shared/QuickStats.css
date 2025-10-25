@@ -1,74 +1,76 @@
+/* src/components/shared/QuickStats.css */
 .quick-stats-card {
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.03);
+  /* Style de base .card vient d'index.css */
 }
 
-/* L'en-tête de carte est maintenant géré par index.css */
 .quick-stats-card .card-header {
-  background-color: #cfbd97 !important; /* Force la couleur primaire */
+  /* L'en-tête QuickStats n'a PAS le fond or dans l'image */
+  background-color: var(--card-bg) !important; /* Fond blanc */
+  border-bottom: 1px solid var(--border-color) !important;
 }
-.card-title {
-  color: #000000 !important; /* Force la couleur secondaire */
-  font-weight: 600;
+.quick-stats-card .card-header .card-title {
+  color: var(--text-dark) !important; /* Texte foncé */
 }
 
-
-/* --- MODIFICATION DES ONGLETS --- */
+/* Styles des onglets (Jour/Semaine) */
 .tabs-container {
-  /* On enlève le fond gris */
-  background-color: transparent; 
+  background-color: #F3F4F6; /* Fond gris léger pour le conteneur */
   border-radius: 8px;
-  padding: 0; /* Pas de padding nécessaire */
+  padding: 3px;
+  display: inline-flex; /* Pour s'adapter au contenu */
 }
 .tab-btn {
   border: none;
-  background-color: transparent; /* Fond transparent par défaut */
+  background-color: transparent;
   padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
+  font-size: 0.8rem; /* Plus petit */
   font-weight: 500;
-  color: #FFFFFF; /* Texte blanc (ou #000000 si vous préférez) */
-  opacity: 0.7; /* L'inactif est plus transparent */
+  color: var(--text-muted); /* Gris par défaut */
   border-radius: 6px;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 .tab-btn:hover {
-  opacity: 1;
-  background-color: rgba(0,0,0,0.1); /* Léger fond noir au survol */
+  color: var(--text-dark);
 }
 .tab-btn.active {
-  background-color: #FFFFFF; /* Fond BLANC pour l'actif */
-  color: #000000;          /* Texte NOIR */
-  opacity: 1;
+  background-color: var(--card-bg); /* Fond BLANC pour l'actif */
+  color: var(--text-dark);          /* Texte FONCÉ */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
-/* --- FIN MODIFICATION DES ONGLETS --- */
-
 
 .stats-subtitle {
-  font-size: 0.875rem;
-  color: #6B7280;
-  margin-bottom: 1rem;
+  font-size: 0.8rem; /* Plus petit */
+  color: var(--text-muted);
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
+
+/* Bar chart simplifié */
 .bar-chart-custom .bar-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6rem; /* Moins d'espace */
 }
-.bar-item .bar-label { width: 50px; font-size: 0.8rem; color: #6B7280; }
-.bar-item .bar-value { width: 40px; font-size: 0.8rem; font-weight: 500; color: #1F2937; text-align: right; }
-.bar-item .bar-bg { flex: 1; height: 10px; background-color: #F3F4F6; border-radius: 5px; overflow: hidden; }
-.bar-item .bar-fg { height: 100%; background-color: #FCD34D; /* Jaune */ border-radius: 5px; }
+.bar-item .bar-label { width: 55px; font-size: 0.75rem; color: var(--text-muted); text-align: right;}
+.bar-item .bar-value { width: 60px; font-size: 0.75rem; font-weight: 600; color: var(--text-dark); text-align: right; }
+.bar-item .bar-bg { flex: 1; height: 8px; background-color: #F3F4F6; border-radius: 4px; overflow: hidden; }
+.bar-item .bar-fg { height: 100%; background-color: var(--primary-color); /* Or */ border-radius: 4px; transition: width 0.3s ease-out; }
 
+/* Liste Fidélité */
 .stats-list { list-style: none; padding: 0; margin: 0; }
 .stats-list li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.875rem;
-  color: #1F2937;
-  padding: 0.5rem 0;
+  color: var(--text-dark);
+  padding: 0.4rem 0; /* Moins d'espace */
   border-bottom: 1px solid #F3F4F6;
 }
 .stats-list li:last-child { border-bottom: none; }
-.stats-list li span { color: #6B7280; }
+.stats-list li span { color: var(--text-muted); }
+.stats-list li strong { font-weight: 600; }

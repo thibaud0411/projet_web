@@ -1,51 +1,141 @@
-/* Fichier CSS pour Navbar.tsx */
+/* src/components/layout/Navbar.css */
 
+/* --- Styles Communs (Mobile & Desktop) --- */
 .manager-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  height: 65px;
-  
-  background-color: #000000; /* CHANGEMENT: Fond noir pur (Secondaire) */
-  border-bottom: 1px solid #374151; /* Bordure foncée (inchangée, reste subtile) */
-  color: #FFFFFF; /* Texte blanc par défaut */
+  background-color: var(--secondary-color); /* Fond noir */
+  color: #FFFFFF;
+  /* Hauteur/Largeur/Position gérées par ManagerLayout.css */
+  transition: all 0.3s ease-in-out; /* Pour les changements de layout */
+}
+
+.header-logo { font-weight: bold; color: #FFFFFF !important; text-decoration: none; flex-shrink: 0; }
+.header-logo:hover { color: var(--primary-color) !important; }
+
+.header-nav { display: flex; }
+.header-nav a { display: flex; align-items: center; text-decoration: none; color: #9CA3AF; font-weight: 500; border-radius: 6px; transition: all 0.2s ease; }
+.header-nav a:hover { background-color: rgba(255, 255, 255, 0.1); color: #FFFFFF; }
+.header-nav a.active { background-color: var(--primary-color); color: var(--secondary-color); font-weight: 600; }
+.header-nav a i { transition: transform 0.2s ease; }
+
+.header-profile { font-weight: 500; color: #D1D5DB; white-space: nowrap; display: flex; align-items: center; }
+.header-profile i { font-size: 1.2rem; margin-right: 0.5rem; }
+
+
+/* --- Styles par Défaut (Mobile First : Barre Latérale Verticale) --- */
+.manager-header {
+    flex-direction: column !important; /* Vertical */
+    align-items: stretch !important; /* Prend toute la largeur */
+    justify-content: flex-start !important; /* Commence en haut */
+    padding: 1rem 0 !important; /* Padding vertical, pas horizontal */
+    /* La bordure droite est gérée par ManagerLayout.css */
 }
 
 .header-logo {
-  color: #FFFFFF; /* Texte blanc */
+    font-size: 1.4rem;
+    padding: 0.5rem 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .header-nav {
-  display: flex;
-  gap: 0.5rem;
+    flex-direction: column; /* Liens verticaux */
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex-grow: 1; /* Prend l'espace vertical */
+    padding: 0 1rem; /* Padding latéral liens */
+    gap: 0.5rem; /* Espace vertical liens */
 }
 
 .header-nav a {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
-  color: #9CA3AF; /* Texte gris clair (inactif) */
-  font-weight: 500;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+    padding: 0.75rem 1rem; /* Padding liens verticaux */
+    font-size: 0.9rem;
+    white-space: normal;
 }
-
-/* Style de "l'overlay" au survol */
-.header-nav a:hover {
-  background-color: #cfbd97; /* Couleur OR (Primaire) */
-  color: #000000; /* Texte noir (Secondaire) */
+.header-nav a i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
 }
+.header-nav a span { display: inline !important; } /* Toujours afficher le texte */
 
-/* Lien actif utilise VOTRE couleur primaire comme "overlay" */
-.header-nav a.active {
-  background-color: #cfbd97; /* Couleur OR (Primaire) */
-  color: #000000; /* Texte noir (Secondaire) */
-  font-weight: 600;
-}
-
+/* Profil en bas */
 .header-profile {
-  color: #FFFFFF; /* Texte blanc */
-  font-weight: 500;
+    margin-top: auto; /* Pousse en bas */
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    border-top: 1px solid #374151;
+}
+
+/* Bouton Burger (visible uniquement sur mobile) */
+.sidebar-toggle-button {
+  background: none;
+  border: none;
+  color: #D1D5DB; /* Gris clair */
+  font-size: 1.8rem; /* Grande icône */
+  line-height: 1;
+  padding: 0.5rem 1rem; /* Padding pour cliquer facilement */
+  cursor: pointer;
+  position: absolute; /* Positionné par rapport au header */
+  top: calc((var(--navbar-height) - 40px) / 2); /* Centre verticalement dans la barre du haut */
+  left: 1rem; /* À gauche */
+  z-index: 1045; /* Au-dessus de tout sauf la sidebar ouverte */
+  display: block; /* Visible par défaut */
+}
+.sidebar-toggle-button:hover {
+    color: #FFFFFF; /* Blanc au survol */
+}
+
+
+/* --- Styles pour Grands Écrans (>= 992px : Barre Horizontale en Haut) --- */
+@media (min-width: 992px) {
+  /* Rétablit les styles de la barre horizontale */
+  .manager-header {
+    flex-direction: row !important; /* Horizontal */
+    justify-content: space-between !important; /* Espace entre éléments */
+    align-items: center !important; /* Centre verticalement */
+    padding: 0 2rem !important; /* Padding horizontal standard */
+    /* Hauteur gérée par ManagerLayout.css */
+    /* Bordure du bas gérée par ManagerLayout.css */
+  }
+
+  .header-logo {
+    font-size: 1.3rem; /* Taille standard */
+    padding: 0; /* Pas de padding spécifique */
+    margin-bottom: 0; /* Pas de marge en bas */
+    text-align: left; /* Aligne à gauche */
+  }
+
+  .header-nav {
+    flex-direction: row; /* Horizontal */
+    overflow: visible; /* Pas besoin de scroll */
+    flex-grow: 0; /* Ne prend pas tout l'espace */
+    padding: 0; /* Pas de padding global */
+    gap: 0.5rem; /* Espace horizontal liens */
+    margin: 0 auto; /* Centre la navigation si possible */
+  }
+
+  .header-nav a {
+    padding: 0.5rem 1rem; /* Padding standard horizontal */
+    font-size: 0.9rem;
+    white-space: nowrap; /* Empêche retour à la ligne */
+  }
+  .header-nav a i {
+      margin-right: 0.5rem; /* Espace icône-texte standard */
+      font-size: 1rem;
+      width: auto; /* Largeur auto */
+  }
+
+  .header-profile {
+    margin-top: 0; /* Pas de marge en haut */
+    padding: 0; /* Pas de padding spécifique */
+    font-size: 0.9rem;
+    border-top: none; /* Pas de ligne de séparation */
+  }
+
+  /* Cache le bouton Burger sur grand écran */
+  .sidebar-toggle-button {
+      display: none !important;
+  }
 }
