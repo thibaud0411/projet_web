@@ -3,12 +3,12 @@ import {
   Utensils, Search, ShoppingCart, Plus, Minus, Trash2, 
   X, ChevronDown, Filter, User, Home, Award, MessageSquare
 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { ImageWithFallback } from './ImgFallback/ImageWithFallback';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { ImageWithFallback } from '../components/ImgFallback/ImageWithFallback';
 
 interface MenuPageProps {
   onNavigate: (page: string) => void;

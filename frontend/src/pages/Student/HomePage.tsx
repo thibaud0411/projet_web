@@ -1,8 +1,8 @@
 import { ShoppingCart, Utensils, Award, Heart, ChevronRight, User, Menu as MenuIcon } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import { Badge } from './ui/badge';
-import { ImageWithFallback } from './ImgFallback/ImageWithFallback';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { ImageWithFallback } from '../components/ImgFallback/ImageWithFallback';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;

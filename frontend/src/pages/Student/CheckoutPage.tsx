@@ -4,13 +4,13 @@ import {
   Building2, Check, ShoppingBag, User, Home, Utensils,
   Award, HelpCircle, ShoppingCart, ChevronDown, Minus, Plus
 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { ImageWithFallback } from './ImgFallback/ImageWithFallback';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
+import { ImageWithFallback } from '../components/ImgFallback/ImageWithFallback';
 
 interface CheckoutPageProps {
   onNavigate: (page: string) => void;
