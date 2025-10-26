@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,19 +13,20 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
+     * Les attributs qui sont assignables en masse (mass assignable).
+     * IMPORTANT : 'points_balance' est ajouté pour éviter les erreurs 500 lors de la création.
+     * Le champ 'password' est également inclus ici.
      * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'points_balance', // <-- NOUVEAU: Essentiel pour la création dans AuthController
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
+     * Les attributs qui devraient être cachés pour la sérialisation.
      * @var array<int, string>
      */
     protected $hidden = [
@@ -34,8 +35,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
-     *
+     * Les attributs qui devraient être castés.
      * @var array<string, string>
      */
     protected $casts = [
