@@ -1,47 +1,23 @@
 /* src/pages/manager/OrdersPage.css */
-.orders-page-container {
-  /* Peut rester vide si pas de styles spécifiques à la page */
+
+
+/* Titre */
+.page-header { margin-bottom: 1.5rem; }
+.page-header .h2 { font-weight: 700; color: var(--primary-color); margin-bottom: 0.2rem; }
+.page-header .text-muted { font-size: 1rem; }
+
+/* Boutons filtres */
+.filter-btn-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.filter-btn-group .btn { border-radius: 20px; font-weight: 500; padding: 0.3rem 0.9rem; font-size: 0.8rem; }
+.filter-btn-group .btn-outline-secondary { border-color: #E5E7EB; color: var(--text-muted); }
+.filter-btn-group .btn-outline-secondary:hover { background-color: #F3F4F6; border-color: #E5E7EB; color: var(--text-dark); }
+/* Bouton actif utilise .btn-primary */
+
+/* Style pour la ligne en cours de mise à jour */
+.table tbody tr.updating-row {
+    opacity: 0.6;
+    pointer-events: none; /* Empêche de cliquer à nouveau pendant la MAJ */
+    background-color: #f8f9fa; /* Léger fond gris */
 }
 
-/* Titre de la page (peut être mis dans un fichier global si répétitif) */
-.page-header {
-   margin-bottom: 1.5rem;
-}
-.page-header .h2 {
-   font-weight: 700;
-   color: var(--text-dark);
-   margin-bottom: 0.2rem;
-}
-.page-header .text-muted {
-    font-size: 1rem;
-}
-
-/* Styles pour les boutons filtres */
-.filter-btn-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem; /* Espace après les filtres */
-}
-.filter-btn-group .btn {
-  border-radius: 20px;
-  font-weight: 500;
-  padding: 0.3rem 0.9rem; /* Ajusté */
-  font-size: 0.8rem; /* Plus petit */
-}
-.filter-btn-group .btn-outline-secondary {
-  border-color: #E5E7EB;
-  color: var(--text-muted);
-}
-.filter-btn-group .btn-outline-secondary:hover {
-  background-color: #F3F4F6;
-  border-color: #E5E7EB;
-  color: var(--text-dark);
-}
-/* Le bouton actif utilise .btn-primary */
-
-/* Indicateur temps réel (optionnel, déjà présent mais peut être retiré si inutile) */
-/* .update-status ... */
-/* @keyframes pulse ... */
-
-/* Les styles .table et .status-badge viennent d'index.css */
+/* Styles table et badge via index.css */

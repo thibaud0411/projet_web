@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             PaiementSeeder::class,      // <<<--- AJOUTÉ (après Commande)
             ParrainageSeeder::class,    // <<<--- AJOUTÉ (après Utilisateur)
             ReclamationSeeder::class,
-            // Autres seeders...
+            TodayDataSeeder::class,    // <<<--- AJOUTÉ (dernier pour données "aujourd'hui")
         ]);
          $this->command->info('Tous les seeders principaux ont été exécutés.');
     }

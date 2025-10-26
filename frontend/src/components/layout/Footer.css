@@ -1,21 +1,22 @@
 /* src/components/layout/Footer.css */
 .manager-footer {
   text-align: center;
-  padding: 1rem 1.5rem; /* Padding ajusté */
+  padding: 1rem 1.5rem;
   background-color: var(--secondary-color); /* Fond noir */
-  border-top: 1px solid #374151; /* Bordure foncée */
+  border-top: 1px solid #374151;
   color: #9CA3AF; /* Texte gris clair */
-  font-size: 0.8rem; /* Plus petit */
+  font-size: 0.8rem;
   margin-top: auto; /* Reste en bas */
-  transition: margin-left 0.3s ease-in-out; /* Animation */
+  width: 100%;
+  margin-left: 0;
+  position: relative;
+  z-index: 1;
 }
 
-/* Applique la marge gauche quand la sidebar est présente */
+/* Aucun changement nécessaire pour le responsive ici */
 @media (min-width: 992px) {
   .manager-footer {
-    margin-left: var(--sidebar-width);
-    width: calc(100% - var(--sidebar-width));
-    padding: 1.5rem 2rem; /* Retour au padding normal */
-    font-size: 0.875rem; /* Taille normale */
+    padding: 1.5rem 2rem;
+    font-size: 0.875rem;
   }
 }

@@ -1,37 +1,7 @@
 /* src/components/shared/RecentOrdersTable.css */
-.orders-table-card {
-  /* Style .card vient d'index.css */
-}
-
-/* En-tête spécifique pour cette carte (si différent de index.css) */
-.orders-table-card .card-header {
-  background-color: var(--card-bg) !important; /* Fond blanc */
-  border-bottom: 1px solid var(--border-color) !important;
-}
-.orders-table-card .card-header .card-title {
-    color: var(--text-dark) !important; /* Texte foncé */
-}
-
-.update-status {
-  display: flex;
-  align-items: center;
-  font-size: 0.8rem; /* Plus petit */
-  color: #10B981; /* Vert (comme dans l'image) */
-}
-.update-dot {
-  width: 6px; /* Plus petit */
-  height: 6px;
-  background-color: #10B981;
-  border-radius: 50%;
-  margin-right: 0.4rem;
-  /* Animation (optionnelle) */
-  animation: pulse 2s infinite ease-in-out;
-}
-/* Copier l'animation @keyframes pulse depuis OrdersPage.css si besoin */
-@keyframes pulse { /* Double définition, à mettre dans index.css idéalement */
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-/* Les styles .table et .status-badge viennent d'index.css */
+.orders-table-card {}
+.orders-table-card .card-header { background-color: var(--card-bg) !important; border-bottom: 1px solid var(--border-color) !important; }
+.orders-table-card .card-header .card-title { color: var(--text-dark) !important; }
+.update-status { display: flex; align-items: center; font-size: 0.8rem; color: #10B981; }
+.update-dot { width: 6px; height: 6px; background-color: #10B981; border-radius: 50%; margin-right: 0.4rem; animation: pulse 2s infinite ease-in-out; }
+/* Animation @keyframes pulse est dans index.css */

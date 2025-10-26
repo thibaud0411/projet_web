@@ -1,29 +1,36 @@
 // src/pages/manager/GeneralStatsPage.tsx
 
 import React, { useState, useEffect } from 'react';
-import './GeneralstatsPage.css'; // Attention: peut-être GeneralStatsPage.css ?
+import './GeneralstatsPage.css';
 import { StatCard } from '../../components/shared/StatCard';
 import { QuickStats } from '../../components/shared/QuickStats';
 import { ClaimsPreview } from '../../components/shared/ClaimsPreview';
 import { RecentOrdersTable } from '../../components/shared/RecentOrdersTable';
 import apiClient from '../../apiClient';
 
-// --- INTERFACE DashboardStats CORRIGÉE ---
-// Elle doit correspondre exactement à la structure JSON renvoyée par DashboardController.php
+// --- INTERFACE DashboardStats CORRIGÉE ET COMPLÉTÉE ---
 interface DashboardStats {
   ordersTodayCount: number;
   totalSalesToday: number;
   newClientsTodayCount: number;
-  loyaltyPointsEarnedToday: number; // Nom corrigé vs code précédent (était loyaltyPointsDistributedToday)
+  loyaltyPointsEarnedToday: number;
   quickStats: {
-    salesByHour: { hour: number; total: number }[]; // Doit être un tableau d'objets
+    // Données du jour
+    salesByHour: { hour: number; total: number }[];
     loyaltyStats: {
       pointsUsed: number;
       newReferrals: number;
       rewardsGiven: number;
     };
+    
+    // --- Données de la semaine ---
+    salesByDayOfWeek: { day: number; total: number }[]; // 0=Dim, 1=Lun, ...
+    loyaltyStatsWeekly: {
+      pointsUsed: number;
+      newReferrals: number;
+      rewardsGiven: number;
+    };
   };
-  // Ajout optionnel des stats de la veille pour calculer les variations
   ordersYesterdayCount?: number;
   totalSalesYesterday?: number;
 }
@@ -61,14 +68,13 @@ export const GeneralStatsPage: React.FC = () => {
   // Fonction formatage monétaire (inchangée)
   const formatCurrency = (value: number | null | undefined): string => {
       if (value === null || value === undefined || isNaN(value)) return 'N/A';
-      // Utilisation de XAF pour FCFA
       return value.toLocaleString('fr-FR') + ' F CFA';
   }
 
-   // --- Calcul des variations (Exemple) ---
+   // --- Calcul des variations (inchangé) ---
    const calculateChangePercentage = (current: number | undefined, previous: number | undefined): string => {
        if (current === undefined || previous === undefined || previous === 0) {
-           return ""; // Pas de variation si données manquantes ou si le précédent est 0
+           return "";
        }
        const change = ((current - previous) / previous) * 100;
        if (change > 0) return `+${change.toFixed(0)}% vs hier`;
@@ -76,6 +82,7 @@ export const GeneralStatsPage: React.FC = () => {
        return "Stable vs hier";
    };
 
+    // --- getChangeColor (inchangé) ---
     const getChangeColor = (current: number | undefined, previous: number | undefined): 'text-success' | 'text-danger' | 'text-muted' => {
         if (current === undefined || previous === undefined || previous === 0 || current === previous) {
             return 'text-muted';
@@ -97,63 +104,58 @@ export const GeneralStatsPage: React.FC = () => {
       {/* Indicateur de chargement (inchangé) */}
       {loading && <div className="text-center my-4">Chargement des statistiques...</div>}
 
-      {/* Section 1: Cartes de stats (avec variations si possible) */}
+      {/* Section 1: Cartes de stats (inchangée) */}
       {!loading && stats && (
         <div className="row g-4">
           <div className="col-lg-3 col-md-6">
             <StatCard
               title="Commandes Aujourd'hui"
               value={stats.ordersTodayCount?.toString() ?? '0'}
-              // Calcul de la variation
               changeText={calculateChangePercentage(stats.ordersTodayCount, stats.ordersYesterdayCount)}
               changeColor={getChangeColor(stats.ordersTodayCount, stats.ordersYesterdayCount)}
               iconClass="bi bi-receipt"
-              iconBgColor="#FEF3C7" // Jaune clair
+              iconBgColor="#FEF3C7"
             />
           </div>
           <div className="col-lg-3 col-md-6">
             <StatCard
               title="Ventes Totales"
               value={formatCurrency(stats.totalSalesToday)}
-              // Calcul de la variation
               changeText={calculateChangePercentage(stats.totalSalesToday, stats.totalSalesYesterday)}
               changeColor={getChangeColor(stats.totalSalesToday, stats.totalSalesYesterday)}
-              iconClass="bi bi-cash-stack" // Icône plus générique pour l'argent
-              iconBgColor="#E0E7FF" // Bleu clair
+              iconClass="bi bi-cash-stack"
+              iconBgColor="#E0E7FF"
             />
           </div>
           <div className="col-lg-3 col-md-6">
             <StatCard
               title="Nouveaux Clients"
               value={stats.newClientsTodayCount?.toString() ?? '0'}
-              changeText="" // Pas de calcul de variation pour l'instant
+              changeText=""
               changeColor="text-muted"
               iconClass="bi bi-person-plus-fill"
-              iconBgColor="#E0F2FE" // Bleu ciel
+              iconBgColor="#E0F2FE"
             />
           </div>
           <div className="col-lg-3 col-md-6">
             <StatCard
-              title="Points Fidélité (Gagnés)" // Nom exact de la stat backend
+              title="Points Fidélité (Gagnés)"
               value={stats.loyaltyPointsEarnedToday?.toString() ?? '0'}
-              changeText="Gagnés Aujourd'hui" // Texte plus clair
+              changeText="Gagnés Aujourd'hui"
               changeColor="text-muted"
               iconClass="bi bi-star-fill"
-              iconBgColor="#FEE2E2" // Rouge clair
+              iconBgColor="#FEE2E2"
             />
           </div>
         </div>
       )}
 
-      {/* Section 2: Stats Rapides et Réclamations (Maintenant on passe les props à QuickStats) */}
+      {/* Section 2: Stats Rapides et Réclamations (inchangée) */}
       <div className="row g-4 mt-3">
         <div className="col-lg-7">
-          {/* --- PASSAGE DES PROPS CORRIGÉ --- */}
           <QuickStats quickStatsData={stats?.quickStats} loading={loading} />
-          {/* --- FIN CORRECTION --- */}
         </div>
         <div className="col-lg-5">
-          {/* ClaimsPreview gère son propre chargement */}
           <ClaimsPreview />
         </div>
       </div>
@@ -161,7 +163,6 @@ export const GeneralStatsPage: React.FC = () => {
       {/* Section 3: Commandes Récentes (inchangé) */}
       <div className="row g-4 mt-3">
         <div className="col-12">
-          {/* RecentOrdersTable gère son propre chargement */}
           <RecentOrdersTable />
         </div>
       </div>

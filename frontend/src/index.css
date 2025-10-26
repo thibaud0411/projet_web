@@ -1,25 +1,31 @@
 /* src/index.css */
 
-/* --- Palette de Couleurs (Basée sur Frame.png) --- */
+/* --- Import des Icônes --- */
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* --- Palette de Couleurs & Variables --- */
 :root {
   --primary-color: #cfbd97;    /* Or / Jaune moutarde */
   --secondary-color: #000000; /* Noir */
-  --bg-color: #F9FAFB;       /* Fond général gris très clair */
-  --card-bg: #FFFFFF;        /* Fond des cartes blanc */
-  --text-dark: #1F2937;     /* Texte principal foncé */
-  --text-muted: #6B7280;    /* Texte secondaire gris */
-  --border-color: #E5E7EB;   /* Bordure légère gris clair */
+  --bg-color: #F9FAFB;
+  --card-bg: #FFFFFF;
+  --text-dark: #1F2937;
+  --text-muted: #6B7280;
+  --border-color: #E5E7EB;
   --success-light-bg: #D1FAE5;
   --success-dark-text: #065F46;
   --warning-light-bg: #FEF3C7;
-  --warning-dark-text: #92400E; /* Ajusté pour lisibilité */
+  --warning-dark-text: #92400E;
   --info-light-bg: #DBEAFE;
   --info-dark-text: #1E40AF;
   --danger-light-bg: #FEE2E2;
   --danger-dark-text: #B91C1C;
   --secondary-light-bg: #F3F4F6;
   --secondary-dark-text: #374151;
+  /* Variables Layout */
+  --sidebar-width: 250px;
+  --navbar-height: 65px;
+  --transition-speed: 0.3s;
 }
 
 /* --- Styles de Base --- */
@@ -28,159 +34,100 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-dark);
   line-height: 1.6;
+  margin: 0;
 }
+
+/* --- Styles Titres --- */
+h1, .h1 {
+  /* Optionnel: Couleur primaire pour les titres principaux */
+  /* color: var(--primary-color); */
+}
+h2, .h2 {
+  /* Optionnel: Couleur primaire pour les sous-titres */
+  /* color: var(--primary-color); */
+}
+
 
 /* --- Style Global des Cartes --- */
 .card {
   border: none !important;
   border-radius: 12px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important;
-  transition: all 0.2s ease-in-out;
   background-color: var(--card-bg) !important;
-  margin-bottom: 1.5rem; /* Espace entre les cartes */
+  margin-bottom: 1.5rem;
 }
-/* Pas de hover global pour éviter que tout "saute" */
-/* .card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07) !important;
-  transform: translateY(-2px);
-} */
-
-/* En-tête de Carte par Défaut (peut être surchargé par composant) */
 .card-header {
-  background-color: var(--card-bg) !important; /* Fond blanc par défaut */
+  background-color: var(--card-bg) !important;
   border-bottom: 1px solid var(--border-color) !important;
-  padding: 1rem 1.5rem !important; /* Padding ajusté */
+  padding: 1rem 1.5rem !important;
   border-top-left-radius: 12px !important;
   border-top-right-radius: 12px !important;
 }
 .card-title, .card-header .h5 {
-  color: var(--text-dark) !important; /* Texte foncé par défaut */
+  color: var(--text-dark) !important;
   font-weight: 600 !important;
   margin-bottom: 0 !important;
-  font-size: 1.1rem; /* Taille légèrement augmentée */
+  font-size: 1.1rem;
 }
-
-/* Contenu de Carte */
-.card-body {
-  padding: 1.5rem !important; /* Padding standard */
-}
-.card-body.p-0 {
-    padding: 0 !important; /* Permet de retirer le padding si besoin */
-}
-
+.card-body { padding: 1.5rem !important; }
+.card-body.p-0 { padding: 0 !important; }
 
 /* --- Styles Globaux des Boutons --- */
-.btn {
-    border-radius: 6px !important;
-    font-weight: 500 !important;
-    padding: 0.5rem 1rem !important;
-    transition: all 0.15s ease-in-out;
-}
-.btn-sm {
-    padding: 0.25rem 0.75rem !important;
-    font-size: 0.8rem !important;
-}
-/* Bouton Primaire (Or) */
-.btn-primary {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  color: var(--secondary-color) !important; /* Texte noir */
-}
-.btn-primary:hover, .btn-primary:focus {
-  background-color: #bfae86 !important; /* Or plus foncé */
-  border-color: #bfae86 !important;
-  color: var(--secondary-color) !important;
-  box-shadow: 0 0 0 0.2rem rgba(207, 189, 151, 0.5) !important;
-}
-/* Bouton Outline Primaire */
-.btn-outline-primary {
-  border-color: var(--primary-color) !important;
-  color: var(--primary-color) !important;
-}
-.btn-outline-primary:hover {
-  background-color: var(--primary-color) !important;
-  color: var(--secondary-color) !important;
-}
-/* Bouton Danger (standard) */
+.btn { border-radius: 6px !important; font-weight: 500 !important; padding: 0.5rem 1rem !important; transition: all 0.15s ease-in-out; }
+.btn-sm { padding: 0.25rem 0.75rem !important; font-size: 0.8rem !important; }
+.btn-primary { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; color: var(--secondary-color) !important; }
+.btn-primary:hover, .btn-primary:focus { background-color: #bfae86 !important; border-color: #bfae86 !important; color: var(--secondary-color) !important; box-shadow: 0 0 0 0.2rem rgba(207, 189, 151, 0.5) !important; }
+.btn-outline-primary { border-color: var(--primary-color) !important; color: var(--primary-color) !important; }
+.btn-outline-primary:hover { background-color: var(--primary-color) !important; color: var(--secondary-color) !important; }
 .btn-danger { background-color: #DC3545 !important; border-color: #DC3545 !important; color: white !important;}
 .btn-danger:hover { background-color: #C82333 !important; border-color: #BD2130 !important;}
 .btn-outline-danger { border-color: #DC3545 !important; color: #DC3545 !important;}
 .btn-outline-danger:hover { background-color: #DC3545 !important; color: white !important;}
-/* Bouton Secondaire (Gris) */
 .btn-secondary { background-color: #6C757D !important; border-color: #6C757D !important; color: white !important;}
 .btn-secondary:hover { background-color: #5A6268 !important; border-color: #545B62 !important;}
 .btn-outline-secondary { border-color: #CED4DA !important; color: #6C757D !important;}
 .btn-outline-secondary:hover { background-color: #E9ECEF !important; color: #495057 !important;}
-/* Bouton Info (Bleu clair) */
 .btn-info { background-color: #17A2B8 !important; border-color: #17A2B8 !important; color: white !important;}
 .btn-info:hover { background-color: #138496 !important; border-color: #117A8B !important;}
-/* Bouton Success (Vert) */
 .btn-success { background-color: #28A745 !important; border-color: #28A745 !important; color: white !important;}
 .btn-success:hover { background-color: #218838 !important; border-color: #1E7E34 !important;}
 
 /* --- Styles Globaux des Tableaux --- */
-.table {
-  color: var(--text-dark);
+.table { color: var(--text-dark); margin-bottom: 0 !important; }
+.table thead th, .table-custom-header th {
+  background-color: #F9FAFB !important; color: var(--text-muted) !important; font-weight: 500 !important;
+  font-size: 0.75rem !important; text-transform: uppercase !important; letter-spacing: 0.5px !important;
+  border-bottom: 1px solid var(--border-color) !important; border-top: none !important;
+  padding: 0.75rem 1.5rem !important; vertical-align: middle !important;
 }
-.table thead th, .table-custom-header th { /* Style unifié */
-  background-color: #F9FAFB !important; /* Fond d'en-tête gris clair */
-  color: var(--text-muted) !important;
-  font-weight: 500 !important;
-  font-size: 0.75rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  border-top: none !important;
-  padding: 0.75rem 1.5rem !important;
-  vertical-align: middle !important;
+.table tbody td, .table-custom-cell {
+  padding: 1rem 1.5rem !important; color: var(--text-dark) !important;
+  border-bottom: 1px solid #F3F4F6 !important; font-size: 0.875rem !important;
+  vertical-align: middle !important; border-top: none !important;
 }
-.table tbody td, .table-custom-cell { /* Style unifié */
-  padding: 1rem 1.5rem !important;
-  color: var(--text-dark) !important; /* Texte un peu plus foncé */
-  border-bottom: 1px solid #F3F4F6 !important; /* Ligne de séparation très claire */
-  font-size: 0.875rem !important;
-  vertical-align: middle !important;
-  border-top: none !important;
-}
-.table tbody tr:last-child td, tr:last-child .table-custom-cell {
-  border-bottom: none !important;
-}
-.table-hover tbody tr:hover {
-  background-color: #F9FAFB !important;
-}
+.table tbody tr:last-child td, tr:last-child .table-custom-cell { border-bottom: none !important; }
+.table-hover tbody tr:hover { background-color: #F9FAFB !important; }
 
 /* --- Styles Globaux Badges Statut --- */
-.status-badge {
-  padding: 0.3rem 0.8rem; /* Légèrement plus large */
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600; /* Plus lisible */
-  text-transform: capitalize;
-  white-space: nowrap; /* Empêche le retour à la ligne */
-}
-/* Couleurs alignées sur OrdersPage.css et QuickStats.css */
-.status-warning { background-color: var(--warning-light-bg); color: var(--warning-dark-text); } /* En attente */
-.status-info { background-color: var(--info-light-bg); color: var(--info-dark-text); }       /* En préparation */
-.status-success { background-color: var(--success-light-bg); color: var(--success-dark-text); } /* Prête */
-.status-secondary { background-color: var(--secondary-light-bg); color: var(--secondary-dark-text); } /* Livrée */
-.status-danger { background-color: var(--danger-light-bg); color: var(--danger-dark-text); }     /* Annulée */
+.status-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+.status-warning { background-color: var(--warning-light-bg); color: var(--warning-dark-text); }
+.status-info { background-color: var(--info-light-bg); color: var(--info-dark-text); }
+.status-success { background-color: var(--success-light-bg); color: var(--success-dark-text); }
+.status-secondary { background-color: var(--secondary-light-bg); color: var(--secondary-dark-text); }
+.status-danger { background-color: var(--danger-light-bg); color: var(--danger-dark-text); }
+/* Optionnel: Badge Primaire (Or) */
+.status-primary { background-color: #FFFBF5; color: #B49B60; border: 1px solid #F0E9DC;}
 
-/* Ajustements Formulaires */
-.form-label {
-    font-weight: 500;
-    color: var(--text-dark);
-    margin-bottom: 0.3rem;
-    font-size: 0.9rem;
-}
-.form-control {
-    border-color: var(--border-color);
-    border-radius: 6px;
-}
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(207, 189, 151, 0.35);
-}
-.form-text {
-    font-size: 0.8rem;
-    color: var(--text-muted);
+
+/* --- Styles Globaux Formulaires --- */
+.form-label { font-weight: 500; color: var(--text-dark); margin-bottom: 0.3rem; font-size: 0.9rem; }
+.form-control { border-color: var(--border-color); border-radius: 6px; }
+.form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(207, 189, 151, 0.35); }
+.form-text { font-size: 0.8rem; color: var(--text-muted); }
+
+/* --- Animation Pulse --- */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }

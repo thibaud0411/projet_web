@@ -1,53 +1,21 @@
 /* src/components/layout/ManagerLayout.css */
 
-/* --- Variables --- */
-:root {
-  --sidebar-width: 250px;
-  --navbar-height: 65px;
-  --bg-color: #F9FAFB;
-  --border-color: #E5E7EB;
-  --transition-speed: 0.3s;
-}
-
 /* --- Styles par Défaut (Mobile First : Sidebar Rétractable) --- */
 .manager-layout-container {
-  display: flex;
-  /* Direction ROW est nécessaire pour que le contenu soit à côté (même si sidebar cachée) */
-  /* Mais on force le contenu à prendre 100% de largeur initialement */
-  flex-direction: row;
-  min-height: 100vh;
-  background-color: var(--bg-color);
-  position: relative;
-  overflow-x: hidden; /* Empêche le scroll horizontal */
+  display: flex; flex-direction: column; min-height: 100vh;
+  background-color: var(--bg-color); position: relative; overflow-x: hidden;
 }
-
-/* Sidebar (Header) : Fixe, commence HORS ÉCRAN à gauche */
 .manager-layout-container > header {
-  position: fixed;
-  top: 0;
-  left: calc(-1 * var(--sidebar-width)); /* Hors écran */
-  bottom: 0;
-  width: var(--sidebar-width);
-  height: 100vh;
-  z-index: 1040; /* Au-dessus du backdrop et contenu */
+  position: fixed; top: 0; left: calc(-1 * var(--sidebar-width)); bottom: 0;
+  width: var(--sidebar-width); height: 100vh; z-index: 1040;
   transition: left var(--transition-speed) ease-in-out;
-  overflow-y: auto;
-  background-color: var(--secondary-color); /* Fond noir */
-  border-right: 1px solid #374151;
-  display: flex; /* Nécessaire pour flex-direction: column dans Navbar.css */
-  flex-direction: column; /* Assure l'empilement vertical interne par défaut */
+  overflow-y: auto; background-color: var(--secondary-color);
+  border-right: 1px solid #374151; display: flex; flex-direction: column;
 }
-
-/* État OUVERT de la sidebar sur petit écran */
-.manager-layout-container.sidebar-open > header {
-  left: 0; /* Visible */
-}
-
-/* Backdrop (pour fermer en cliquant à côté) */
+.manager-layout-container.sidebar-open > header { left: 0; }
 .sidebar-backdrop {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1035; /* Sous la sidebar */
+  background-color: rgba(0, 0, 0, 0.5); z-index: 1035;
   opacity: 0; visibility: hidden;
   transition: opacity var(--transition-speed) ease-in-out, visibility 0s var(--transition-speed);
 }
@@ -55,59 +23,28 @@
   opacity: 1; visibility: visible;
   transition: opacity var(--transition-speed) ease-in-out, visibility 0s 0s;
 }
-
-
-/* Contenu Principal : Prend tout l'espace */
 .manager-main-content {
-  flex-grow: 1;
-  padding: 1.5rem;
-  padding-top: calc(var(--navbar-height) + 1.5rem); /* Espace pour le bouton burger fixe */
-  width: 100%;
-  margin-left: 0; /* Pas de marge par défaut */
-  transition: none; /* Pas besoin de transition ici */
+  flex-grow: 1; padding: 1.5rem;
+  padding-top: calc(var(--navbar-height) + 1rem);
+  width: 100%; margin-left: 0;
 }
-
-/* Footer : En bas */
 .manager-layout-container > footer {
-  margin-top: auto;
-  width: 100%;
-  margin-left: 0; /* Pas de marge par défaut */
-  transition: none; /* Pas besoin de transition */
-  z-index: 1; /* S'assurer qu'il est au-dessus du fond mais sous la sidebar */
-  position: relative; /* Pour le z-index */
+  margin-top: auto; width: 100%; margin-left: 0; position: relative; z-index: 1;
 }
-
 
 /* --- Styles pour Grands Écrans (>= 992px : Barre Horizontale en Haut) --- */
 @media (min-width: 992px) {
-  .manager-layout-container {
-    flex-direction: column; /* Rétablit l'empilement vertical standard */
-  }
-
-  /* Header redevient la Barre du Haut Fixe */
   .manager-layout-container > header {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: auto; /* Annule bottom: 0 */
-    width: 100%; height: var(--navbar-height); /* Barre horizontale */
+    position: fixed; top: 0; left: 0; right: 0; bottom: auto;
+    width: 100%; height: var(--navbar-height);
     border-right: none; border-bottom: 1px solid #374151;
-    overflow-y: hidden;
-    /* Le flex-direction interne sera géré par Navbar.css */
+    overflow-y: hidden; z-index: 1030;
   }
-
-  /* Cache le backdrop */
-  .sidebar-backdrop { display: none; }
-
-  /* Contenu Principal : Marge en haut pour la barre */
+  .sidebar-backdrop { display: none !important; }
+  .manager-layout-container > header { left: 0 !important; }
   .manager-main-content {
-    margin-left: 0; /* Annule le décalage */
-    margin-top: var(--navbar-height); /* Ajoute l'espace pour la barre */
-    padding: 2rem; /* Padding standard */
-    width: 100%;
+    margin-left: 0; margin-top: var(--navbar-height);
+    padding: 2rem; width: 100%; padding-top: 2rem;
   }
-
-  /* Footer : Prend toute la largeur */
-  .manager-layout-container > footer {
-      margin-left: 0;
-      width: 100%;
-  }
+  .manager-layout-container > footer { margin-left: 0; width: 100%; }
 }

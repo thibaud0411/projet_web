@@ -3,27 +3,41 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-// On utilise Authenticatable car c'est notre modèle d'utilisateur principal
+// Si vous utilisez l'authentification Laravel, 'Authenticatable' est meilleur
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class Utilisateur extends Authenticatable
+// Changez 'Model' en 'Authenticatable' si c'est votre modèle d'authentification
+class Utilisateur extends Authenticatable // ou Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     protected $table = 'utilisateur';
     protected $primaryKey = 'id_utilisateur';
-    
-    // Correspondance pour les timestamps personnalisés de votre SQL
-    const CREATED_AT = 'date_inscription';
-    const UPDATED_AT = 'date_modification';
+
+    // --- DÉBUT DES MODIFICATIONS ---
 
     /**
-     * Les attributs qui peuvent être assignés en masse.
+     * Indique à Laravel que les timestamps sont activés.
+     */
+    public $timestamps = true; // C'était 'false'
+
+    /**
+     * Définit le nom de la colonne "created_at" personnalisée.
+     */
+    const CREATED_AT = 'date_inscription';
+
+    /**
+     * Définit le nom de la colonne "updated_at" personnalisée.
+     */
+    const UPDATED_AT = 'date_modification';
+
+    // --- FIN DES MODIFICATIONS ---
+
+
+    /**
+     * The attributes that are mass assignable.
+     * Met à jour 'fillable' pour correspondre à votre nouvelle migration.
      */
     protected $fillable = [
         'nom',
@@ -31,66 +45,30 @@ class Utilisateur extends Authenticatable
         'email',
         'mot_de_passe',
         'telephone',
-        'localisation',
-        'points_fidelite',
-        'code_parrainage',
-        'id_parrain',
+        'localisation', // Ajouté depuis votre migration
+        'points_fidelite', // Ajouté
+        'code_parrainage', // Ajouté
+        'id_parrain', // Ajouté
         'id_role',
-        'statut_compte',
+        'statut_compte', // Ajouté
     ];
 
     /**
-     * Les attributs à cacher lors de la conversion en JSON (ex: réponses API).
+     * The attributes that should be hidden for serialization.
      */
     protected $hidden = [
         'mot_de_passe',
+        'remember_token',
     ];
 
     /**
-     * Un Utilisateur APPARTIENT A un Rôle.
+     * Get the attributes that should be cast.
      */
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class, 'id_role', 'id_role');
-    }
-
-    /**
-     * Un Utilisateur (parrain) PEUT AVOIR plusieurs Parrainages.
-     */
-    public function parrainages(): HasMany
-    {
-        return $this->hasMany(Parrainage::class, 'id_parrain', 'id_utilisateur');
-    }
-
-    /**
-     * Un Utilisateur PEUT AVOIR plusieurs Commandes.
-     */
-    public function commandes(): HasMany
-    {
-        return $this->hasMany(Commande::class, 'id_utilisateur', 'id_utilisateur');
-    }
-
-    /**
-     * Un Utilisateur PEUT AVOIR plusieurs Réclamations.
-     */
-    public function reclamations(): HasMany
-    {
-        return $this->hasMany(Reclamation::class, 'id_utilisateur', 'id_utilisateur');
-    }
-    
-    /**
-     * Un Utilisateur PEUT AVOIR une fiche Employe (relation 1-1).
-     */
-    public function employe(): HasOne
-    {
-        return $this->hasOne(Employe::class, 'id_utilisateur', 'id_utilisateur');
-    }
-
-    /**
-     * Un Utilisateur PEUT AVOIR une fiche Statistique (relation 1-1).
-     */
-    public function statistique(): HasOne
-    {
-        return $this->hasOne(Statistique::class, 'id_utilisateur', 'id_utilisateur');
-    }
+    protected $casts = [
+        'mot_de_passe' => 'hashed',
+        'date_inscription' => 'datetime',
+        'derniere_connexion' => 'datetime',
+        'date_modification' => 'datetime',
+        'statut_compte' => 'boolean',
+    ];
 }
