@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -139,14 +139,13 @@ class AuthController extends Controller
                 ], 500);
             }
 
-            // Get user profile from your users table
-            $user = User::where('id', $supabaseUserId)->first();
+            // Get user profile from your utilisateur table
+            $user = Utilisateur::where('email', $request->email)->first();
 
             if (!$user) {
                 return response()->json([
-                    'message' => 'Profil utilisateur non trouvé. Créez le profil dans la table users.',
-                    'error' => 'user_profile_not_found',
-                    'supabase_user_id' => $supabaseUserId
+                    'message' => 'Profil utilisateur non trouvé. Veuillez vous inscrire d\'abord.',
+                    'error' => 'user_profile_not_found'
                 ], 404);
             }
 
@@ -154,7 +153,13 @@ class AuthController extends Controller
             $token = $user->createToken('auth-token')->plainTextToken;
 
             return response()->json([
-                'user' => $user,
+                'user' => [
+                    'id' => $user->id_utilisateur,
+                    'nom' => $user->nom,
+                    'prenom' => $user->prenom,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ],
                 'token' => $token,
                 'message' => 'Connexion réussie'
             ]);

@@ -29,7 +29,9 @@ use App\Http\Controllers\StatistiqueController;
 |--------------------------------------------------------------------------
 */
 
-// Authentication
+// Authentication routes
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 
 // Public product/category routes use ArticleController and CategorieController
