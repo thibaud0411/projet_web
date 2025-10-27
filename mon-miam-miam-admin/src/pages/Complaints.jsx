@@ -21,8 +21,10 @@ const Complaints = () => {
 
   const fetchComplaints = async () => {
     try {
-      const response = await api.get('/admin/complaints');
-      setComplaints(response.data);
+      // Backend admin listing route is /admin/reclamations-all
+      const response = await api.get('/admin/reclamations-all');
+      const data = Array.isArray(response.data) ? response.data : response.data.data ?? [];
+      setComplaints(data);
     } catch (error) {
       console.error('Erreur lors du chargement des réclamations', error);
       toast.error('Erreur lors du chargement des réclamations');
@@ -32,7 +34,8 @@ const Complaints = () => {
   };
   const viewComplaintDetails = async (complaintId) => {
     try {
-      const response = await api.get(`/admin/complaints/${complaintId}`);
+      // Get complaint details from /reclamations/{id}
+      const response = await api.get(`/reclamations/${complaintId}`);
       setSelectedComplaint(response.data);
       setResponseText(response.data.reponse || '');
       setShowDetailsModal(true);
@@ -43,7 +46,8 @@ const Complaints = () => {
   };
   const updateComplaintStatus = async (complaintId, newStatus) => {
     try {
-      await api.patch(`/admin/complaints/${complaintId}/status`, { statut: newStatus });
+      // Backend supports updating via PATCH /reclamations/{id}
+      await api.patch(`/reclamations/${complaintId}`, { statut: newStatus });
       toast.success('Statut mis à jour');
       fetchComplaints();
       if (selectedComplaint?.id === complaintId) {
@@ -64,7 +68,8 @@ const Complaints = () => {
     }
 
     try {
-      await api.post(`/admin/complaints/${selectedComplaint.id}/respond`, {
+      // Backend provides /reclamations/{id}/resolve to mark as resolved with a response
+      await api.post(`/reclamations/${selectedComplaint.id}/resolve`, {
         reponse: responseText
       });
       toast.success('Réponse envoyée avec succès');

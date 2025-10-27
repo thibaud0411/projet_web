@@ -97,7 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
     
-    Route::middleware('role:administrateur,gerant')->prefix('admin')->group(function () {
+    Route::middleware(['admin', 'auth:sanctum'])->prefix('admin')->group(function () {
         
         // Statistics & Dashboard
         Route::get('/statistics', [StatisticsController::class, 'dashboard']);

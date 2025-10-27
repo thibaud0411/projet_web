@@ -31,13 +31,46 @@ const Menu = () => {
 
   const fetchData = async () => {
     try {
-      const [productsRes, categoriesRes] = await Promise.all([
-        api.get('/products'),
-        api.get('/categories')
+      // Backend uses /articles and /categories-list
+      const [articlesRes, categoriesRes] = await Promise.all([
+        api.get('/articles'),
+        api.get('/categories-list')
       ]);
-      setProducts(productsRes.data);
-      setCategories(categoriesRes.data);
+
+      // Laravel paginator returns { data: [...] } when paginated
+      const articlesData = Array.isArray(articlesRes.data)
+        ? articlesRes.data
+        : articlesRes.data.data ?? [];
+
+      // Normalize article fields to what the frontend expects
+      const normalized = articlesData.map((a) => ({
+        id: a.id_article ?? a.id ?? null,
+        nom: a.nom ?? a.nom_article ?? '',
+        description: a.description ?? '',
+        prix: a.prix ?? 0,
+        id_categorie: a.id_categorie ?? null,
+        temps_preparation: a.temps_preparation ?? '',
+        allergenes: a.allergenes ?? '',
+        calories: a.calories ?? '',
+        est_disponible: a.disponible ?? a.est_disponible ?? true,
+        est_plat_du_jour: a.est_promotion ?? a.est_plat_du_jour ?? false,
+        image_url: a.image_url ?? '',
+      }));
+
+      // Normalize categories
+      const cats = Array.isArray(categoriesRes.data)
+        ? categoriesRes.data
+        : categoriesRes.data.data ?? [];
+
+      const normalizedCats = cats.map((c) => ({
+        id: c.id_categorie ?? c.id ?? null,
+        nom: c.nom_categorie ?? c.nom ?? '',
+      }));
+
+      setProducts(normalized);
+      setCategories(normalizedCats);
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
@@ -48,11 +81,22 @@ const Menu = () => {
     e.preventDefault();
     
     try {
+      // Build payload matching backend ArticleController fields
+      const payload = {
+        nom: formData.nom,
+        description: formData.description,
+        prix: parseFloat(formData.prix) || 0,
+        id_categorie: formData.id_categorie,
+        disponible: formData.est_disponible,
+        est_promotion: formData.est_plat_du_jour,
+        image_url: formData.image_url,
+      };
+
       if (editingProduct) {
-        await api.put(`/admin/products/${editingProduct.id}`, formData);
+        await api.put(`/admin/articles/${editingProduct.id}`, payload);
         toast.success('Produit modifié avec succès');
       } else {
-        await api.post('/admin/products', formData);
+        await api.post('/admin/articles', payload);
         toast.success('Produit créé avec succès');
       }
       
@@ -60,6 +104,7 @@ const Menu = () => {
       resetForm();
       fetchData();
     } catch (error) {
+      console.error(error);
       toast.error(error.response?.data?.message || 'Erreur lors de l\'opération');
     }
   };
@@ -68,34 +113,39 @@ const Menu = () => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce produit?')) return;
     
     try {
-      await api.delete(`/admin/products/${id}`);
+  await api.delete(`/admin/articles/${id}`);
       toast.success('Produit supprimé avec succès');
       fetchData();
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors de la suppression');
     }
   };
 
   const toggleAvailability = async (product) => {
     try {
-      await api.patch(`/admin/products/${product.id}/availability`, {
-        est_disponible: !product.est_disponible
+      // Backend expects 'disponible'
+      await api.patch(`/admin/articles/${product.id}`, {
+        disponible: !product.est_disponible
       });
       toast.success('Disponibilité modifiée');
       fetchData();
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors de la modification');
     }
   };
 
   const togglePlatDuJour = async (product) => {
     try {
-      await api.patch(`/admin/products/${product.id}/plat-du-jour`, {
-        est_plat_du_jour: !product.est_plat_du_jour
+      // Use est_promotion field on backend
+      await api.patch(`/admin/articles/${product.id}`, {
+        est_promotion: !product.est_plat_du_jour
       });
       toast.success('Plat du jour modifié');
       fetchData();
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors de la modification');
     }
   };

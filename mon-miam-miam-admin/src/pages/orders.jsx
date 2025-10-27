@@ -23,9 +23,12 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await api.get('/admin/orders');
-      setOrders(response.data);
+      // Backend admin listing route is /admin/commandes-all
+      const response = await api.get('/admin/commandes-all');
+      const data = Array.isArray(response.data) ? response.data : response.data.data ?? [];
+      setOrders(data);
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors du chargement des commandes');
     } finally {
       setLoading(false);
@@ -34,20 +37,24 @@ const Orders = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await api.patch(`/admin/orders/${orderId}/status`, { statut: newStatus });
+      // Backend admin update endpoint: PATCH /admin/commandes/{id}
+      await api.patch(`/admin/commandes/${orderId}`, { statut: newStatus });
       toast.success('Statut mis à jour');
       fetchOrders();
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors de la mise à jour');
     }
   };
 
   const viewOrderDetails = async (orderId) => {
     try {
-      const response = await api.get(`/admin/orders/${orderId}`);
+      // Order details are available at /commandes/{id}
+      const response = await api.get(`/commandes/${orderId}`);
       setSelectedOrder(response.data);
       setShowDetailsModal(true);
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors du chargement des détails');
     }
   };

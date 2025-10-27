@@ -34,9 +34,29 @@ const Events = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await api.get('/admin/events');
-      setEvents(response.data);
+      // Backend admin route is /admin/evenements-admin
+      const response = await api.get('/admin/evenements-admin');
+      const data = Array.isArray(response.data) ? response.data : response.data.data ?? [];
+
+      // Normalize fields: backend uses image_url, nombre_participants_max
+      const normalized = data.map(ev => ({
+        id: ev.id_evenement ?? ev.id ?? null,
+        titre: ev.titre,
+        description: ev.description,
+        type_evenement: ev.type_evenement,
+        date_debut: ev.date_debut,
+        date_fin: ev.date_fin,
+  lieu: ev.lieu || 'ZeDuc@Space',
+  recompenses: ev.recompense_points || ev.recompenses || '',
+  limite_participants: ev.nombre_participants_max || ev.limite_participants || '',
+        image_affiche: ev.image_url || ev.image_affiche || '',
+        est_actif: ev.est_actif ?? true,
+        nombre_participants: ev.participations ? ev.participations.length : (ev.nombre_participants || 0),
+      }));
+
+      setEvents(normalized);
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors du chargement des événements');
     } finally {
       setLoading(false);
@@ -45,10 +65,13 @@ const Events = () => {
 
   const fetchParticipants = async (eventId) => {
     try {
-      const response = await api.get(`/admin/events/${eventId}/participants`);
-      setParticipants(response.data);
+      // Backend provides participations on the event show route
+      const response = await api.get(`/evenements/${eventId}`);
+      const event = response.data;
+      setParticipants(event.participations || []);
       setShowParticipantsModal(true);
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors du chargement des participants');
     }
   };
@@ -63,11 +86,24 @@ const Events = () => {
     }
 
     try {
+      const payload = {
+        titre: formData.titre,
+        description: formData.description,
+        type_evenement: formData.type_evenement,
+        date_debut: formData.date_debut,
+        date_fin: formData.date_fin,
+        lieu: formData.lieu,
+        recompense_points: formData.recompenses,
+        nombre_participants_max: formData.limite_participants || null,
+        image_url: formData.image_affiche,
+        est_actif: formData.est_actif,
+      };
+
       if (editingEvent) {
-        await api.put(`/admin/events/${editingEvent.id}`, formData);
+        await api.put(`/admin/evenements-admin/${editingEvent.id}`, payload);
         toast.success('Événement modifié avec succès');
       } else {
-        await api.post('/admin/events', formData);
+        await api.post('/admin/evenements-admin', payload);
         toast.success('Événement créé avec succès');
       }
 
@@ -75,6 +111,7 @@ const Events = () => {
       resetForm();
       fetchEvents();
     } catch (error) {
+      console.error(error);
       toast.error(error.response?.data?.message || 'Erreur lors de l\'opération');
     }
   };
@@ -83,10 +120,11 @@ const Events = () => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) return;
 
     try {
-      await api.delete(`/admin/events/${id}`);
+      await api.delete(`/admin/evenements-admin/${id}`);
       toast.success('Événement supprimé avec succès');
       fetchEvents();
     } catch (error) {
+      console.error(error);
       toast.error('Erreur lors de la suppression');
     }
   };
@@ -100,9 +138,9 @@ const Events = () => {
       date_debut: format(new Date(event.date_debut), "yyyy-MM-dd'T'HH:mm"),
       date_fin: format(new Date(event.date_fin), "yyyy-MM-dd'T'HH:mm"),
       lieu: event.lieu || 'ZeDuc@Space',
-      recompenses: event.recompenses || '',
-      limite_participants: event.limite_participants || '',
-      image_affiche: event.image_affiche || '',
+      recompenses: event.recompenses || event.recompense_points || '',
+      limite_participants: event.limite_participants || event.nombre_participants_max || '',
+      image_affiche: event.image_affiche || event.image_url || '',
       est_actif: event.est_actif,
     });
     setShowModal(true);

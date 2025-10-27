@@ -32,9 +32,29 @@ const Promotions = () => {
 
     const fetchPromotions = async () => {
         try {
-            const response = await api.get('/admin/promotions');
-            setPromotions(response.data);
+            // Backend admin route is /admin/promotions-admin and returns paginated data
+            const response = await api.get('/admin/promotions-admin');
+            const data = Array.isArray(response.data) ? response.data : response.data.data ?? [];
+
+            const normalized = data.map(p => ({
+                id: p.id_promotion ?? p.id ?? null,
+                titre: p.titre,
+                description: p.description,
+                type_promotion: p.type_promotion || (p.reduction ? 'pourcentage' : 'montant_fixe'),
+                valeur: p.reduction ?? p.montant_reduction ?? '',
+                code_promo: p.code_promo || '',
+                date_debut: p.date_debut,
+                date_fin: p.date_fin,
+                conditions: p.conditions || '',
+                limite_utilisations: p.limite_utilisations || '',
+                image_affiche: p.image_url || p.image_affiche || '',
+                est_active: p.active ?? p.est_active ?? true,
+                nombre_utilisations: p.nombre_utilisations || 0,
+            }));
+
+            setPromotions(normalized);
         } catch (error) {
+            console.error(error);
             toast.error('Erreur lors du chargement des promotions');
         } finally {
             setLoading(false);
@@ -52,10 +72,37 @@ const Promotions = () => {
 
         try {
             if (editingPromotion) {
-                await api.put(`/admin/promotions/${editingPromotion.id}`, formData);
+                // Map frontend form to backend expected fields
+                const payload = {
+                    titre: formData.titre,
+                    description: formData.description,
+                    code_promo: formData.code_promo,
+                    date_debut: formData.date_debut,
+                    date_fin: formData.date_fin,
+                    limite_utilisations: formData.limite_utilisations || null,
+                    image_url: formData.image_affiche,
+                    active: formData.est_active,
+                };
+                if (formData.type_promotion === 'pourcentage') payload.reduction = formData.valeur;
+                if (formData.type_promotion === 'montant_fixe') payload.montant_reduction = formData.valeur;
+
+                await api.put(`/admin/promotions-admin/${editingPromotion.id}`, payload);
                 toast.success('Promotion modifiée avec succès');
             } else {
-                await api.post('/admin/promotions', formData);
+                const payload = {
+                    titre: formData.titre,
+                    description: formData.description,
+                    code_promo: formData.code_promo,
+                    date_debut: formData.date_debut,
+                    date_fin: formData.date_fin,
+                    limite_utilisations: formData.limite_utilisations || null,
+                    image_url: formData.image_affiche,
+                    active: formData.est_active,
+                };
+                if (formData.type_promotion === 'pourcentage') payload.reduction = formData.valeur;
+                if (formData.type_promotion === 'montant_fixe') payload.montant_reduction = formData.valeur;
+
+                await api.post('/admin/promotions-admin', payload);
                 toast.success('Promotion créée avec succès');
             }
 
@@ -63,6 +110,7 @@ const Promotions = () => {
             resetForm();
             fetchPromotions();
         } catch (error) {
+            console.error(error);
             toast.error(error.response?.data?.message || 'Erreur lors de l\'opération');
         }
     };
@@ -71,22 +119,25 @@ const Promotions = () => {
         if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette promotion?')) return;
 
         try {
-            await api.delete(`/admin/promotions/${id}`);
+            await api.delete(`/admin/promotions-admin/${id}`);
             toast.success('Promotion supprimée avec succès');
             fetchPromotions();
         } catch (error) {
+            console.error(error);
             toast.error('Erreur lors de la suppression');
         }
     };
 
     const togglePromotion = async (promotion) => {
         try {
-            await api.patch(`/admin/promotions/${promotion.id}/toggle`, {
-                est_active: !promotion.est_active
+            // Backend expects 'active'
+            await api.patch(`/admin/promotions-admin/${promotion.id}`, {
+                active: !promotion.est_active
             });
             toast.success('Statut modifié avec succès');
             fetchPromotions();
         } catch (error) {
+            console.error(error);
             toast.error('Erreur lors de la modification');
         }
     };
