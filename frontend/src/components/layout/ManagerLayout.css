@@ -1,0 +1,50 @@
+/* src/components/layout/ManagerLayout.css */
+/* Styles pour la structure principale (utilisé par EmployeeLayout) */
+
+.manager-layout-container {
+  display: flex;
+  flex-direction: column; /* Assure que le footer va en bas */
+  min-height: 100vh;
+  /* Transition pour la sidebar mobile (si vous en ajoutez une) */
+  transition: padding-left var(--transition-speed) ease;
+}
+
+.manager-main-content {
+  /* Padding en haut pour la navbar fixe */
+  padding-top: calc(var(--navbar-height) + 1.5rem);
+  /* Padding en bas pour le footer */
+  padding-bottom: 1.5rem;
+  /* Padding horizontal */
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  width: 100%;
+  flex-grow: 1; /* Prend l'espace restant */
+}
+
+/* Overlay pour la sidebar mobile */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1035; /* Juste en dessous de la sidebar mobile */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+}
+
+.manager-layout-container.sidebar-open .sidebar-backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Media query pour écrans larges */
+@media (min-width: 992px) {
+  .manager-main-content {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: calc(var(--navbar-height) + 2rem);
+  }
+}
