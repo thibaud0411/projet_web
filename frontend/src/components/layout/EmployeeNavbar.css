@@ -1,0 +1,30 @@
+/* src/components/layout/EmployeeNavbar.css */
+/* Styles extraits et adaptés de GlobalStyles.css et potentiellement Navbar.css du manager */
+
+/* Réutiliser les styles .manager-header, .header-logo, .header-nav, .header-profile, .sidebar-toggle-button */
+/* de Navbar.css (manager) si la structure est la même */
+
+/* Exemple d'adaptation si nécessaire */
+.manager-header { /* Assurez-vous que ces styles sont appliqués */
+    display: flex;
+    background-color: var(--secondary-color); /* Fond sombre */
+    color: #FFFFFF;
+    height: var(--navbar-height); /* Hauteur fixe */
+    padding: 0 1rem; /* Padding horizontal */
+    align-items: center;
+    position: fixed; /* Fixe en haut */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030; /* Au-dessus du contenu */
+    border-bottom: 1px solid var(--border-color);
+}
+
+@media (max-width: 991.98px) {
+  /* Styles pour la sidebar mobile (si différents) */
+  .manager-layout-container > header.manager-header {
+      /* Adaptez si le style de la sidebar employé diffère */
+  }
+}
+
+/* ... autres styles si la navbar employé est visuellement différente ... */

@@ -1,0 +1,19 @@
+/* src/components/layout/Footer.css */
+/* Styles extraits de GlobalStyles.css */
+.manager-footer { /* Renommez si nécessaire ou gardez si partagé */
+  text-align: center;
+  padding: 1rem 1.5rem;
+  background-color: var(--secondary-color); /* Fond sombre */
+  border-top: 1px solid var(--border-color);
+  color: #9CA3AF; /* Texte gris clair */
+  font-size: 0.8rem;
+  margin-top: auto; /* Reste en bas */
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .manager-footer {
+    padding: 1.5rem 2rem;
+    font-size: 0.875rem;
+  }
+}

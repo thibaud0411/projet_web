@@ -1,0 +1,114 @@
+/* src/pages/employee/EmployeeMenuPage.css */
+
+/* Structure de la grille (Filtres à gauche, Menu à droite) */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Une colonne sur mobile */
+  gap: 1.5rem;
+}
+
+@media (min-width: 992px) {
+  .content-grid {
+    /* Grille 1/4 - 3/4 sur desktop */
+    grid-template-columns: 1fr 3fr; 
+  }
+}
+
+/* Filtres de catégorie */
+.filters-section {
+  position: sticky;
+  top: calc(var(--navbar-height) + 1.5rem); /* Reste visible au scroll */
+}
+
+.category-list {
+  padding: 0;
+  margin: 0;
+}
+.category-item {
+  cursor: pointer;
+  background-color: var(--card-bg) !important; /* Surcharge list-group-item-action */
+  color: var(--text-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+.category-item:last-child {
+  border-bottom: none !important;
+}
+
+.category-item:hover {
+  background-color: rgba(207, 189, 151, 0.1) !important;
+  color: var(--primary-color) !important;
+}
+.category-item.active {
+  background-color: var(--primary-color) !important;
+  color: var(--secondary-color) !important;
+  font-weight: 600;
+  border-color: var(--primary-color) !important;
+}
+
+/* Section Menu (Tableau) */
+.menu-header,
+.menu-item {
+  display: grid;
+  grid-template-columns: 3fr 2fr 2fr; /* Mobile: Nom | Prix | Statut */
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+.menu-item:last-child {
+  border-bottom: none;
+}
+.menu-item:hover {
+  background-color: rgba(207, 189, 151, 0.05);
+}
+
+.menu-header {
+  font-weight: 600;
+  color: #aaa;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  padding: 0.75rem 1.5rem;
+  background-color: #2a2a2a;
+}
+
+/* Colonnes masquées sur mobile */
+.dish-image,
+.dish-category,
+.last-updated {
+  display: none;
+}
+
+.dish-image img,
+.image-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.image-placeholder {
+  background-color: var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #888;
+}
+
+.dish-price {
+  font-weight: 600;
+}
+
+/* Vue Desktop pour le tableau */
+@media (min-width: 992px) {
+  .menu-header,
+  .menu-item {
+    /* Image | Nom | Catégorie | Prix | Statut | MAJ */
+    grid-template-columns: 70px 2fr 1fr 1fr 1fr 1fr;
+  }
+  
+  .dish-image,
+  .dish-category,
+  .last-updated {
+    display: block;
+  }
+}
