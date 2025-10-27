@@ -33,13 +33,19 @@ export const AuthProvider = ({ children }) => {
       console.log('API Base URL:', api.defaults.baseURL);
       console.log('Full URL:', api.defaults.baseURL + '/login');
       console.log('Request method: POST');
-      console.log('Request payload:', { email, password });
-      console.log('Request headers:', api.defaults.headers);
+      console.log('Request payload:', { email, password: '********' });
+      console.log('Request headers:', {
+        ...api.defaults.headers,
+        Authorization: undefined // Don't log auth token
+      });
       
-      const response = await api.post('/login', { email, password });
+      const response = await api.post('/login', {
+        email: email.trim(),
+        password: password
+      });
       
       console.log('Login response status:', response.status);
-      console.log('Login response data:', response.data);
+      console.log('Login success:', true);
       console.log('=== LOGIN DEBUG END ===');
       
       const { token, user } = response.data;

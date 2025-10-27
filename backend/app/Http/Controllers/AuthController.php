@@ -6,194 +6,78 @@ use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    /**
-     * Register a new user - Uses Supabase Auth
-     */
-    public function register(Request $request)
+    public function login(Request $request)
     {
-        $validated = $request->validate([
-            'nom' => 'required|string|max:100',
-            'prenom' => 'required|string|max:100',
-            'email' => 'required|string|email|max:150|unique:users',
-            'telephone' => 'required|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'sometimes|in:administrateur,gerant,employe,etudiant'
-        ]);
-
-        $supabaseUrl = env('SUPABASE_URL');
-        $supabaseKey = env('SUPABASE_ANON_KEY');
-
         try {
-            // Step 1: Create auth user in Supabase (password stored there)
-            $authResponse = Http::withOptions([
-                'verify' => false, // Disable SSL verification for development
-            ])->withHeaders([
-                'apikey' => $supabaseKey,
-                'Content-Type' => 'application/json',
-            ])->post("{$supabaseUrl}/auth/v1/signup", [
-                'email' => $validated['email'],
-                'password' => $validated['password'],
-                'email_confirm' => true,
+            $validated = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|min:8',
             ]);
 
-            if (!$authResponse->successful()) {
-                throw new \Exception('Erreur lors de la création du compte: ' . $authResponse->body());
+            // Find user by email
+            $user = Utilisateur::where('email', $validated['email'])->first();
+
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Ces identifiants ne correspondent à aucun compte.',
+                    'errors' => ['email' => ['Utilisateur non trouvé.']]
+                ], 422);
             }
 
-            $authData = $authResponse->json();
-            $supabaseUserId = $authData['user']['id'];
+            // Verify password
+            if (!Hash::check($validated['password'], $user->mot_de_passe)) {
+                return response()->json([
+                    'message' => 'Ces identifiants ne correspondent à aucun compte.',
+                    'errors' => ['password' => ['Mot de passe incorrect.']]
+                ], 422);
+            }
 
-            // Step 2: Create user profile in YOUR users table (no password!)
-            $user = User::create([
-                'id' => $supabaseUserId,  // Use UUID from Supabase auth
-                'nom' => $validated['nom'],
-                'prenom' => $validated['prenom'],
-                'email' => $validated['email'],
-                'telephone' => $validated['telephone'],
-                'role' => $validated['role'] ?? 'etudiant',
-                'statut_compte' => 'actif',
-                'email_verified_at' => now(),
-            ]);
+            // Vérifier si le compte est actif
+            if (!$user->est_actif || !$user->statut_compte) {
+                return response()->json([
+                    'message' => 'Ce compte a été désactivé.',
+                    'errors' => ['account' => ['Compte inactif']]
+                ], 403);
+            }
 
-            // Step 3: Generate Laravel Sanctum token for API access
+            // Vérifier le rôle de l'utilisateur
+            if (!in_array($user->id_role, [1, 2])) { // 1 = admin, 2 = gérant
+                return response()->json([
+                    'message' => 'Accès non autorisé. Seuls les administrateurs et gérants peuvent se connecter.',
+                    'errors' => ['role' => ['Rôle non autorisé']]
+                ], 403);
+            }
+
+            // Generate token
             $token = $user->createToken('auth-token')->plainTextToken;
 
             return response()->json([
                 'user' => $user,
                 'token' => $token,
-                'supabase_token' => $authData['access_token'],
-                'message' => 'Inscription réussie'
-            ], 201);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Erreur lors de l\'inscription',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Login user - Uses Supabase Auth
-     */
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8',
-        ]);
-
-        // Check Supabase configuration
-        $supabaseUrl = env('SUPABASE_URL');
-        $supabaseKey = env('SUPABASE_ANON_KEY');
-        
-        if (!$supabaseUrl || !$supabaseKey) {
-            return response()->json([
-                'message' => 'Configuration Supabase manquante. Vérifiez SUPABASE_URL et SUPABASE_ANON_KEY dans .env',
-                'error' => 'missing_config'
-            ], 500);
-        }
-        
-        try {
-            // Call Supabase Auth API
-            $response = Http::withOptions([
-                'verify' => false, // Disable SSL verification for development
-            ])->withHeaders([
-                'apikey' => $supabaseKey,
-                'Content-Type' => 'application/json',
-            ])->post("{$supabaseUrl}/auth/v1/token?grant_type=password", [
-                'email' => $request->email,
-                'password' => $request->password,
-            ]);
-
-            // Log response for debugging
-            \Log::info('Supabase Auth Response', [
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
-
-            if (!$response->successful()) {
-                $errorBody = $response->json();
-                return response()->json([
-                    'message' => 'Identifiants incorrects',
-                    'error' => $errorBody['error_description'] ?? 'Invalid credentials',
-                    'debug' => [
-                        'status' => $response->status(),
-                        'supabase_url' => $supabaseUrl
-                    ]
-                ], 422);
-            }
-
-            $authData = $response->json();
-            $supabaseUserId = $authData['user']['id'] ?? null;
-
-            if (!$supabaseUserId) {
-                return response()->json([
-                    'message' => 'Réponse Supabase invalide',
-                    'error' => 'no_user_id'
-                ], 500);
-            }
-
-            // Get user profile from your utilisateur table
-            $user = Utilisateur::where('email', $request->email)->first();
-
-            if (!$user) {
-                return response()->json([
-                    'message' => 'Profil utilisateur non trouvé. Veuillez vous inscrire d\'abord.',
-                    'error' => 'user_profile_not_found'
-                ], 404);
-            }
-
-            // Create Laravel Sanctum token for API access
-            $token = $user->createToken('auth-token')->plainTextToken;
-
-            return response()->json([
-                'user' => [
-                    'id' => $user->id_utilisateur,
-                    'nom' => $user->nom,
-                    'prenom' => $user->prenom,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                ],
-                'token' => $token,
                 'message' => 'Connexion réussie'
             ]);
-            
-        } catch (\Exception $e) {
-            \Log::error('Login error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'message' => 'Erreur de connexion',
-                'error' => $e->getMessage()
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Login error:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Une erreur est survenue lors de la connexion.',
+                'errors' => ['general' => [$e->getMessage()]]
             ], 500);
         }
     }
 
-    /**
-     * Logout user
-     */
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
-
-        return response()->json([
-            'message' => 'Déconnexion réussie'
-        ]);
-    }
-
-    /**
-     * Get authenticated user
-     */
-    public function user(Request $request)
-    {
-        return response()->json($request->user());
+        return response()->json(['message' => 'Déconnexion réussie']);
     }
 }

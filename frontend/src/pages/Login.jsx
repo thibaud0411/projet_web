@@ -43,12 +43,31 @@ const Login = () => {
 
     if (!validateForm()) return;
 
-    setLoading(true);
-    const success = await login(formData.email, formData.password);
-    setLoading(false);
+    console.log('Submitting login with:', {
+      email: formData.email,
+      password: formData.password?.length // Just log length for security
+    });
 
-    if (success) {
-      navigate('/admin');
+    setLoading(true);
+    try {
+      const success = await login(formData.email, formData.password);
+      if (success) {
+        navigate('/admin');
+      }
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error);
+      if (error.response?.status === 422) {
+        const validationErrors = error.response.data.errors;
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          ...Object.keys(validationErrors).reduce((acc, key) => {
+            acc[key] = validationErrors[key][0];
+            return acc;
+          }, {})
+        }));
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
