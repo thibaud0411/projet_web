@@ -1,122 +1,174 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, UserCheck, UserX } from 'lucide-react';
-import api from '../api/axios';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
+import apiClient from '../apiClient';
 
 const Employees = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [editingEmployee, setEditingEmployee] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [formData, setFormData] = useState({
     nom: '',
     prenom: '',
     email: '',
     telephone: '',
     role: 'employe',
-    password: '',
+    password: ''
   });
 
+  // --- LIRE LES DONNÉES AU CHARGEMENT ---
   useEffect(() => {
     fetchEmployees();
   }, []);
 
   const fetchEmployees = async () => {
     try {
-      const response = await api.get('/admin/employees');
+      setLoading(true);
+      setErrorMessage('');
+      const response = await apiClient.get('/employees');
       setEmployees(response.data);
     } catch (error) {
-      toast.error('Erreur lors du chargement des employés');
+      console.error("Erreur chargement employés:", error);
+      setErrorMessage(error.response?.data?.message || "Impossible de charger la liste des employés.");
+      toast.error("Erreur lors du chargement des employés");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      if (editingEmployee) {
-        await api.put(`/admin/employees/${editingEmployee.id}`, formData);
-        toast.success('Employé modifié avec succès');
-      } else {
-        await api.post('/admin/employees', formData);
-        toast.success('Employé créé avec succès');
-      }
-      
-      setShowModal(false);
-      resetForm();
-      fetchEmployees();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Erreur lors de l\'opération');
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet employé?')) return;
-    
-    try {
-      await api.delete(`/admin/employees/${id}`);
-      toast.success('Employé supprimé avec succès');
-      fetchEmployees();
-    } catch (error) {
-      toast.error('Erreur lors de la suppression');
-    }
-  };
-
-  const handleToggleStatus = async (employee) => {
-    try {
-      const newStatus = employee.statut_compte === 'actif' ? 'inactif' : 'actif';
-      await api.patch(`/admin/employees/${employee.id}/status`, { 
-        statut_compte: newStatus 
-      });
-      toast.success('Statut modifié avec succès');
-      fetchEmployees();
-    } catch (error) {
-      toast.error('Erreur lors de la modification du statut');
-    }
-  };
-
-  const openEditModal = (employee) => {
-    setEditingEmployee(employee);
-    setFormData({
-      nom: employee.nom,
-      prenom: employee.prenom,
-      email: employee.email,
-      telephone: employee.telephone,
-      role: employee.role,
-      password: '',
-    });
-    setShowModal(true);
-  };
-
+  // Reset form
   const resetForm = () => {
-    setEditingEmployee(null);
     setFormData({
       nom: '',
       prenom: '',
       email: '',
       telephone: '',
       role: 'employe',
-      password: '',
+      password: ''
     });
+    setEditingEmployee(null);
   };
 
-  const filteredEmployees = employees.filter(emp =>
-    emp.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Open edit modal
+  const openEditModal = (employee) => {
+    setEditingEmployee(employee);
+    setFormData({
+      nom: employee.utilisateur?.nom || employee.nom || '',
+      prenom: employee.utilisateur?.prenom || employee.prenom || '',
+      email: employee.utilisateur?.email || employee.email || '',
+      telephone: employee.utilisateur?.telephone || employee.telephone || '',
+      role: employee.role || 'employe',
+      password: ''
+    });
+    setShowModal(true);
+  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
-  }
+  // Handle form submit (create or update)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setSuccessMessage('');
+      setErrorMessage('');
+
+      if (editingEmployee) {
+        // Update employee
+        const response = await apiClient.put(
+          `/employees/${editingEmployee.id_employe || editingEmployee.id}`,
+          {
+            nom: formData.nom,
+            prenom: formData.prenom,
+            email: formData.email,
+            telephone: formData.telephone,
+            role: formData.role,
+            ...(formData.password && { password: formData.password })
+          }
+        );
+        
+        setEmployees(employees.map(emp => 
+          (emp.id_employe || emp.id) === (editingEmployee.id_employe || editingEmployee.id) 
+            ? response.data 
+            : emp
+        ));
+        toast.success('Employé modifié avec succès!');
+      } else {
+        // Create employee
+        const response = await apiClient.post('/employees', {
+          nom: formData.nom,
+          prenom: formData.prenom,
+          email: formData.email,
+          telephone: formData.telephone,
+          role: formData.role,
+          password: formData.password
+        });
+        
+        setEmployees([response.data, ...employees]);
+        toast.success(`Compte pour ${formData.nom} créé avec succès!`);
+      }
+
+      setShowModal(false);
+      resetForm();
+
+    } catch (error) {
+      console.error('Erreur:', error);
+      setErrorMessage(error.message || 'Une erreur est survenue');
+      toast.error(error.message || 'Une erreur est survenue');
+    }
+  };
+
+  // Toggle employee status
+  const handleToggleStatus = async (employee) => {
+    try {
+      const newStatus = (employee.statut_compte === 'actif') ? 'inactif' : 'actif';
+      await apiClient.patch(
+        `/employees/${employee.id_employe || employee.id}/status`,
+        { statut_compte: newStatus }
+      );
+      
+      setEmployees(employees.map(emp => 
+        (emp.id_employe || emp.id) === (employee.id_employe || employee.id)
+          ? { ...emp, statut_compte: newStatus }
+          : emp
+      ));
+      toast.success(`Statut mis à jour avec succès`);
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Erreur lors de la mise à jour du statut');
+    }
+  };
+
+  // Delete employee
+  const handleDelete = async (employeeId) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet employé?')) return;
+    
+    try {
+      await apiClient.delete(`/employees/${employeeId}`);
+      
+      setEmployees(employees.filter(emp => (emp.id_employe || emp.id) !== employeeId));
+      toast.success('Employé supprimé avec succès');
+    } catch (error) {
+      console.error('Erreur suppression:', error);
+      toast.error('Erreur lors de la suppression');
+    }
+  };
+
+  // Filter employees based on search term
+  const filteredEmployees = employees.filter(employee => {
+    const searchLower = searchTerm.toLowerCase();
+    const nom = employee.utilisateur?.nom || employee.nom || '';
+    const prenom = employee.utilisateur?.prenom || employee.prenom || '';
+    const email = employee.utilisateur?.email || employee.email || '';
+    
+    return nom.toLowerCase().includes(searchLower) ||
+           prenom.toLowerCase().includes(searchLower) ||
+           email.toLowerCase().includes(searchLower);
+  });
 
   return (
     <div className="space-y-6">
@@ -181,75 +233,111 @@ const Employees = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredEmployees.map((employee) => (
-                <tr key={employee.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
-                        {employee.prenom.charAt(0)}{employee.nom.charAt(0)}
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {employee.prenom} {employee.nom}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{employee.email}</div>
-                    <div className="text-sm text-gray-500">{employee.telephone}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      employee.role === 'gerant' 
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {employee.role === 'gerant' ? 'Gérant' : 'Employé'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      onClick={() => handleToggleStatus(employee)}
-                      className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
-                        employee.statut_compte === 'actif'
-                          ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                          : 'bg-red-100 text-red-800 hover:bg-red-200'
-                      }`}
-                    >
-                      {employee.statut_compte === 'actif' ? (
-                        <UserCheck size={14} />
-                      ) : (
-                        <UserX size={14} />
-                      )}
-                      {employee.statut_compte}
-                    </button>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(employee.created_at).toLocaleDateString('fr-FR')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEditModal(employee)}
-                        className="text-primary hover:text-primary/80"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(employee.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                    Chargement...
                   </td>
                 </tr>
-              ))}
+              ) : filteredEmployees.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                    Aucun employé trouvé
+                  </td>
+                </tr>
+              ) : (
+                filteredEmployees.map((employee) => {
+                  const nom = employee.utilisateur?.nom || employee.nom || '';
+                  const prenom = employee.utilisateur?.prenom || employee.prenom || '';
+                  const email = employee.utilisateur?.email || employee.email || '';
+                  const telephone = employee.utilisateur?.telephone || employee.telephone || '';
+                  const employeeId = employee.id_employe || employee.id;
+                  
+                  return (
+                    <tr key={employeeId} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
+                            {prenom.charAt(0)}{nom.charAt(0)}
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {prenom} {nom}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{email}</div>
+                        <div className="text-sm text-gray-500">{telephone}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          employee.role === 'gerant' 
+                            ? 'bg-purple-100 text-purple-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {employee.role === 'gerant' ? 'Gérant' : 'Employé'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => handleToggleStatus(employee)}
+                          className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
+                            employee.statut_compte === 'actif'
+                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                              : 'bg-red-100 text-red-800 hover:bg-red-200'
+                          }`}
+                        >
+                          {employee.statut_compte === 'actif' ? (
+                            <UserCheck size={14} />
+                          ) : (
+                            <UserX size={14} />
+                          )}
+                          {employee.statut_compte}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(employee.created_at).toLocaleDateString('fr-FR')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openEditModal(employee)}
+                            className="text-primary hover:text-primary/80"
+                            title="Modifier"
+                          >
+                            <Edit size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(employeeId)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Supprimer"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
+          {successMessage}
+        </div>
+      )}
+      {errorMessage && (
+        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+          {errorMessage}
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (
