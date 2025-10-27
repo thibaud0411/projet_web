@@ -1307,7 +1307,7 @@
   }
 
   .bg-white\/10 {
-    background-color: #ffffff1a;
+    background-color: #0000001a;
   }
 
   @supports (color: color-mix(in lab, red, red)) {
@@ -1327,7 +1327,7 @@
   }
 
   .bg-white\/95 {
-    background-color: #fffffff2;
+    background-color: #000000f2;
   }
 
   @supports (color: color-mix(in lab, red, red)) {
@@ -1672,7 +1672,7 @@
   }
 
   .text-white\/90 {
-    color: #ffffffe6;
+    color: #000000e6;
   }
 
   @supports (color: color-mix(in lab, red, red)) {
@@ -2026,7 +2026,7 @@
 
   @media (hover: hover) {
     .hover\:bg-white\/50:hover {
-      background-color: #ffffff80;
+      background-color: #00000080;
     }
 
     @supports (color: color-mix(in lab, red, red)) {

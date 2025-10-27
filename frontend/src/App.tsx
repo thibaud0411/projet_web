@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { HomePage } from './components/HomePage';
-import { MenuPage } from './components/MenuPage';
-import { CheckoutPage } from './components/CheckoutPage';
-import { LoginPage } from './components/LoginPage';
-import { SignupPage } from './components/SignupPage';
-import { StudentDashboard } from './components/StudentDashboard';
+import { HomePage } from './pages/HomePage';
+import { MenuPage } from './pages/MenuPage';
+import { CheckoutPage } from './pages/CheckoutPage';
+import { LoginPage } from './pages/LoginPage';
+import { SignupPage } from './pages/SignupPage';
+import { StudentDashboard } from './pages/StudentDashboard';
+import { ContactPage } from './pages/ContactPage';
 // import { EmployeeDashboard } from './components/EmployeeDashboard';
 // import { AdminDashboard } from './components/AdminDashboard';
 // import { GerantDashboard } from './components/GerantDashboard'; // à venir
@@ -19,7 +20,8 @@ type Page =
   | 'student'
   | 'employee'
   | 'admin'
-  | 'gerant';
+  | 'gerant'
+  | 'contact'; // Ajouté contact ici pour la navigation
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -53,14 +55,14 @@ export default function App() {
   };
 
   // --- Secure navigation (force login) ---
-const secureNavigate = (page: Page) => {
-  // Seul "checkout" est protégé, "menu" reste accessible
-  if (userRole === 'guest' && page === 'checkout') {
-    setCurrentPage('login');
-  } else {
-    setCurrentPage(page);
-  }
-};
+  const secureNavigate = (page: Page) => {
+    // Seul "checkout" est protégé, "menu" reste accessible
+    if (userRole === 'guest' && page === 'checkout') {
+      setCurrentPage('login');
+    } else {
+      setCurrentPage(page);
+    }
+  };
 
   // --- Page rendering ---
   const renderPage = () => {
@@ -75,6 +77,9 @@ const secureNavigate = (page: Page) => {
         return <SignupPage onNavigate={setCurrentPage} />;
       case 'student':
         return <StudentDashboard onLogout={handleLogout} onNavigate={setCurrentPage} />;
+      case 'contact':
+        return <ContactPage onNavigate={secureNavigate} userRole={userRole} />;
+
       // case 'employee':
       //   return <EmployeeDashboard onLogout={handleLogout} onNavigate={setCurrentPage} />;
       // case 'admin':

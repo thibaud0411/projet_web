@@ -11,7 +11,7 @@
   --color-cream-bg: #FAF3E0;        /* Beige clair – fond naturel, calme */
   
   /* 🌿 Couleurs de support */
-  --color-surface: #FFFFFF;         /* Pour les cartes et surfaces */
+  --color-surface: #000000;         /* Pour les cartes et surfaces */
   --color-muted-brown: #5E4B3C;     /* Marron foncé doux – texte secondaire */
   --color-success-olive: #8A9A5B;   /* Vert olive naturel – pour les statuts positifs */
   --color-error-red: #cfbd97;       /* Rouge sombre – avertissements */
@@ -19,23 +19,23 @@
   /* Mapping to standard design tokens */
   --background: #FAF3E0;
   --foreground: #000000;
-  --card: #FFFFFF;
+  --card: #000000;
   --card-foreground: #000000;
-  --popover: #FFFFFF;
+  --popover: #000000;
   --popover-foreground: #000000;
   --primary: #cfbd97;
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #000000;
   --secondary: #5E4B3C;
   --secondary-foreground: #FAF3E0;
   --muted: #EFD9A7;
   --muted-foreground: #5E4B3C;
   --accent: #cfbd97;
-  --accent-foreground: #FFFFFF;
+  --accent-foreground: #000000;
   --destructive: #cfbd97;
-  --destructive-foreground: #FFFFFF;
+  --destructive-foreground: #000000;
   --border: rgba(94, 75, 60, 0.15);
   --input: transparent;
-  --input-background: #FFFFFF;
+  --input-background: #000000;
   --switch-background: #D1D5DB;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
@@ -49,7 +49,7 @@
   --sidebar: #FAF3E0;
   --sidebar-foreground: #000000;
   --sidebar-primary: #cfbd97;
-  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-primary-foreground: #000000;
   --sidebar-accent: #EFD9A7;
   --sidebar-accent-foreground: #000000;
   --sidebar-border: rgba(94, 75, 60, 0.15);
