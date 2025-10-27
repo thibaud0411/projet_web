@@ -22,7 +22,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data, type, options, on
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
-  // Configuration par défaut (adaptée du style sombre de l'ancien projet)
+  // MODIFICATION : Configuration par défaut (THÈME CLAIR)
   const defaultOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -31,35 +31,37 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data, type, options, on
         display: type === 'doughnut',
         position: 'bottom',
         labels: {
-          color: '#aaa', // Couleur du thème sombre
+          color: '#6B7280', // Texte gris (muet)
           padding: 15,
           font: { size: 11 }
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(26, 26, 26, 0.9)', // Thème sombre
-        titleColor: '#cfbd97',
-        bodyColor: '#ffffff',
-        borderColor: '#cfbd97',
-        borderWidth: 1
+        backgroundColor: '#ffffff', // Fond blanc
+        titleColor: '#1F2937', // Texte foncé
+        bodyColor: '#374151',
+        borderColor: '#E5E7EB', // Bordure grise
+        borderWidth: 1,
+        bodyFont: { weight: 'bold' },
+        titleFont: { weight: 'bold' }
       }
     },
     scales: type !== 'doughnut' ? {
       y: {
         beginAtZero: true,
-        grid: { color: 'rgba(255, 255, 255, 0.1)' }, // Thème sombre
+        grid: { color: 'rgba(0, 0, 0, 0.05)' }, // Grille claire
         ticks: {
-            color: '#aaa', // Thème sombre
+            color: '#6B7280', // Texte gris
             maxTicksLimit: 6,
         },
-        ...(options?.scales?.y) // Permet de surcharger via les props
+        ...(options?.scales?.y)
       },
       x: {
         grid: {
-          color: type === 'bar' ? 'transparent' : 'rgba(255, 255, 255, 0.1)', // Thème sombre
+          color: 'transparent', // Pas de grille X
           display: type !== 'bar'
         },
-        ticks: { color: '#aaa' } // Thème sombre
+        ticks: { color: '#6B7280' } // Texte gris
       }
     } : {}
   };

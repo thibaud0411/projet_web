@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 // import apiClient from '../../api/apiClient'; // API non requise
 // Import corrigé et centralisé
+import './RecentClaimsWidget.css'; // <<< AJOUTEZ CETTE LIGNE
 import { getClaimStatusBadgeClass, formatDate } from '../../components/utils/formatters';
 
 // Type simplifié pour un aperçu de réclamation

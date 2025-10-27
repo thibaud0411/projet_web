@@ -1,53 +1,44 @@
 /* src/index.css */
 
-/* ===== VARIABLES CSS (Extraites de GlobalStyles.css) ===== */
+/* ===== VARIABLES CSS (THÈME CLAIR) ===== */
 :root {
-  --primary-color: #cfbd97;
-  --secondary-color: #000000; /* Peut être ajusté si thème clair/sombre */
+  --primary-color: #cfbd97; /* Or (couleur marque) */
+  --secondary-color: #374151; /* Gris foncé (texte) */
   --light-color: #f8f9fa;
-  --dark-color: #343a40;
-  --bg-color: #000000;      /* Fond par défaut (sombre) */
-  --text-color: #ffffff;     /* Texte par défaut (sombre) */
-  --card-bg: #1a1a1a;       /* Fond carte (sombre) */
-  --border-color: #333333;   /* Bordure (sombre) */
-  --success-color: #198754;  /* Vert Bootstrap */
-  --warning-color: #ffc107;  /* Jaune Bootstrap */
-  --danger-color: #dc3545;   /* Rouge Bootstrap */
-  --info-color: #0dcaf0;     /* Cyan Bootstrap */
+  --dark-color: #1F2937;
+  
+  /* Palette Thème Clair */
+  --bg-color: #F9FAFB;      /* Fond par défaut (gris très clair) */
+  --text-color: #1F2937;     /* Texte par défaut (foncé) */
+  --text-muted: #6B7280;     /* Texte gris */
+  --card-bg: #ffffff;       /* Fond carte (blanc) */
+  --border-color: #E5E7EB;   /* Bordure (gris clair) */
+
+  --success-color: #10B981;
+  --warning-color: #F59E0B;
+  --danger-color: #EF4444;
+  --info-color: #3B82F6;
 
   /* Variables pour badges/fonds légers (utilisées dans les composants .tsx) */
-  --danger-light-bg: rgba(220, 53, 69, 0.15);
-  --danger-dark-text: #dc3545;
-  --success-light-bg: rgba(25, 135, 84, 0.15);
-  --success-dark-text: #198754;
-  --warning-light-bg: rgba(255, 193, 7, 0.15);
-  --warning-dark-text: #b58500;
-  --info-light-bg: rgba(13, 202, 240, 0.15);
-  --info-dark-text: #0dcaf0;
-  --secondary-light-bg: rgba(108, 117, 125, 0.15);
-  --secondary-dark-text: #6c757d;
+  /* Celles-ci fonctionnent bien sur fond clair ET sombre si bien définies */
+  --danger-light-bg: rgba(239, 68, 68, 0.1);
+  --danger-dark-text: #B91C1C;
+  --success-light-bg: rgba(16, 185, 129, 0.1);
+  --success-dark-text: #047857;
+  --warning-light-bg: rgba(245, 158, 11, 0.1);
+  --warning-dark-text: #B45309;
+  --info-light-bg: rgba(59, 130, 246, 0.1);
+  --info-dark-text: #1D4ED8;
+  --secondary-light-bg: rgba(107, 114, 128, 0.1);
+  --secondary-dark-text: #4B5563;
 
   /* Dimensions (utilisées par Layouts) */
-   --navbar-height: 65px; /* Hauteur de la barre de nav horizontale */
-   --sidebar-width: 260px; /* Largeur de la barre latérale mobile */
-   --transition-speed: 0.3s; /* Vitesse transition sidebar */
+   --navbar-height: 65px;
+   --sidebar-width: 260px;
+   --transition-speed: 0.3s;
 }
 
-/* Optionnel: Thème clair (si vous l'implémentez)
-[data-theme="light"] {
-  --bg-color: #ffffff;
-  --text-color: #212529;
-  --card-bg: #ffffff;
-  --border-color: #dee2e6;
-  --secondary-color: #6c757d;
-  --danger-dark-text: #842029;
-  --success-dark-text: #0f5132;
-  --warning-dark-text: #664d03;
-  --info-dark-text: #055160;
-  --secondary-dark-text: #41464b;
-} */
-
-/* ===== RÉINITIALISATION ET BASE (Extraits) ===== */
+/* ===== RÉINITIALISATION ET BASE ===== */
 * {
   margin: 0;
   padding: 0;
@@ -57,10 +48,9 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* Police système moderne */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   min-height: 100vh;
   line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -70,30 +60,29 @@ a {
 }
 a:hover {
   color: #bfae86; /* Primaire plus sombre */
-  text-decoration: none;
 }
 
-/* ===== STYLES GLOBAUX BOOTSTRAP SURCHARGES / UTILITAIRES (Extraits) ===== */
+/* ===== STYLES GLOBAUX BOOTSTRAP SURCHARGES ===== */
 
 /* Cartes (Styles de base pour .card) */
 .card {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px; /* Coins arrondis */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* Ombre légère */
-  margin-bottom: 1.5rem; /* Espace par défaut sous les cartes */
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Ombre légère pour thème clair */
+  margin-bottom: 1.5rem;
   color: var(--text-color);
-  overflow: hidden; /* Pour border-radius sur images/header */
+  overflow: hidden;
 }
 .card-header {
-  background-color: rgba(207, 189, 151, 0.1); /* Fond léger or */
+  background-color: var(--card-bg); /* Fond blanc par défaut */
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 1.5rem;
-  color: var(--primary-color);
+  color: var(--text-color); /* Texte foncé */
   font-weight: 600;
 }
 .card-title {
-   color: var(--text-color); /* Assure la lisibilité */
+   color: var(--text-color);
 }
 .card-body {
   padding: 1.5rem;
@@ -103,9 +92,9 @@ a:hover {
    border-top: 1px solid var(--border-color);
 }
 
-/* Boutons (Adaptez les styles .btn de GlobalStyles) */
+/* Boutons */
 .btn {
-   border-radius: 8px; /* Coins arrondis */
+   border-radius: 8px;
    padding: 0.6rem 1.2rem;
    font-weight: 500;
    transition: all 0.2s ease;
@@ -113,52 +102,51 @@ a:hover {
 }
 .btn:hover {
    transform: translateY(-2px);
-   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 .btn-primary {
   background-color: var(--primary-color);
   border-color: var(--primary-color);
-  color: var(--secondary-color); /* Texte noir sur bouton or */
+  color: #000000; /* Texte noir sur bouton or */
 }
 .btn-primary:hover {
   background-color: #bfae86;
   border-color: #bfae86;
-  color: var(--secondary-color);
+  color: #000000;
 }
-.btn-secondary {
-   /* Styles Bootstrap par défaut ou personnalisés */
-}
+/* ... autres boutons ... */
 .btn-outline-primary {
   border-color: var(--primary-color);
   color: var(--primary-color);
 }
 .btn-outline-primary:hover {
   background-color: var(--primary-color);
-  color: var(--secondary-color);
+  color: #000000;
 }
 .btn-outline-secondary {
   border-color: var(--border-color);
-  color: var(--text-color);
+  color: var(--text-muted);
 }
 .btn-outline-secondary:hover {
   background-color: var(--border-color);
   color: var(--text-color);
 }
-/* Ajoutez .btn-danger, .btn-success, .btn-info, .btn-warning si besoin */
 
-/* Tableaux (Styles de base pour .table) */
+/* Tableaux */
 .table {
   color: var(--text-color);
   border-color: var(--border-color);
-  margin-bottom: 0; /* Souvent géré par card-body p-0 */
+  margin-bottom: 0;
 }
 .table th {
-  border-bottom-width: 2px;
-  border-color: var(--primary-color);
-  color: var(--text-color); /* Ajusté pour lisibilité */
-  font-weight: 600;
-  padding: 1rem; /* Padding standard */
-  background-color: var(--card-bg); /* Cohérent avec td */
+  border-bottom-width: 1px;
+  border-color: var(--border-color);
+  color: var(--text-muted); /* Texte gris pour en-têtes */
+  font-weight: 500;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  padding: 1rem;
+  background-color: var(--card-bg);
 }
 .table td {
   border-color: var(--border-color);
@@ -166,29 +154,29 @@ a:hover {
   padding: 1rem;
 }
 .table-hover tbody tr:hover td {
-   background-color: rgba(207, 189, 151, 0.05);
+   background-color: #F9FAFB; /* Gris très léger au survol */
 }
-.table-light th { /* Style Bootstrap pour thead léger */
-  background-color: #2a2a2a; /* Plus sombre pour le contraste */
+.table-light th {
+  background-color: #F9FAFB; /* Fond très clair */
   border-color: var(--border-color);
 }
 .table-responsive {
-   border-radius: 8px; /* Arrondi pour le conteneur scrollable */
+   border-radius: 8px;
    border: 1px solid var(--border-color);
 }
 
 /* Badges de Statut (Classes globales) */
 .status-badge {
-  padding: 0.35rem 0.8rem; /* Ajusté */
+  padding: 0.35rem 0.8rem;
   border-radius: 20px;
-  font-size: 0.75rem; /* Plus petit */
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  display: inline-block; /* Pour padding correct */
+  display: inline-block;
   white-space: nowrap;
   vertical-align: middle;
-  line-height: 1; /* Empêche hauteur excessive */
+  line-height: 1;
 }
 .status-success { background-color: var(--success-light-bg); color: var(--success-dark-text); }
 .status-warning { background-color: var(--warning-light-bg); color: var(--warning-dark-text); }
@@ -196,52 +184,32 @@ a:hover {
 .status-info { background-color: var(--info-light-bg); color: var(--info-dark-text); }
 .status-secondary { background-color: var(--secondary-light-bg); color: var(--secondary-dark-text); }
 
-/* Formulaires (Styles de base) */
+/* Formulaires */
 .form-label {
    font-size: 0.875rem;
    font-weight: 500;
-   color: var(--text-muted, #aaa); /* Fallback */
+   color: var(--text-muted);
    margin-bottom: 0.4rem;
 }
 .form-control, .form-select {
-  background-color: #2d2d2d; /* Fond légèrement différent */
-  border: 1px solid var(--border-color);
+  background-color: #ffffff;
+  border: 1px solid #D1D5DB; /* Gris standard */
   color: var(--text-color);
-  border-radius: 8px; /* Arrondi standard */
+  border-radius: 8px;
   padding: 0.6rem 1rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.form-control::placeholder { color: #6c757d; }
+.form-control::placeholder { color: #9CA3AF; }
 .form-control:focus, .form-select:focus {
-  background-color: #2d2d2d;
+  background-color: #ffffff;
   border-color: var(--primary-color);
   color: var(--text-color);
   box-shadow: 0 0 0 0.2rem rgba(207, 189, 151, 0.25);
   outline: none;
 }
-.form-control:disabled, .form-select:disabled {
-   background-color: #3a3a3a;
-   opacity: 0.7;
-}
-.form-check-input {
-   background-color: #444;
-   border-color: var(--border-color);
-}
-.form-check-input:checked {
-   background-color: var(--primary-color);
-   border-color: var(--primary-color);
-}
-.form-switch .form-check-input {
-   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%236c757d'/%3e%3c/svg%3e"); /* Couleur switch inactif */
-}
-.form-switch .form-check-input:focus {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23aaa'/%3e%3c/svg%3e"); /* Couleur focus */
-}
-.form-switch .form-check-input:checked {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23000'/%3e%3c/svg%3e"); /* Couleur switch actif */
-}
+/* ... autres styles de formulaire ... */
 
-/* Modales (Styles Bootstrap par défaut + quelques ajustements) */
+/* Modales */
 .modal-content {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -255,25 +223,10 @@ a:hover {
 .modal-title { color: var(--primary-color); font-weight: 600; }
 .modal-body { padding: 1.5rem; }
 .modal-footer { border-top: 1px solid var(--border-color); padding: 1rem 1.5rem; }
-.btn-close-white { filter: invert(1) grayscale(100%) brightness(200%); } /* Meilleure visibilité */
+/* Pas de .btn-close-white, utilise le .btn-close par défaut (sombre) */
 
-/* Animations (Gardez celles dont vous avez besoin) */
-@keyframes pulse { /* ... */ }
-@keyframes fadeIn { /* ... */ }
-@keyframes spin { /* ... */ }
-
-/* Utilitaires (Extraits de GlobalStyles) */
-.currency-xaf::after { content: " F"; font-size: 0.8em; opacity: 0.8; }
-.text-primary { color: var(--primary-color) !important; }
-.fw-500 { font-weight: 500 !important; }
-.fw-600 { font-weight: 600 !important; }
-.fw-700 { font-weight: 700 !important; }
-/* ...autres utilitaires si besoin */
-
-/* Styles AOS (Déjà importés via JS/main.tsx) */
-
-/* Scrollbar personnalisée (Optionnel) */
+/* Scrollbar personnalisée (Thème clair) */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #222; border-radius: 4px;}
-::-webkit-scrollbar-thumb { background: #555; border-radius: 4px;}
-::-webkit-scrollbar-thumb:hover { background: #777; }
+::-webkit-scrollbar-track { background: #eee; border-radius: 4px;}
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px;}
+::-webkit-scrollbar-thumb:hover { background: #aaa; }

@@ -8,6 +8,11 @@ import '../manager/ClaimsValidationPage.css'; // Exemple de réutilisation
 // Import des utilitaires centralisés
 import { getClaimStatusBadgeClass, formatDate } from '../../components/utils/formatters';
 
+// --- NOUVEAUX IMPORTS ---
+import { PageHeader } from '../../components/shared/PageHeader';
+import { InfoTile } from '../../components/shared/InfoTile';
+import { InfoTileRow } from '../../components/shared/InfoTileRow';
+
 // --- Types ---
 interface Utilisateur { nom: string; prenom?: string; }
 interface Claim {
@@ -25,7 +30,7 @@ const ALL_STATUSES_CLAIMS: ClaimStatus[] = ['Toutes', 'Ouverte', 'En cours', 'R�
 
 // --- Données Fictives ---
 const mockClaims: Claim[] = [
-  {
+    {
     id_reclamation: 201,
     id_commande: 101,
     description: "Ma pizza est arrivée froide et la boisson n'était pas la bonne. Je suis très déçu.",
@@ -34,6 +39,7 @@ const mockClaims: Claim[] = [
     date_reclamation: new Date(Date.now() - 1 * 60 * 60000).toISOString(), // 1h ago
     utilisateur: { nom: 'Dupont', prenom: 'Jean' }
   },
+  // ... autres réclamations fictives
   {
     id_reclamation: 202,
     id_commande: 98,
@@ -86,22 +92,11 @@ export const EmployeeClaimsPage: React.FC = () => {
 
   /*
   // Logique de fetch (mise en commentaire)
-  const fetchClaims = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.get('/employee/claims');
-      setClaims(response.data.data || response.data);
-    } catch (err: any) {
-      console.error("Erreur chargement réclamations employé:", err);
-      setError(err.response?.data?.message || "Impossible de charger les réclamations.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchClaims = async () => { ... };
   */
 
   const applyFilters = () => {
+    // ... (logique inchangée)
     let tempClaims = [...claims];
     if (filters.status !== 'Toutes') {
       tempClaims = tempClaims.filter(c => c.statut === filters.status);
@@ -124,25 +119,30 @@ export const EmployeeClaimsPage: React.FC = () => {
   };
 
    const handleFilterChange = (filterType: keyof typeof filters, value: string) => {
+    // ... (logique inchangée)
     setFilters(prev => ({ ...prev, [filterType]: value }));
   };
 
    const clearFilters = () => {
+     // ... (logique inchangée)
      setFilters({ status: 'Toutes', date: '', search: '' });
    };
 
   // --- Gestion des Modales ---
   const showClaimDetails = (claim: Claim) => {
+    // ... (logique inchangée)
     setSelectedClaim(claim);
     setShowDetailsModal(true);
   };
   const openReplyModal = (claim: Claim) => {
+    // ... (logique inchangée)
     setSelectedClaim(claim);
     setReplyMessage(claim.reponse || '');
     setShowDetailsModal(false);
     setShowReplyModal(true);
   };
   const handleCloseModal = () => {
+    // ... (logique inchangée)
     setShowDetailsModal(false);
     setShowReplyModal(false);
     setSelectedClaim(null);
@@ -152,32 +152,13 @@ export const EmployeeClaimsPage: React.FC = () => {
 
   // --- Envoyer/Modifier Réponse ---
   const sendReply = async () => {
+    // ... (logique inchangée)
     if (!selectedClaim || !replyMessage.trim()) {
       setError("Veuillez saisir une réponse.");
       return;
     }
     setError(null);
     console.log(`[SIMULATION] Réponse à #${selectedClaim.id_reclamation}: ${replyMessage}`);
-
-    // Logique de mise à jour (commentée)
-    /*
-    try {
-      const response = await apiClient.patch(`/employee/claims/${selectedClaim.id_reclamation}/reply`, {
-        reponse: replyMessage
-      });
-      setClaims(prevClaims =>
-        prevClaims.map(c =>
-          c.id_reclamation === selectedClaim.id_reclamation ? response.data.data : c
-        )
-      );
-      handleCloseModal();
-      showToast(`Réponse envoyée pour #${selectedClaim.id_reclamation}`, 'success');
-
-    } catch (err: any) {
-      console.error("Erreur envoi réponse:", err);
-      setError(err.response?.data?.message || "Erreur lors de l'envoi de la réponse.");
-    }
-    */
     
     // Mise à jour fictive
     setClaims(prevClaims =>
@@ -201,15 +182,13 @@ export const EmployeeClaimsPage: React.FC = () => {
 
   return (
     <div>
-      {/* En-tête */}
-       <div className="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
-         <div>
-            <h1 className="h2 page-title mb-1">Gestion des Réclamations</h1>
-            <p className="page-subtitle text-muted mb-0">Consultez et répondez aux réclamations des clients.</p>
-         </div>
-      </div>
+      {/* En-tête (MODIFIÉ) */}
+       <PageHeader
+          title="Gestion des Réclamations"
+          subtitle="Consultez et répondez aux réclamations des clients."
+       />
 
-       {/* Affichage d'erreur globale */}
+       {/* Affichage d'erreur globale (Inchangé) */}
        {error && !showReplyModal && !showDetailsModal && (
           <div className="alert alert-danger alert-dismissible fade show" role="alert">
              {error}
@@ -217,17 +196,30 @@ export const EmployeeClaimsPage: React.FC = () => {
           </div>
        )}
 
-       {/* Stats rapides */}
-      <div className="row g-3 mb-4" data-aos="fade-up" data-aos-delay="100">
-         <div className="col"><div className="card p-3 text-center small"><div className="fs-4 fw-bold">{totalClaims}</div><div className="text-muted">Total Filtré</div></div></div>
-         <div className="col"><div className="card p-3 text-center small"><div className="fs-4 fw-bold text-danger">{openClaims}</div><div className="text-muted">Ouvertes</div></div></div>
-         <div className="col"><div className="card p-3 text-center small"><div className="fs-4 fw-bold text-info">{inProgressClaims}</div><div className="text-muted">En Cours</div></div></div>
-      </div>
+       {/* Stats rapides (MODIFIÉ) */}
+      <InfoTileRow data-aos="fade-up" data-aos-delay="100">
+        <InfoTile
+            value={<span>{totalClaims}</span>}
+            label="Total Filtré"
+        />
+        <InfoTile
+            value={<span>{openClaims}</span>}
+            label="Ouvertes"
+            valueClassName="text-danger"
+        />
+        <InfoTile
+            value={<span>{inProgressClaims}</span>}
+            label="En Cours"
+            valueClassName="text-info"
+        />
+      </InfoTileRow>
 
-       {/* Filtres */}
+
+       {/* Filtres (Inchangé) */}
        <div className="card filters-section mb-4" data-aos="fade-up" data-aos-delay="200">
           <div className="card-body">
               <div className="row g-3 align-items-end">
+                 {/* ... (contenu des filtres inchangé) ... */}
                  <div className="col-md-4">
                      <label className="form-label small text-muted">Statut</label>
                      <select className="form-select form-select-sm" value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)} >
@@ -251,7 +243,7 @@ export const EmployeeClaimsPage: React.FC = () => {
           </div>
        </div>
 
-      {/* Tableau des réclamations */}
+      {/* Tableau des réclamations (Inchangé) */}
       <div className="card" data-aos="fade-up" data-aos-delay="300">
         <div className="card-header d-none d-lg-block">
           <h5 className="card-title mb-0">Liste des Réclamations</h5>
@@ -259,6 +251,7 @@ export const EmployeeClaimsPage: React.FC = () => {
         <div className="card-body p-0">
           <div className="table-responsive">
             <table className="table table-hover align-middle mb-0">
+              {/* ... (contenu du tableau inchangé) ... */}
               <thead className="table-light">
                 <tr>
                   <th>ID</th><th>Client</th><th>Cde #</th><th>Description</th><th>Date</th><th>Statut</th><th>Actions</th>
@@ -293,9 +286,8 @@ export const EmployeeClaimsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* --- Modales --- */}
-
-      {/* Modal Détails */}
+      {/* --- Modales (Inchangé) --- */}
+      {/* ... (contenu des modales inchangé) ... */}
       <Modal show={showDetailsModal} onHide={handleCloseModal} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>Détails Réclamation #{selectedClaim?.id_reclamation}</Modal.Title>
@@ -329,7 +321,6 @@ export const EmployeeClaimsPage: React.FC = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Réponse */}
       <Modal show={showReplyModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Répondre à #{selectedClaim?.id_reclamation}</Modal.Title>

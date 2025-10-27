@@ -1,5 +1,6 @@
 // src/components/shared/InfoTile.tsx
 import React from 'react';
+import './InfoTile.css'; // <<< AJOUTÉ
 
 interface InfoTileProps {
   // 'value' peut être un simple nombre ou un élément JSX (comme un compteur animé)
@@ -15,10 +16,10 @@ export const InfoTile: React.FC<InfoTileProps> = ({ value, label, valueClassName
   return (
     // 'col' prendra la place disponible dans le 'row' parent
     <div className="col" {...aosProps}>
-      {/* Utilise 'h-100' pour que toutes les cartes aient la même hauteur dans une 'row' */}
-      <div className="card p-3 text-center small h-100"> 
-        <div className={`fs-4 fw-bold ${valueClassName ?? ''}`}>{value}</div>
-        <div className="text-muted">{label}</div>
+      {/* MODIFICATION : Changement complet de la structure pour correspondre au style StatCard */}
+      <div className="info-tile h-100">
+        <div className={`info-tile-label`}>{label}</div>
+        <div className={`info-tile-value ${valueClassName ?? ''}`}>{value}</div>
       </div>
     </div>
   );

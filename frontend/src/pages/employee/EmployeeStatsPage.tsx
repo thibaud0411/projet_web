@@ -5,7 +5,12 @@ import { type ChartConfiguration, Chart } from 'chart.js';
 // import apiClient from '../../api/apiClient'; // API non requise pour l'instant
 import ChartComponent from '../../components/shared/Chart';
 
+// --- NOUVEL IMPORT ---
+import { PageHeader } from '../../components/shared/PageHeader';
+
+
 // --- Types pour les données de statistiques Employé ---
+// ... (Types inchangés)
 interface ChartData {
   labels: string[];
   datasets: {
@@ -25,6 +30,7 @@ interface EmployeeStatsData {
 }
 
 // --- Données Fictives ---
+// ... (Données fictives inchangées)
 const mockStatsData: EmployeeStatsData = {
   ordersProcessed: {
     labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
@@ -74,31 +80,16 @@ export const EmployeeStatsPage: React.FC = () => {
 
   /*
   // Logique de fetch (mise en commentaire)
-  const fetchStats = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.get('/employee/stats', {
-        params: { period: activePeriod }
-      });
-      setStatsData(response.data);
-    } catch (err: any) {
-      console.error("Erreur chargement stats employé:", err);
-      setError(err.response?.data?.message || "Impossible de charger les statistiques.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchStats = async () => { ... };
   */
 
   const handlePeriodChange = (period: string) => {
+    // ... (logique inchangée)
     setActivePeriod(period);
-    // Simule un re-chargement
     setLoading(true);
     setError(null);
     console.log(`[SIMULATION] Chargement des stats pour: ${period}`);
     setTimeout(() => {
-      // Ici, vous pourriez modifier mockStatsData pour refléter la période
       setStatsData(mockStatsData);
       setLoading(false);
     }, 500);
@@ -117,26 +108,25 @@ export const EmployeeStatsPage: React.FC = () => {
 
   return (
     <div>
-      {/* En-tête */}
-      <div className="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
-         <div>
-            <h1 className="h2 page-title mb-1">Vos Statistiques</h1>
-            <p className="page-subtitle text-muted mb-0">Suivez votre performance.</p>
-         </div>
-         {/* Filtre Période */}
-         <div className="btn-group btn-group-sm">
+      {/* En-tête (MODIFIÉ) */}
+      <PageHeader
+        title="Vos Statistiques"
+        subtitle="Suivez votre performance."
+        actionButton={
+          <div className="btn-group btn-group-sm">
              <button type={`button`} className={`btn ${activePeriod === 'jour' ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={() => handlePeriodChange('jour')}>Jour</button>
              <button type={`button`} className={`btn ${activePeriod === '7jours' ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={() => handlePeriodChange('7jours')}>7 Jours</button>
              <button type={`button`} className={`btn ${activePeriod === 'mois' ? 'btn-primary' : 'btn-outline-secondary'}`} onClick={() => handlePeriodChange('mois')}>Mois</button>
          </div>
-      </div>
+        }
+      />
 
        {loading && <div className="text-center p-5"><span className="spinner-border" role="status"></span> Chargement...</div>}
        {error && <div className="alert alert-danger">{error}</div>}
 
        {!loading && statsData && (
           <div className="row g-4">
-            {/* Graphique 1: Commandes Traitées */}
+            {/* Graphique 1: Commandes Traitées (Inchangé) */}
             <div className="col-lg-6" data-aos="fade-up" data-aos-delay="100">
                 <div className="card h-100">
                     <div className="card-header"><h5 className="card-title mb-0">Commandes Traitées</h5></div>
@@ -155,7 +145,7 @@ export const EmployeeStatsPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Graphique 2: Temps Moyen */}
+            {/* Graphique 2: Temps Moyen (Inchangé) */}
              <div className="col-lg-6" data-aos="fade-up" data-aos-delay="200">
                 <div className="card h-100">
                     <div className="card-header"><h5 className="card-title mb-0">Temps Moyen de Traitement (min)</h5></div>
@@ -174,7 +164,7 @@ export const EmployeeStatsPage: React.FC = () => {
                 </div>
             </div>
 
-             {/* Graphique 3: Réclamations Gérées */}
+             {/* Graphique 3: Réclamations Gérées (Inchangé) */}
              <div className="col-lg-6" data-aos="fade-up" data-aos-delay="300">
                 <div className="card h-100">
                     <div className="card-header"><h5 className="card-title mb-0">Réclamations Traitées</h5></div>

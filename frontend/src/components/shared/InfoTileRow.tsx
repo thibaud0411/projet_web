@@ -13,7 +13,8 @@ interface InfoTileRowProps {
  */
 export const InfoTileRow: React.FC<InfoTileRowProps> = ({ children, ...aosProps }) => {
   return (
-    <div className="row g-3 mb-4" {...aosProps}>
+    // MODIFICATION : Ajout de la classe 'info-tile-row'
+    <div className="row g-3 mb-4 info-tile-row" {...aosProps}>
       {children}
     </div>
   );

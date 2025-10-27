@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import AOS from 'aos';
 // import apiClient from '../../api/apiClient'; // API non requise
 import { formatAmount, getTimeAgo } from '../../components/utils/formatters';
+import { InfoTile } from '../../components/shared/InfoTile';
+import { InfoTileRow } from '../../components/shared/InfoTileRow';
 
 // Importer le CSS spécifique
 import './EmployeeMenuPage.css';
@@ -72,7 +74,7 @@ const mockDishes: Dish[] = [
 ];
 // --- Fin Données Fictives ---
 
-// --- Composant Principal (simplifié en lecture seule) ---
+// --- Composant Principal (style maquette) ---
 export const EmployeeMenuPage: React.FC = () => {
   const [dishes, setDishes] = useState<Dish[]>(mockDishes); // Utilise les mocks
   const [loading, setLoading] = useState(false); // Mis à false
@@ -87,19 +89,7 @@ export const EmployeeMenuPage: React.FC = () => {
 
   /*
   // Logique de fetch (mise en commentaire)
-  const fetchDishes = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.get<{ data: Dish[] }>('/employee/menu');
-      setDishes(response.data.data || response.data);
-    } catch (err: any) {
-      setError("Impossible de charger le menu.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchDishes = async () => { ... };
   */
 
   // --- Fonctions Utilitaires (Affichage) ---
@@ -116,89 +106,118 @@ export const EmployeeMenuPage: React.FC = () => {
     ? dishes
     : dishes.filter(dish => dish.categorie === filterCategory);
 
+  // Calculs pour les vignettes (style maquette)
+  const totalDishes = dishes.length;
+  const availableDishes = dishes.filter(d => d.statut === 'available').length;
+  const soldOutDishes = dishes.filter(d => d.statut === 'unavailable').length;
+  const totalCategories = categories.filter(c => c.id !== 'all').length; // Exclut 'Tous'
+
   return (
     <div>
-      {/* En-tête de la page */}
+      {/* En-tête de la page (style maquette) */}
       <div className="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
         <div>
-          <h1 className="h2 page-title mb-1">Menu Actuel</h1>
-          <p className="page-subtitle text-muted">Consultez les plats disponibles et leurs détails.</p>
+          <h1 className="h2 page-title mb-1">Menu Update and Management</h1>
+          <p className="page-subtitle text-muted">Manage your restaurant menu, prices, and availability.</p>
         </div>
-        {/* Le bouton "Ajouter" a été retiré pour le profil employé */}
+        {/* Bouton de la maquette (Note: c'est pour un employé, la fonctionnalité d'ajout peut être réservée au manager) */}
+        <button className="btn btn-dark">
+            <i className="bi bi-plus-lg me-2"></i> Add New Dish
+        </button>
       </div>
 
       {error && <div className={`alert alert-danger alert-dismissible fade show`} role="alert"> {error} <button type="button" className="btn-close" onClick={() => setError(null)}></button> </div>}
 
-      {/* Grid Contenu */}
-      <div className="content-grid">
-        {/* Filtres */}
-        <div data-aos="fade-right" data-aos-delay="100">
-             <div className="filters-section card">
-                <div className="card-header"><h3 className="card-title mb-0">Catégories</h3></div>
-                <ul className="category-list list-group list-group-flush">
-                  {categories.map(cat => (
-                     <li 
-                       key={cat.id}
-                       className={`category-item list-group-item list-group-item-action ${filterCategory === cat.id ? 'active' : ''}`} 
-                       onClick={() => setFilterCategory(cat.id)}
-                     >
-                       <i className={`bi ${cat.icon} me-2`}></i> {cat.name}
-                     </li>
-                  ))}
-                </ul>
-             </div>
-        </div>
+      {/* Vignettes d'information (style maquette) */}
+      <InfoTileRow data-aos="fade-up" data-aos-delay="100">
+          <InfoTile
+            value={<span>{totalDishes}</span>}
+            label="Total Dishes"
+          />
+          <InfoTile
+            value={<span className="text-success">{availableDishes}</span>}
+            label="Available"
+          />
+          <InfoTile
+            value={<span className="text-danger">{soldOutDishes}</span>}
+            label="Sold Out"
+          />
+          <InfoTile
+            value={<span>{totalCategories}</span>}
+            label="Categories"
+          />
+      </InfoTileRow>
 
-        {/* Section menu (Tableau) */}
-        <div className="card menu-section" data-aos="fade-left" data-aos-delay="150">
-             <div className="card-body p-0">
-                {/* En-tête du tableau */}
-                <div className="menu-header d-none d-lg-grid">
-                    <div>Image</div>
-                    <div>Nom du Plat</div>
-                    <div>Catégorie</div>
-                    <div>Prix</div>
-                    <div>Statut</div>
-                    <div className="text-end">Dernière MAJ</div>
-                </div>
-                
-                {/* Liste des plats */}
-                <div>
-                    {loading && <div className="text-center p-5 text-muted">Chargement...</div>}
-                    {!loading && filteredDishes.length === 0 && (
-                      <div className="text-center p-5 text-muted">Aucun plat trouvé pour cette catégorie.</div>
-                    )}
-                    
-                    {!loading && filteredDishes.map(dish => (
-                        <div key={dish.id_plat} className="menu-item">
-                           <div className="dish-image">
-                             {dish.image_url ? 
-                               <img src={dish.image_url} alt={dish.nom} /> : 
-                               <span className="image-placeholder"><i className={`bi ${getCategoryIcon(dish.categorie)}`}></i></span>
-                             }
-                           </div>
-                           <div className="dish-info">
-                             <div className="fw-bold">{dish.nom}</div>
-                             <small className="text-muted d-block d-lg-none">{dish.description}</small>
-                           </div>
-                           <div className="dish-category">
-                             <i className={`bi ${getCategoryIcon(dish.categorie)} me-2 d-none d-lg-inline`}></i>
-                             {getCategoryText(dish.categorie)}
-                           </div>
-                           <div className="dish-price fw-bold">{formatAmount(dish.prix)}</div>
-                           <div className="dish-status">
-                             <span className={`status-badge status-${dish.statut === 'available' ? 'success' : 'secondary'}`}>
-                               {dish.statut === 'available' ? 'Disponible' : 'Épuisé'}
-                             </span>
-                           </div>
-                           <div className="last-updated text-end">
-                             <span className="text-muted small">{getTimeAgo(dish.updated_at)}</span>
-                           </div>
-                        </div>
-                    ))}
-                </div>
-             </div>
-        </div>
+      {/* Section menu (Tableau dans une seule carte) */}
+      <div className="card menu-section" data-aos="fade-up" data-aos-delay="200">
+            
+            {/* Filtres (style maquette - en haut du tableau) */}
+            <div className="card-header d-flex flex-wrap justify-content-between align-items-center">
+               <h5 className="card-title mb-0 me-3">Filter by category:</h5>
+               <div className="filter-buttons">
+                  {categories.map(cat => (
+                    <button
+                      key={cat.id}
+                      // Utilise btn-dark pour le filtre actif (comme le bouton 'Add') et btn-outline-secondary pour les autres
+                      className={`btn btn-sm ${filterCategory === cat.id ? 'btn-dark' : 'btn-outline-secondary'} ms-1 mt-1 mb-1`}
+                      onClick={() => setFilterCategory(cat.id)}
+                    >
+                      {/* Renomme 'Tous les plats' en 'All' pour coller à la maquette */}
+                      {cat.id === 'all' ? 'All' : cat.name}
+                    </button>
+                  ))}
+               </div>
+            </div>
+
+            {/* Tableau */}
+            <div className="card-body p-0">
+               {/* En-tête du tableau */}
+               <div className="menu-header d-none d-lg-grid">
+                   <div>Image</div>
+                   <div>Nom du Plat</div>
+                   <div>Catégorie</div>
+                   <div>Prix</div>
+                   <div>Statut</div>
+                   <div className="text-end">Dernière MAJ</div>
+               </div>
+               
+               {/* Liste des plats */}
+               <div>
+                   {loading && <div className="text-center p-5 text-muted">Chargement...</div>}
+                   {!loading && filteredDishes.length === 0 && (
+                     <div className="text-center p-5 text-muted">Aucun plat trouvé pour cette catégorie.</div>
+                   )}
+                   
+                   {!loading && filteredDishes.map(dish => (
+                       <div key={dish.id_plat} className="menu-item">
+                          <div className="dish-image">
+                            {dish.image_url ? 
+                              <img src={dish.image_url} alt={dish.nom} /> : 
+                              <span className="image-placeholder"><i className={`bi ${getCategoryIcon(dish.categorie)}`}></i></span>
+                            }
+                          </div>
+                          <div className="dish-info">
+                            <div className="fw-bold">{dish.nom}</div>
+                            <small className="text-muted d-block d-lg-none">{dish.description}</small>
+                          </div>
+                          <div className="dish-category">
+                            <i className={`bi ${getCategoryIcon(dish.categorie)} me-2 d-none d-lg-inline`}></i>
+                            {getCategoryText(dish.categorie)}
+                          </div>
+                          <div className="dish-price fw-bold">{formatAmount(dish.prix)}</div>
+                          <div className="dish-status">
+                            {/* Note: La maquette a un interrupteur. Nous gardons votre badge de statut. */}
+                            <span className={`status-badge status-${dish.statut === 'available' ? 'success' : 'secondary'}`}>
+                              {dish.statut === 'available' ? 'Disponible' : 'Épuisé'}
+                            </span>
+                          </div>
+                          <div className="last-updated text-end">
+                            <span className="text-muted small">{getTimeAgo(dish.updated_at)}</span>
+                          </div>
+                       </div>
+                   ))}
+               </div>
+            </div>
       </div>
     </div>
   );
