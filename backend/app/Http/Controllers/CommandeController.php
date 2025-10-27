@@ -14,39 +14,55 @@ class CommandeController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Commande::with(['utilisateur', 'lignes.article', 'paiement', 'livraison']);
+        try {
+            // D'abord, essayons de récupérer juste les commandes sans relations
+            $query = Commande::query();
 
-        // Filter by user
-        if ($request->has('id_utilisateur')) {
-            $query->where('id_utilisateur', $request->id_utilisateur);
+            // Ensuite, ajoutons les relations une par une pour voir laquelle pose problème
+            $query->with(['utilisateur']);
+            
+            // Filter by user
+            if ($request->has('id_utilisateur')) {
+                $query->where('id_utilisateur', $request->id_utilisateur);
+            }
+
+            // Filter by status
+            if ($request->has('statut')) {
+                $query->where('statut', $request->statut);
+            }
+
+            // Filter by service type
+            if ($request->has('type_service')) {
+                $query->where('type_service', $request->type_service);
+            }
+
+            // Filter by date range
+            if ($request->has('date_from')) {
+                $query->whereDate('date_commande', '>=', $request->date_from);
+            }
+            if ($request->has('date_to')) {
+                $query->whereDate('date_commande', '<=', $request->date_to);
+            }
+
+            // Order by latest first
+            $query->orderBy('date_commande', 'desc');
+
+            // Pagination
+            $perPage = $request->get('per_page', 15);
+            $commandes = $query->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'data' => $commandes
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        // Filter by status
-        if ($request->has('statut')) {
-            $query->where('statut', $request->statut);
-        }
-
-        // Filter by service type
-        if ($request->has('type_service')) {
-            $query->where('type_service', $request->type_service);
-        }
-
-        // Filter by date range
-        if ($request->has('date_from')) {
-            $query->whereDate('date_commande', '>=', $request->date_from);
-        }
-        if ($request->has('date_to')) {
-            $query->whereDate('date_commande', '<=', $request->date_to);
-        }
-
-        // Order by latest first
-        $query->orderBy('date_commande', 'desc');
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $commandes = $query->paginate($perPage);
-
-        return response()->json($commandes);
     }
 
     /**

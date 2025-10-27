@@ -97,7 +97,9 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
     
-    Route::middleware(['admin', 'auth:sanctum'])->prefix('admin')->group(function () {
+    // Use explicit auth + role middleware instead of a non-existent 'admin' alias/group.
+    // This avoids Laravel trying to resolve 'admin' as a container binding.
+    Route::middleware(['auth:sanctum', 'role:administrateur,gerant'])->prefix('admin')->group(function () {
         
         // Statistics & Dashboard
         Route::get('/statistics', [StatisticsController::class, 'dashboard']);
