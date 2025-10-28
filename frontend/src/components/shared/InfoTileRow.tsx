@@ -5,16 +5,17 @@ interface InfoTileRowProps {
   children: React.ReactNode;
   'data-aos'?: string;
   'data-aos-delay'?: string;
+  className?: string; // <-- 1. AJOUT DE CETTE LIGNE
 }
 
-/**
- * Un conteneur simple pour une rangée de InfoTiles.
- * Utilise 'row g-3' (petit écart) par défaut.
- */
-export const InfoTileRow: React.FC<InfoTileRowProps> = ({ children, ...aosProps }) => {
+export const InfoTileRow: React.FC<InfoTileRowProps> = ({ 
+  children, 
+  className = '', // <-- 2. RÉCUPÉRATION DE LA PROP
+  ...aosProps 
+}) => {
   return (
-    // MODIFICATION : Ajout de la classe 'info-tile-row'
-    <div className="row g-3 mb-4 info-tile-row" {...aosProps}>
+    // --- 3. UTILISATION DE LA PROP className ---
+    <div className={`info-tile-row row g-4 ${className}`} {...aosProps}>
       {children}
     </div>
   );

@@ -1,30 +1,125 @@
 /* src/components/layout/EmployeeNavbar.css */
-/* Styles extraits et adaptés de GlobalStyles.css et potentiellement Navbar.css du manager */
-
-/* Réutiliser les styles .manager-header, .header-logo, .header-nav, .header-profile, .sidebar-toggle-button */
-/* de Navbar.css (manager) si la structure est la même */
-
-/* Exemple d'adaptation si nécessaire */
-.manager-header { /* Assurez-vous que ces styles sont appliqués */
-    display: flex;
-    background-color: var(--secondary-color); /* Fond sombre */
-    color: #FFFFFF;
-    height: var(--navbar-height); /* Hauteur fixe */
-    padding: 0 1rem; /* Padding horizontal */
-    align-items: center;
-    position: fixed; /* Fixe en haut */
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1030; /* Au-dessus du contenu */
-    border-bottom: 1px solid var(--border-color);
+.app-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--navbar-height);
+  padding: 0 2rem;
+  
+  /* --- MODIFIÉ --- */
+  background-color: var(--color-primary-btn); /* Noir */
+  border-bottom: 1px solid #333; /* Bordure plus foncée */
+  /* --- FIN MODIFIÉ --- */
+  
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
+.nav-logo a {
+  text-decoration: none;
+  /* --- MODIFIÉ --- */
+  color: #FFFFFF; /* Blanc */
+  /* --- FIN MODIFIÉ --- */
+  font-weight: 700;
+  font-size: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.nav-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  /* --- MODIFIÉ --- */
+  color: var(--color-text-light); /* Gris clair */
+  /* --- FIN MODIFIÉ --- */
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.5rem;
+}
+.nav-links a {
+  font-size: 0.9rem;
+  font-weight: 600;
+  /* --- MODIFIÉ --- */
+  color: var(--color-text-light); /* Gris clair */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* --- FIN MODIFIÉ --- */
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-md);
+  transition: all 0.2s ease;
+}
+.nav-links a:hover {
+  /* --- MODIFIÉ --- */
+  color: #FFFFFF; /* Blanc */
+  background-color: rgba(255, 255, 255, 0.1);
+  /* --- FIN MODIFIÉ --- */
+}
+.nav-links a.active {
+  /* --- MODIFIÉ --- */
+  color: #FFFFFF; /* Blanc */
+  background-color: rgba(255, 255, 255, 0.1);
+  /* --- FIN MODIFIÉ --- */
+}
+
+.nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  position: relative;
+}
+.nav-profile .bi-bell {
+  font-size: 1.25rem;
+  /* --- MODIFIÉ --- */
+  color: var(--color-text-light); /* Gris clair */
+  /* --- FIN MODIFIÉ --- */
+  cursor: pointer;
+}
+.notification-dot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--color-icon-text-3);
+  color: white;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.nav-avatar,
+.nav-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #333; /* Bordure foncée */
+}
+.nav-avatar-placeholder {
+  background-color: var(--color-icon-bg-4);
+  color: var(--color-icon-text-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+
+/* Masquer les liens sur petit écran */
 @media (max-width: 991.98px) {
-  /* Styles pour la sidebar mobile (si différents) */
-  .manager-layout-container > header.manager-header {
-      /* Adaptez si le style de la sidebar employé diffère */
+  .nav-links {
+    display: none;
+  }
+  .app-navbar {
+    padding: 0 1rem;
   }
 }
-
-/* ... autres styles si la navbar employé est visuellement différente ... */

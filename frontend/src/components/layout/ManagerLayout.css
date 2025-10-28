@@ -5,23 +5,22 @@
   display: flex;
   flex-direction: column; /* Assure que le footer va en bas */
   min-height: 100vh;
-  /* Transition pour la sidebar mobile (si vous en ajoutez une) */
-  transition: padding-left var(--transition-speed) ease;
+  background-color: var(--color-bg);
 }
 
 .manager-main-content {
   /* Padding en haut pour la navbar fixe */
-  padding-top: calc(var(--navbar-height) + 1.5rem);
+  padding-top: calc(var(--navbar-height) + 2rem);
   /* Padding en bas pour le footer */
-  padding-bottom: 1.5rem;
+  padding-bottom: 2rem;
   /* Padding horizontal */
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
   width: 100%;
   flex-grow: 1; /* Prend l'espace restant */
 }
 
-/* Overlay pour la sidebar mobile */
+/* Overlay pour la sidebar mobile (NON UTILISÉ DANS LE NOUVEAU DESIGN) */
 .sidebar-backdrop {
   position: fixed;
   top: 0;
@@ -32,7 +31,7 @@
   z-index: 1035; /* Juste en dessous de la sidebar mobile */
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .manager-layout-container.sidebar-open .sidebar-backdrop {
@@ -41,10 +40,10 @@
 }
 
 /* Media query pour écrans larges */
-@media (min-width: 992px) {
+@media (max-width: 991.98px) {
   .manager-main-content {
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding-top: calc(var(--navbar-height) + 2rem);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: calc(var(--navbar-height) + 1rem);
   }
 }

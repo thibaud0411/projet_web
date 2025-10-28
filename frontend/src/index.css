@@ -1,232 +1,282 @@
 /* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ===== VARIABLES CSS (THÈME CLAIR) ===== */
+/* ==========================================================================
+   1. VARIABLES CSS (Basées sur la maquette)
+   ========================================================================== */
 :root {
-  --primary-color: #cfbd97; /* Or (couleur marque) */
-  --secondary-color: #374151; /* Gris foncé (texte) */
-  --light-color: #f8f9fa;
-  --dark-color: #1F2937;
+  /* Typographie */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+
+  /* Couleurs de la maquette */
+  --color-bg: #F9FAFB;           /* Fond de page (gris très clair) */
+  --color-card: #FFFFFF;         /* Fond des cartes (blanc) */
+  --color-header-footer: #FFFFFF; /* Fond Header/Footer (blanc) */
   
-  /* Palette Thème Clair */
-  --bg-color: #F9FAFB;      /* Fond par défaut (gris très clair) */
-  --text-color: #1F2937;     /* Texte par défaut (foncé) */
-  --text-muted: #6B7280;     /* Texte gris */
-  --card-bg: #ffffff;       /* Fond carte (blanc) */
-  --border-color: #E5E7EB;   /* Bordure (gris clair) */
+  --color-text-primary: #111827; /* Texte principal (noir/gris foncé) */
+  --color-text-secondary: #6B7280; /* Texte secondaire (gris) */
+  --color-text-light: #9CA3AF;     /* Texte (placeholder, etc.) */
 
-  --success-color: #10B981;
-  --warning-color: #F59E0B;
-  --danger-color: #EF4444;
-  --info-color: #3B82F6;
+  --color-border: #F3F4F6;        /* Bordure très légère (cartes, tables) */
+  --color-border-input: #E5E7EB;  /* Bordure (inputs) */
+  
+  --color-primary-btn: #000000;   /* Bouton principal (noir) */
+  --color-primary-btn-text: #FFFFFF;
 
-  /* Variables pour badges/fonds légers (utilisées dans les composants .tsx) */
-  /* Celles-ci fonctionnent bien sur fond clair ET sombre si bien définies */
-  --danger-light-bg: rgba(239, 68, 68, 0.1);
-  --danger-dark-text: #B91C1C;
-  --success-light-bg: rgba(16, 185, 129, 0.1);
-  --success-dark-text: #047857;
-  --warning-light-bg: rgba(245, 158, 11, 0.1);
-  --warning-dark-text: #B45309;
-  --info-light-bg: rgba(59, 130, 246, 0.1);
-  --info-dark-text: #1D4ED8;
-  --secondary-light-bg: rgba(107, 114, 128, 0.1);
-  --secondary-dark-text: #4B5563;
-
-  /* Dimensions (utilisées par Layouts) */
-   --navbar-height: 65px;
-   --sidebar-width: 260px;
-   --transition-speed: 0.3s;
+  --color-table-header: #FBF9F4; /* Fond beige de l'en-tête de table */
+  
+  /* Couleurs des icônes de vignettes */
+  --color-icon-bg-1: #FEF6E6;
+  --color-icon-text-1: #D97706;
+  --color-icon-bg-2: #E0F2FE;
+  --color-icon-text-2: #0284C7;
+  --color-icon-bg-3: #FEE2E2;
+  --color-icon-text-3: #DC2626;
+  --color-icon-bg-4: #F3E8FF;
+  --color-icon-text-4: #9333EA;
+  
+  /* Dimensions */
+  --navbar-height: 73px;
+  --footer-height: 65px;
+  --border-radius-lg: 0.75rem; /* 12px */
+  --border-radius-md: 0.5rem;  /* 8px */
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
 }
 
-/* ===== RÉINITIALISATION ET BASE ===== */
-* {
+/* ==========================================================================
+   2. RESET CSS ET STYLES GLOBAUX
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  min-height: 100vh;
+  font-family: var(--font-family-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+p {
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
 }
 
 a {
-  color: var(--primary-color);
+  color: var(--color-primary-btn);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 a:hover {
-  color: #bfae86; /* Primaire plus sombre */
+  opacity: 0.7;
 }
 
-/* ===== STYLES GLOBAUX BOOTSTRAP SURCHARGES ===== */
+/* ==========================================================================
+   3. STYLES DE COMPOSANTS COMMUNS
+   ========================================================================== */
 
-/* Cartes (Styles de base pour .card) */
+/* Style "Carte" de base */
 .card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Ombre légère pour thème clair */
-  margin-bottom: 1.5rem;
-  color: var(--text-color);
-  overflow: hidden;
+  background-color: var(--color-card);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--color-border);
+  /* margin-bottom: 1.5rem; (Supprimé pour un contrôle manuel avec mb-4) */
+  overflow: hidden; /* Pour les tables à l'intérieur */
 }
 .card-header {
-  background-color: var(--card-bg); /* Fond blanc par défaut */
-  border-bottom: 1px solid var(--border-color);
-  padding: 1rem 1.5rem;
-  color: var(--text-color); /* Texte foncé */
+  background-color: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+  padding: 1.25rem 1.5rem;
   font-weight: 600;
-}
-.card-title {
-   color: var(--text-color);
 }
 .card-body {
   padding: 1.5rem;
 }
-.card-footer {
-   background-color: var(--card-bg);
-   border-top: 1px solid var(--border-color);
+.card-body.p-0 {
+  padding: 0;
+}
+.card-title {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  margin-bottom: 0;
 }
 
 /* Boutons */
 .btn {
-   border-radius: 8px;
-   padding: 0.6rem 1.2rem;
-   font-weight: 500;
-   transition: all 0.2s ease;
-   cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.875rem; /* 14px */
+  padding: 0.65rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
 }
 .btn:hover {
-   transform: translateY(-2px);
-   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+   transform: translateY(-1px);
 }
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  color: #000000; /* Texte noir sur bouton or */
+
+.btn-primary, .btn-dark { /* btn-dark pour la maquette */
+  background-color: var(--color-primary-btn);
+  color: var(--color-primary-btn-text);
+  box-shadow: var(--shadow);
+  border-color: var(--color-primary-btn);
 }
-.btn-primary:hover {
-  background-color: #bfae86;
-  border-color: #bfae86;
-  color: #000000;
-}
-/* ... autres boutons ... */
-.btn-outline-primary {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-.btn-outline-primary:hover {
-  background-color: var(--primary-color);
-  color: #000000;
+.btn-primary:hover, .btn-dark:hover {
+  background-color: #333;
+  color: var(--color-primary-btn-text);
+  border-color: #333;
 }
 .btn-outline-secondary {
-  border-color: var(--border-color);
-  color: var(--text-muted);
+  border-color: var(--color-border-input);
+  color: var(--color-text-secondary);
+  background-color: var(--color-card);
 }
 .btn-outline-secondary:hover {
-  background-color: var(--border-color);
-  color: var(--text-color);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-input);
 }
 
-/* Tableaux */
-.table {
-  color: var(--text-color);
-  border-color: var(--border-color);
-  margin-bottom: 0;
-}
-.table th {
-  border-bottom-width: 1px;
-  border-color: var(--border-color);
-  color: var(--text-muted); /* Texte gris pour en-têtes */
-  font-weight: 500;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  padding: 1rem;
-  background-color: var(--card-bg);
-}
-.table td {
-  border-color: var(--border-color);
-  vertical-align: middle;
-  padding: 1rem;
-}
-.table-hover tbody tr:hover td {
-   background-color: #F9FAFB; /* Gris très léger au survol */
-}
-.table-light th {
-  background-color: #F9FAFB; /* Fond très clair */
-  border-color: var(--border-color);
-}
-.table-responsive {
-   border-radius: 8px;
-   border: 1px solid var(--border-color);
-}
 
-/* Badges de Statut (Classes globales) */
-.status-badge {
-  padding: 0.35rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+/* Badges (pour statuts "Meal", "Dessert") */
+.badge {
   display: inline-block;
-  white-space: nowrap;
-  vertical-align: middle;
-  line-height: 1;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem; /* 12px */
+  font-weight: 600;
+  border-radius: 9999px; /* Forme pilule */
+  letter-spacing: 0.5px;
+  text-transform: capitalize;
 }
-.status-success { background-color: var(--success-light-bg); color: var(--success-dark-text); }
-.status-warning { background-color: var(--warning-light-bg); color: var(--warning-dark-text); }
-.status-danger { background-color: var(--danger-light-bg); color: var(--danger-dark-text); }
-.status-info { background-color: var(--info-light-bg); color: var(--info-dark-text); }
-.status-secondary { background-color: var(--secondary-light-bg); color: var(--secondary-dark-text); }
+.badge-meal { background-color: #E0F2FE; color: #0284C7; }
+.badge-dessert { background-color: #F3E8FF; color: #9333EA; }
+.badge-drink { background-color: #FEF3C7; color: #D97706; }
+.badge-other { background-color: #F3F4F6; color: #4B5563; }
 
-/* Formulaires */
+
+/* ==========================================================================
+   3.5 STYLES DE FORMULAIRES
+   ========================================================================== */
+
 .form-label {
-   font-size: 0.875rem;
-   font-weight: 500;
-   color: var(--text-muted);
-   margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
 }
-.form-control, .form-select {
-  background-color: #ffffff;
-  border: 1px solid #D1D5DB; /* Gris standard */
-  color: var(--text-color);
-  border-radius: 8px;
-  padding: 0.6rem 1rem;
+
+/* Surcharge Bootstrap pour les champs de formulaire */
+.form-control,
+.form-select {
+  font-family: var(--font-family-sans);
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--border-radius-md);
+  padding: 0.65rem 1rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.form-control::placeholder { color: #9CA3AF; }
-.form-control:focus, .form-select:focus {
-  background-color: #ffffff;
-  border-color: var(--primary-color);
-  color: var(--text-color);
-  box-shadow: 0 0 0 0.2rem rgba(207, 189, 151, 0.25);
-  outline: none;
-}
-/* ... autres styles de formulaire ... */
 
-/* Modales */
-.modal-content {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 15px;
-  color: var(--text-color);
+.form-control::placeholder {
+  color: var(--color-text-light);
 }
-.modal-header {
-  border-bottom: 1px solid var(--border-color);
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-primary-btn); /* Focus noir */
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1); /* Ombre de focus légère */
+  background-color: var(--color-card);
+  color: var(--color-text-primary);
+}
+
+.form-control:read-only {
+  background-color: var(--color-bg);
+}
+
+
+/* ==========================================================================
+   4. STYLES DE TABLE
+   ========================================================================== */
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* En-tête beige de la maquette */
+.modern-table thead tr {
+  background-color: var(--color-table-header); 
+}
+
+.modern-table th,
+.modern-table td {
   padding: 1rem 1.5rem;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
 }
-.modal-title { color: var(--primary-color); font-weight: 600; }
-.modal-body { padding: 1.5rem; }
-.modal-footer { border-top: 1px solid var(--border-color); padding: 1rem 1.5rem; }
-/* Pas de .btn-close-white, utilise le .btn-close par défaut (sombre) */
 
-/* Scrollbar personnalisée (Thème clair) */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #eee; border-radius: 4px;}
-::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px;}
-::-webkit-scrollbar-thumb:hover { background: #aaa; }
+.modern-table th {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Lignes du corps de tableau */
+.modern-table tbody tr {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modern-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.modern-table tbody tr:hover {
+  background-color: var(--color-bg); /* Gris clair au survol */
+}
+
+/* Style pour le texte important (ex: Noms, IDs) */
+.modern-table .td-primary {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Alignement des actions */
+.modern-table .td-actions {
+  text-align: right;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Badges de Statut (pour les tables) */
+.status-warning { background-color: #FEF3C7; color: #D97706; }
+.status-info { background-color: #E0F2FE; color: #0284C7; }
+.status-success { background-color: #D1FAE5; color: #059669; }
+.status-danger { background-color: #FEE2E2; color: #DC2626; }
+.status-secondary { background-color: #F3F4F6; color: #4B5563; }

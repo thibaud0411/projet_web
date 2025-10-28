@@ -1,15 +1,13 @@
 // src/pages/employee/EmployeeMenuPage.tsx
 import React, { useState, useEffect } from 'react';
 import AOS from 'aos';
-// import apiClient from '../../api/apiClient'; // API non requise
 import { formatAmount, getTimeAgo } from '../../components/utils/formatters';
 import { InfoTile } from '../../components/shared/InfoTile';
 import { InfoTileRow } from '../../components/shared/InfoTileRow';
-
-// Importer le CSS spécifique
+import { PageHeader } from '../../components/shared/PageHeader';
 import './EmployeeMenuPage.css';
 
-// --- Interfaces ---
+// --- Interfaces et Données Fictives (inchangées) ---
 interface Dish {
   id_plat: number;
   nom: string;
@@ -20,200 +18,213 @@ interface Dish {
   image_url: string | null;
   updated_at: string;
 }
-
-// Catégories pour le filtre
 const categories = [
-  { id: 'all', name: 'Tous les plats', icon: 'bi-grid-fill' },
-  { id: 'meal', name: 'Plats', icon: 'bi-egg-fried' },
-  { id: 'drink', name: 'Boissons', icon: 'bi-cup-straw' },
-  { id: 'dessert', name: 'Desserts', icon: 'bi-cake2' },
+  { id: 'all', name: 'All' },
+  { id: 'meal', name: 'Meals' },
+  { id: 'drink', name: 'Drinks' },
+  { id: 'dessert', name: 'Desserts' },
 ];
-
-// --- Données Fictives ---
 const mockDishes: Dish[] = [
   {
     id_plat: 1,
-    nom: 'Pizza Margherita',
-    description: 'Sauce tomate, mozzarella, basilic frais.',
+    nom: 'Classic Burger',
+    description: 'Beef patty, lettuce, tomato',
     categorie: 'meal',
-    prix: 5500,
+    prix: 1000,
     statut: 'available',
-    image_url: 'https://via.placeholder.com/150/CFBD97/000000?text=Pizza',
-    updated_at: new Date().toISOString()
-  },
-  {
-    id_plat: 2,
-    nom: 'Burger Classique',
-    description: 'Steak haché, cheddar, laitue, tomate, oignons.',
-    categorie: 'meal',
-    prix: 4500,
-    statut: 'available',
-    image_url: 'https://via.placeholder.com/150/CFBD97/000000?text=Burger',
-    updated_at: new Date().toISOString()
-  },
-    {
-    id_plat: 3,
-    nom: 'Fondant au Chocolat',
-    description: 'Cœur coulant, servi avec une boule de glace vanille.',
-    categorie: 'dessert',
-    prix: 3000,
-    statut: 'unavailable',
-    image_url: 'https://via.placeholder.com/150/CFBD97/000000?text=Dessert',
+    image_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=50&h=50&fit=crop',
     updated_at: new Date(Date.now() - 2 * 60 * 60000).toISOString()
   },
   {
-    id_plat: 4,
-    nom: 'Jus de Bissap',
-    description: 'Jus de fleur d\'hibiscus rafraîchissant.',
-    categorie: 'drink',
+    id_plat: 2,
+    nom: 'Caesar Salad',
+    description: 'Romaine, parmesan, croutons',
+    categorie: 'meal',
     prix: 1500,
     statut: 'available',
-    image_url: 'https://via.placeholder.com/150/CFBD97/000000?text=Jus',
-    updated_at: new Date(Date.now() - 1 * 60 * 60000).toISOString()
+    image_url: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=50&h=50&fit=crop',
+    updated_at: new Date(Date.now() - 5 * 60 * 60000).toISOString()
+  },
+    {
+    id_plat: 3,
+    nom: 'Chocolate Lava Cake',
+    description: 'Warm chocolate cake with ice cream',
+    categorie: 'dessert',
+    prix: 2000,
+    statut: 'available',
+    image_url: 'https://images.unsplash.com/photo-1542826438-bd32f43d626f?w=50&h=50&fit=crop',
+    updated_at: new Date(Date.now() - 24 * 60 * 60000).toISOString()
+  },
+  {
+    id_plat: 4,
+    nom: 'Fresh Orange Juice',
+    description: 'Freshly squeezed oranges',
+    categorie: 'drink',
+    prix: 500,
+    statut: 'unavailable',
+    image_url: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=50&h=50&fit=crop',
+    updated_at: new Date(Date.now() - 3 * 24 * 60 * 60000).toISOString()
   }
 ];
 // --- Fin Données Fictives ---
 
-// --- Composant Principal (style maquette) ---
 export const EmployeeMenuPage: React.FC = () => {
-  const [dishes, setDishes] = useState<Dish[]>(mockDishes); // Utilise les mocks
-  const [loading, setLoading] = useState(false); // Mis à false
-  const [error, setError] = useState<string | null>(null);
+  const [dishes, setDishes] = useState<Dish[]>(mockDishes);
   const [filterCategory, setFilterCategory] = useState('all');
 
-  // --- Chargement Initial ---
   useEffect(() => {
-    AOS.init({ duration: 800, once: true, offset: 100 });
-    // fetchDishes(); // Appel API désactivé
+    AOS.init({ duration: 800, once: true, offset: 50 });
   }, []);
 
-  /*
-  // Logique de fetch (mise en commentaire)
-  const fetchDishes = async () => { ... };
-  */
-
-  // --- Fonctions Utilitaires (Affichage) ---
-  const getCategoryText = (category: string) => {
-    return categories.find(c => c.id === category)?.name || 'Autre';
-  };
-  
-  const getCategoryIcon = (category: string) => {
-     return categories.find(c => c.id === category)?.icon || 'bi-question-lg';
+  const getCategoryBadgeClass = (category: string) => {
+    switch (category) {
+      case 'meal': return 'badge-meal';
+      case 'dessert': return 'badge-dessert';
+      case 'drink': return 'badge-drink';
+      default: return 'badge-other';
+    }
   };
 
-  // Filtrage
   const filteredDishes = filterCategory === 'all'
     ? dishes
     : dishes.filter(dish => dish.categorie === filterCategory);
 
-  // Calculs pour les vignettes (style maquette)
   const totalDishes = dishes.length;
   const availableDishes = dishes.filter(d => d.statut === 'available').length;
   const soldOutDishes = dishes.filter(d => d.statut === 'unavailable').length;
-  const totalCategories = categories.filter(c => c.id !== 'all').length; // Exclut 'Tous'
+  const totalCategories = categories.filter(c => c.id !== 'all').length;
+
+  const handleStatusToggle = (id: number) => {
+    setDishes(prevDishes =>
+      prevDishes.map(dish =>
+        dish.id_plat === id
+          ? { ...dish, statut: dish.statut === 'available' ? 'unavailable' : 'available' }
+          : dish
+      )
+    );
+  };
 
   return (
     <div>
-      {/* En-tête de la page (style maquette) */}
-      <div className="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
-        <div>
-          <h1 className="h2 page-title mb-1">Menu Update and Management</h1>
-          <p className="page-subtitle text-muted">Manage your restaurant menu, prices, and availability.</p>
-        </div>
-        {/* Bouton de la maquette (Note: c'est pour un employé, la fonctionnalité d'ajout peut être réservée au manager) */}
-        <button className="btn btn-dark">
+      <PageHeader
+        title="Menu Update and Management"
+        subtitle="Manage your restaurant menu items, prices, and availability."
+        actionButton={
+          <button className="btn btn-primary">
             <i className="bi bi-plus-lg me-2"></i> Add New Dish
-        </button>
-      </div>
+          </button>
+        }
+      />
 
-      {error && <div className={`alert alert-danger alert-dismissible fade show`} role="alert"> {error} <button type="button" className="btn-close" onClick={() => setError(null)}></button> </div>}
-
-      {/* Vignettes d'information (style maquette) */}
-      <InfoTileRow data-aos="fade-up" data-aos-delay="100">
+      {/* --- MODIFIÉ : Ajout de "mb-4" pour l'espacement --- */}
+      <InfoTileRow data-aos="fade-up" data-aos-delay="100" className="mb-4">
           <InfoTile
             value={<span>{totalDishes}</span>}
             label="Total Dishes"
+            icon={<i className="bi bi-journal-text"></i>}
+            iconBgClass="icon-bg-1"
           />
           <InfoTile
             value={<span className="text-success">{availableDishes}</span>}
             label="Available"
+            icon={<i className="bi bi-check-circle"></i>}
+            iconBgClass="icon-bg-2"
           />
           <InfoTile
             value={<span className="text-danger">{soldOutDishes}</span>}
             label="Sold Out"
+            icon={<i className="bi bi-x-circle"></i>}
+            iconBgClass="icon-bg-3"
           />
           <InfoTile
             value={<span>{totalCategories}</span>}
             label="Categories"
+            icon={<i className="bi bi-grid"></i>}
+            iconBgClass="icon-bg-4"
           />
       </InfoTileRow>
 
-      {/* Section menu (Tableau dans une seule carte) */}
-      <div className="card menu-section" data-aos="fade-up" data-aos-delay="200">
+      {/* --- MODIFIÉ : Ajout de "mb-4" pour l'espacement --- */}
+      <div className="card menu-section mb-4" data-aos="fade-up" data-aos-delay="200">
             
-            {/* Filtres (style maquette - en haut du tableau) */}
-            <div className="card-header d-flex flex-wrap justify-content-between align-items-center">
-               <h5 className="card-title mb-0 me-3">Filter by category:</h5>
+            <div className="card-header filter-bar">
+               <span className="filter-label">Filter by category:</span>
                <div className="filter-buttons">
                   {categories.map(cat => (
                     <button
                       key={cat.id}
-                      // Utilise btn-dark pour le filtre actif (comme le bouton 'Add') et btn-outline-secondary pour les autres
-                      className={`btn btn-sm ${filterCategory === cat.id ? 'btn-dark' : 'btn-outline-secondary'} ms-1 mt-1 mb-1`}
+                      className={`btn-filter ${filterCategory === cat.id ? 'active' : ''}`}
                       onClick={() => setFilterCategory(cat.id)}
                     >
-                      {/* Renomme 'Tous les plats' en 'All' pour coller à la maquette */}
-                      {cat.id === 'all' ? 'All' : cat.name}
+                      {cat.name}
                     </button>
                   ))}
                </div>
             </div>
 
-            {/* Tableau */}
             <div className="card-body p-0">
-               {/* En-tête du tableau */}
-               <div className="menu-header d-none d-lg-grid">
+               <div className="menu-header">
                    <div>Image</div>
-                   <div>Nom du Plat</div>
-                   <div>Catégorie</div>
-                   <div>Prix</div>
-                   <div>Statut</div>
-                   <div className="text-end">Dernière MAJ</div>
+                   <div>Dish Name</div>
+                   <div>Category</div>
+                   <div>Price</div>
+                   <div>Status</div>
+                   <div>Last Updated</div>
+                   <div className="text-end">Actions</div>
                </div>
                
-               {/* Liste des plats */}
                <div>
-                   {loading && <div className="text-center p-5 text-muted">Chargement...</div>}
-                   {!loading && filteredDishes.length === 0 && (
-                     <div className="text-center p-5 text-muted">Aucun plat trouvé pour cette catégorie.</div>
+                   {filteredDishes.length === 0 && (
+                     <div className="text-center p-5 text-muted">No dishes found.</div>
                    )}
                    
-                   {!loading && filteredDishes.map(dish => (
+                   {filteredDishes.map(dish => (
                        <div key={dish.id_plat} className="menu-item">
+                          
                           <div className="dish-image">
                             {dish.image_url ? 
                               <img src={dish.image_url} alt={dish.nom} /> : 
-                              <span className="image-placeholder"><i className={`bi ${getCategoryIcon(dish.categorie)}`}></i></span>
+                              <span className="image-placeholder">?</span>
                             }
                           </div>
+                          
                           <div className="dish-info">
-                            <div className="fw-bold">{dish.nom}</div>
-                            <small className="text-muted d-block d-lg-none">{dish.description}</small>
+                            <div className="dish-name">{dish.nom}</div>
+                            <small className="dish-description">{dish.description}</small>
                           </div>
+                          
                           <div className="dish-category">
-                            <i className={`bi ${getCategoryIcon(dish.categorie)} me-2 d-none d-lg-inline`}></i>
-                            {getCategoryText(dish.categorie)}
-                          </div>
-                          <div className="dish-price fw-bold">{formatAmount(dish.prix)}</div>
-                          <div className="dish-status">
-                            {/* Note: La maquette a un interrupteur. Nous gardons votre badge de statut. */}
-                            <span className={`status-badge status-${dish.statut === 'available' ? 'success' : 'secondary'}`}>
-                              {dish.statut === 'available' ? 'Disponible' : 'Épuisé'}
+                            <span className={`badge ${getCategoryBadgeClass(dish.categorie)}`}>
+                              {dish.categorie}
                             </span>
                           </div>
-                          <div className="last-updated text-end">
-                            <span className="text-muted small">{getTimeAgo(dish.updated_at)}</span>
+                          
+                          <div className="dish-price">{formatAmount(dish.prix)}</div>
+                          
+                          <div className="dish-status">
+                            <label className="toggle-switch">
+                              <input 
+                                type="checkbox" 
+                                checked={dish.statut === 'available'}
+                                onChange={() => handleStatusToggle(dish.id_plat)}
+                              />
+                              <span className="slider"></span>
+                            </label>
                           </div>
+                          
+                          <div className="last-updated">
+                            <span>{getTimeAgo(dish.updated_at)}</span>
+                          </div>
+
+                          <div className="dish-actions">
+                            <button className="btn-icon" title="Modifier">
+                              <i className="bi bi-pencil-fill"></i>
+                            </button>
+                            <button className="btn-icon btn-icon-danger" title="Supprimer">
+                              <i className="bi bi-trash-fill"></i>
+                            </button>
+                          </div>
+
                        </div>
                    ))}
                </div>

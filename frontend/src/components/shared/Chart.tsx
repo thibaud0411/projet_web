@@ -1,11 +1,10 @@
 // src/components/shared/Chart.tsx
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { 
   Chart, 
   registerables, 
   type ChartConfiguration, 
-  type ChartType // <-- CORRECTION: Remplacer ChartTypeRegistry par ChartType
- // <-- CORRECTION: Remplacer ChartTypeRegistry par ChartType
+  type ChartType
 } from 'chart.js';
 
 // Enregistrer tous les composants nécessaires
@@ -13,16 +12,16 @@ Chart.register(...registerables);
 
 interface ChartComponentProps {
   data: ChartConfiguration['data'];
-  type: ChartType; // <-- CORRECTION: Utiliser ChartType
+  type: ChartType;
   options?: ChartConfiguration['options'];
   onChartReady?: (chartInstance: Chart) => void;
 }
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ data, type, options, onChartReady }) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
-  const chartInstance = useRef<Chart | null>(null);
+  const chartInstance = useRef<Chart | null>(null); // Le ref pour garder l'instance
 
-  // MODIFICATION : Configuration par défaut (THÈME CLAIR)
+  // Configuration par défaut (THÈME CLAIR/MAQUETTE)
   const defaultOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -31,75 +30,87 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data, type, options, on
         display: type === 'doughnut',
         position: 'bottom',
         labels: {
-          color: '#6B7280', // Texte gris (muet)
+          color: 'var(--color-text-secondary)',
           padding: 15,
-          font: { size: 11 }
+          font: { size: 12, family: 'var(--font-family-sans)' }
         }
       },
       tooltip: {
-        backgroundColor: '#ffffff', // Fond blanc
-        titleColor: '#1F2937', // Texte foncé
-        bodyColor: '#374151',
-        borderColor: '#E5E7EB', // Bordure grise
+        backgroundColor: 'var(--color-text-primary)',
+        titleColor: '#FFFFFF',
+        bodyColor: '#FFFFFF',
+        borderColor: 'var(--color-border)',
         borderWidth: 1,
-        bodyFont: { weight: 'bold' },
-        titleFont: { weight: 'bold' }
+        bodyFont: { weight: 'bold', family: 'var(--font-family-sans)' },
+        titleFont: { weight: 'bold', family: 'var(--font-family-sans)' },
+        cornerRadius: 8, // 8px
+        padding: 10,
       }
     },
     scales: type !== 'doughnut' ? {
       y: {
         beginAtZero: true,
-        grid: { color: 'rgba(0, 0, 0, 0.05)' }, // Grille claire
+        grid: { color: 'var(--color-border)' },
         ticks: {
-            color: '#6B7280', // Texte gris
+            color: 'var(--color-text-secondary)',
             maxTicksLimit: 6,
+            font: { family: 'var(--font-family-sans)' }
         },
         ...(options?.scales?.y)
       },
       x: {
         grid: {
-          color: 'transparent', // Pas de grille X
+          color: 'transparent',
           display: type !== 'bar'
         },
-        ticks: { color: '#6B7280' } // Texte gris
+        ticks: { 
+          color: 'var(--color-text-secondary)',
+          font: { family: 'var(--font-family-sans)' }
+        }
       }
     } : {}
   };
 
-  const initializeChart = useCallback(() => {
+  // Ce hook gère TOUT : création, mise à jour, destruction
+  useEffect(() => {
     if (!chartRef.current) return;
 
+    // 1. Détruit l'instance précédente si elle existe
+    // C'est le bloc que vous avez mentionné
     if (chartInstance.current) {
       chartInstance.current.destroy();
+      chartInstance.current = null;
     }
 
+    // 2. Crée la nouvelle instance de graphique
     try {
-        const config: ChartConfiguration = {
-           type: type,
-           data: data,
-           options: { ...defaultOptions, ...options } // Fusionne les options
-        };
-      chartInstance.current = new Chart(chartRef.current, config);
+      const config: ChartConfiguration = {
+         type: type,
+         data: data,
+         options: { ...defaultOptions, ...options } // Fusionne les options
+      };
+      
+      // Crée et stocke la nouvelle instance dans le ref
+      const newChartInstance = new Chart(chartRef.current, config);
+      chartInstance.current = newChartInstance;
 
       if (onChartReady) {
-        onChartReady(chartInstance.current);
+        onChartReady(newChartInstance);
       }
     } catch (error) {
       console.error('Erreur création graphique:', error);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, type, options]); // Recrée si data, type ou options changent
 
-  // Nettoyage
-  useEffect(() => {
-    initializeChart(); // Initialise
-    return () => { // Nettoie au démontage
+    // 3. Fonction de nettoyage
+    // Sera appelée lorsque le composant est retiré (démonté)
+    // ou JUSTE AVANT que cet effet ne se ré-exécute (si data, type, etc. changent)
+    return () => {
       if (chartInstance.current) {
         chartInstance.current.destroy();
         chartInstance.current = null;
       }
     };
-  }, [initializeChart]); // Exécute seulement quand initializeChart change
+  }, [data, type, options, onChartReady]); // Se ré-exécute si ces props changent
 
   return <canvas ref={chartRef} />;
 };

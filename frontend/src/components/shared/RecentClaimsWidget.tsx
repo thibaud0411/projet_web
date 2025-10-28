@@ -1,12 +1,10 @@
 // src/components/shared/RecentClaimsWidget.tsx
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-// import apiClient from '../../api/apiClient'; // API non requise
-// Import corrigé et centralisé
-import './RecentClaimsWidget.css'; // <<< AJOUTEZ CETTE LIGNE
+import './RecentClaimsWidget.css';
 import { getClaimStatusBadgeClass, formatDate } from '../../components/utils/formatters';
 
-// Type simplifié pour un aperçu de réclamation
+// --- Types et Données Fictives (inchangées) ---
 interface ClaimPreview {
   id_reclamation: number;
   description: string;
@@ -17,8 +15,6 @@ interface ClaimPreview {
     prenom?: string;
   }
 }
-
-// --- Données Fictives ---
 const mockRecentClaims: ClaimPreview[] = [
     {
     id_reclamation: 202,
@@ -39,40 +35,21 @@ const mockRecentClaims: ClaimPreview[] = [
 
 
 export const RecentClaimsWidget: React.FC = () => {
-  const [claims, setClaims] = useState<ClaimPreview[]>(mockRecentClaims); // Utilise les mocks
-  const [loading, setLoading] = useState(false); // Mis à false
+  const [claims, setClaims] = useState<ClaimPreview[]>(mockRecentClaims);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // const fetchRecentClaims = async () => {
-    //   setLoading(true);
-    //   setError(null);
-    //   try {
-    //     // Récupère les 5 réclamations "Ouvertes" les plus récentes
-    //     const response = await apiClient.get('/employee/claims', {
-    //       params: {
-    //         statut: 'Ouverte',
-    //         limit: 5,
-    //         sortBy: 'date_reclamation',
-    //         order: 'desc'
-    //       }
-    //     });
-    //     setClaims(response.data.data || response.data);
-    //   } catch (err: any) {
-    //     console.error("Erreur chargement aperçu réclamations:", err);
-    //     setError("Impossible de charger l'aperçu.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchRecentClaims(); // Appel API désactivé
+    // ... (logique de fetch désactivée inchangée) ...
   }, []);
 
   return (
     <div className="card h-100">
       <div className="card-header d-flex justify-content-between align-items-center">
         <h5 className="card-title mb-0">Réclamations Ouvertes</h5>
-        <NavLink to="/employee/claims" className="btn btn-sm btn-outline-primary">
+        
+        {/* --- MODIFIÉ : btn-outline-primary -> btn-outline-secondary --- */}
+        <NavLink to="/employee/claims" className="btn btn-sm btn-outline-secondary">
           Voir tout
         </NavLink>
       </div>
@@ -88,7 +65,7 @@ export const RecentClaimsWidget: React.FC = () => {
           <div className="list-group list-group-flush">
             {claims.map((claim) => (
               <NavLink 
-                to="/employee/claims" // TODO: Lier à la réclamation spécifique
+                to="/employee/claims" 
                 key={claim.id_reclamation} 
                 className="list-group-item list-group-item-action"
                 style={{
@@ -98,7 +75,7 @@ export const RecentClaimsWidget: React.FC = () => {
                 }}
               >
                 <div className="d-flex w-100 justify-content-between">
-                  <h6 className="mb-1 text-primary">
+                  <h6 className="mb-1" style={{ color: 'var(--color-text-primary)'}}>
                     #{claim.id_reclamation} - {claim.utilisateur?.prenom} {claim.utilisateur?.nom}
                   </h6>
                   <small className="text-muted">{formatDate(claim.date_reclamation)}</small>
@@ -112,7 +89,7 @@ export const RecentClaimsWidget: React.FC = () => {
                   {claim.description}
                 </p>
                 <small>
-                  <span className={`status-badge ${getClaimStatusBadgeClass(claim.statut)}`}>
+                  <span className={`badge ${getClaimStatusBadgeClass(claim.statut)}`}>
                     {claim.statut}
                   </span>
                 </small>
@@ -123,4 +100,4 @@ export const RecentClaimsWidget: React.FC = () => {
       </div>
     </div>
   );
-};
+};s
