@@ -100,4 +100,4 @@ export const RecentClaimsWidget: React.FC = () => {
       </div>
     </div>
   );
-};s
+};
