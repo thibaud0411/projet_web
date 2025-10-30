@@ -1,18 +1,20 @@
 <?php
 
 return [
-    // ... autres configurations
+
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
+    'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:5174',  
-        'http://127.0.0.1:8000', 
-    ], 
+    'allowed_origins' => ['http://localhost:5173'], 
 
-    // ... autres configurations
-    'allowed_methods' => ['*'], 
-    'allowed_headers' => ['*'], 
-    'supports_credentials' => true,
-    // ...
+    'allowed_origins_patterns' => [],
+
+    'allowed_headers' => ['*'],
+
+    'exposed_headers' => [],
+
+    'max_age' => 0,
+
+    'supports_credentials' => true, // important si tu utilises Sanctum ou cookies
 ];

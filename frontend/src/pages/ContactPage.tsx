@@ -153,14 +153,6 @@ export function ContactPage({ onNavigate, userRole }: { onNavigate: (page: strin
         </div>
       </section>
 
-      {/* Footer identique à HomePage */}
-      <footer className="bg-[#EFD9A7] text-[#000000] py-10 mt-12">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-20 text-center">
-          <p className="text-sm text-[#5E4B3C]">
-            © {new Date().getFullYear()} Mon Miam Miam. Tous droits réservés.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

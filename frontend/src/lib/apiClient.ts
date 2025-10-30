@@ -6,7 +6,9 @@ const BASE_URL: string = 'http://localhost:8000/api';
 export const api: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+  withCredentials: true, // <- AJOUTE ÇA
 });
+
 
 /**
  * Définit ou supprime le token d'autorisation dans les en-têtes d'Axios.
