@@ -1,29 +1,40 @@
 // src/main.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { AppRouter } from './routes/AppRouter';
-import { initSanctum } from './apiClient'; // <<< 1. IMPORTER (Chemin mis à jour)
+import React, { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
-// 1. Bootstrap (Grille et composants)
-import 'bootstrap/dist/css/bootstrap.min.css';
+// ROUTEUR / APP
+import { AppRouter } from './routes/AppRouter'; // si tu veux utiliser AppRouter
+// import App from './App.tsx'; // si tu préfères utiliser App directement
 
-// 2. Icônes Bootstrap
-import 'bootstrap-icons/font/bootstrap-icons.css';
+// API Client / Axios
+import axios from 'axios';
+// import { initSanctum } from './apiClient'; // si tu veux utiliser ta fonction initSanctum
 
-// 3. AOS (Animations)
-import 'aos/dist/aos.css'; 
+// STYLES
+import 'bootstrap/dist/css/bootstrap.min.css';         // Bootstrap
+import 'bootstrap-icons/font/bootstrap-icons.css';     // Bootstrap Icons
+import 'aos/dist/aos.css';                              // AOS Animations
+import './index.css';                                   // Tes styles, toujours en dernier
 
-// 4. VOS STYLES (DOIT ÊTRE LE DERNIER)
-import './index.css'; 
+// Fonction pour initialiser Sanctum CSRF
+const initializeSanctum = async () => {
+  try {
+    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      withCredentials: true,
+    });
+    console.log("Sanctum CSRF cookie initialisé.");
+  } catch (error) {
+    console.error("Erreur lors de l'initialisation de Sanctum CSRF:", error);
+  }
+};
 
-// 2. APPELER LA FONCTION AVANT DE LANCER L'APP
-initSanctum().then(() => {
-  // Le cookie CSRF est (normalement) défini, on peut monter l'app
-  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-      <AppRouter />
-    </React.StrictMode>,
+// Initialisation et rendu de l'app
+initializeSanctum().then(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <AppRouter />  {/* Remplacer par <App /> si tu veux */}
+    </StrictMode>
   );
 }).catch(error => {
-   console.error("Erreur lors de l'initialisation de Sanctum:", error);
+  console.error("Erreur lors du lancement de l'application:", error);
 });

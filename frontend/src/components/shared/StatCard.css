@@ -1,0 +1,52 @@
+/* src/components/shared/StatCard.css */
+.stat-card {
+  /* Le style de base .card vient de index.css */
+  padding: 1.5rem; /* Garder le padding spécifique */
+  background-color: var(--card-bg); /* Fond blanc par défaut */
+}
+
+/* Style spécial pour la 1ère carte, appliqué via GeneralStatsPage si besoin */
+/* Ou utilise :first-child si toujours la 1ère */
+/* .row > *:first-child .stat-card {
+  background-color: #FFFBF5;
+  border: 1px solid #F0E9DC;
+} */
+
+.stat-card-info {}
+
+.stat-card-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.stat-card-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.stat-card-change {
+  font-size: 0.8rem; /* Légèrement plus petit */
+  font-weight: 500;
+}
+/* Les couleurs (text-success, etc.) viennent de Bootstrap/index.css */
+
+.stat-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background-color est défini inline via les props */
+}
+
+.stat-card-icon i {
+  font-size: 1.25rem;
+  color: var(--text-dark); /* Icône foncée */
+  opacity: 0.8;
+}

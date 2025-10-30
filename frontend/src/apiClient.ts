@@ -1,46 +1,27 @@
 // src/apiClient.ts
 import axios from 'axios';
 
-// 1. Récupérer l'URL de l'API depuis vos variables d'environnement
-const API_URL = import.meta.env.VITE_API_URL; // (ex: http://127.0.0.1:8000)
+// 1. Récupérer l'URL de l'API depuis les variables d'environnement
+const API_URL = import.meta.env.VITE_API_URL; // Exemple : http://127.0.0.1:8000
 
-// 2. Créer l'instance d'axios
+// 2. Créer l'instance axios pour les requêtes vers /api
 const apiClient = axios.create({
-  //
-  // --- CORRECTION ICI ---
-  // L'URL de base doit inclure /api
-  //
-  baseURL: `${API_URL}/api`, 
-  // --- FIN DE LA CORRECTION ---
-  
-  // Indique à axios d'envoyer les cookies (nécessaire pour Sanctum)
-  withCredentials: true, 
-  
-  // En-têtes par défaut pour toutes les requêtes
+  baseURL: `${API_URL}/api`,  // Toutes les requêtes utiliseront cette base URL
+  withCredentials: true,      // Important pour Sanctum / cookies
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-  }
+  },
 });
 
-/**
- * Fonction pour initialiser l'authentification Sanctum.
- * Elle récupère le cookie CSRF.
- * * Vous devez appeler cette fonction UNE SEULE FOIS au démarrage
- * de votre application (par exemple dans main.tsx ou AppRouter.tsx).
- */
+// 3. Fonction pour initialiser Sanctum (CSRF cookie)
+//    Elle doit être appelée UNE SEULE FOIS au démarrage de l'application
 export const initSanctum = () => {
-  //
-  // --- CORRECTION ICI ---
-  // L'appel doit maintenant se faire SANS /api car la baseURL l'a déjà
-  // Mais /sanctum/csrf-cookie est une route SPÉCIALE qui n'est pas dans /api
-  // Nous allons donc la recréer avec l'URL de base SANS /api
-  //
+  // L'URL /sanctum/csrf-cookie n'est PAS dans /api
   return axios.get(`${API_URL}/sanctum/csrf-cookie`, {
-      withCredentials: true,
+    withCredentials: true,
   });
-  // --- FIN DE LA CORRECTION ---
 };
 
-// 4. Exporter l'instance configurée pour l'utiliser dans vos pages
+// 4. Exporter l'instance axios configurée
 export default apiClient;

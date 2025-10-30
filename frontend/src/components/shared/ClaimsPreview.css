@@ -1,0 +1,20 @@
+/* src/components/shared/ClaimsPreview.css */
+.claims-card {}
+.claims-card .card-header { background-color: var(--card-bg) !important; border-bottom: 1px solid var(--border-color) !important; }
+.claims-card .card-header .card-title { color: var(--text-dark) !important; }
+
+/* Badges */
+.badge.bg-danger-light { background-color: var(--danger-light-bg) !important; color: var(--danger-dark-text) !important; font-weight: 500; padding: 0.3rem 0.6rem; border-radius: 20px; }
+.badge.bg-success-light { background-color: var(--success-light-bg) !important; color: var(--success-dark-text) !important; font-weight: 500; padding: 0.3rem 0.6rem; border-radius: 20px; }
+.badge.bg-secondary-light { background-color: var(--secondary-light-bg) !important; color: var(--secondary-dark-text) !important; font-weight: 500; padding: 0.3rem 0.6rem; border-radius: 20px; }
+
+/* Items */
+.claim-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #F3F4F6; }
+.claim-item:last-child { border-bottom: none; }
+.claim-item:first-child { padding-top: 0.2rem; }
+.claim-info {}
+.claim-title { font-weight: 500; color: var(--text-dark); margin-bottom: 0.1rem; font-size: 0.9rem; }
+/* Optionnel: Mettre le titre de la réclamation en or ? */
+/* .claim-title { color: var(--primary-color); } */
+.claim-client { font-size: 0.8rem; color: var(--text-muted); }
+.claim-item .btn { font-weight: 500 !important; }
