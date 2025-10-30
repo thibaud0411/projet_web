@@ -44,13 +44,7 @@ class AuthController extends Controller
                 ], 403);
             }
 
-            // Vérifier le rôle de l'utilisateur
-            if (!in_array($user->id_role, [1, 2])) { // 1 = admin, 2 = gérant
-                return response()->json([
-                    'message' => 'Accès non autorisé. Seuls les administrateurs et gérants peuvent se connecter.',
-                    'errors' => ['role' => ['Rôle non autorisé']]
-                ], 403);
-            }
+            
 
             // Generate token
             $token = $user->createToken('auth-token')->plainTextToken;

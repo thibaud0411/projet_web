@@ -18,16 +18,15 @@ class UtilisateurSeeder extends Seeder
             [
                 'nom' => 'Admin',
                 'prenom' => 'User',
-                'email' => 'admin@test.com',
+                'email' => 'admin@teste.com',
                 'mot_de_passe' => Hash::make('password'),
                 'telephone' => '0123456789',
                 'localisation' => 'Admin Location',
                 'points_fidelite' => 0,
-                'code_parrainage' => 'ADMIN123',
+                'code_parrainage' => 'ADMIN1234',
                 'id_parrain' => null,
                 'id_role' => 1, // Administrateur
                 'statut_compte' => true,
-                'est_actif' => true,
                 'date_inscription' => now(),
                 'date_modification' => now()
             ],
@@ -43,7 +42,7 @@ class UtilisateurSeeder extends Seeder
                 'id_parrain' => null,
                 'id_role' => 2, // Gérant
                 'statut_compte' => true,
-                'est_actif' => true,
+             
                 'date_inscription' => now(),
                 'date_modification' => now()
             ],
@@ -59,7 +58,7 @@ class UtilisateurSeeder extends Seeder
                 'id_parrain' => null,
                 'id_role' => 3, // Employé
                 'statut_compte' => true,
-                'est_actif' => true,
+                
                 'date_inscription' => now(),
                 'date_modification' => now()
             ],
@@ -75,7 +74,7 @@ class UtilisateurSeeder extends Seeder
                 'id_parrain' => null,
                 'id_role' => 4, // Étudiant
                 'statut_compte' => true,
-                'est_actif' => true,
+            
                 'date_inscription' => now(),
                 'date_modification' => now()
             ]

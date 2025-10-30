@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/common/Button';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, user } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -14,6 +14,15 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Wait for auth check to complete
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (user) {
     return <Navigate to="/admin" replace />;
@@ -183,9 +192,9 @@ const Login = () => {
                   Se souvenir de moi
                 </label>
               </div>
-              <a href="#" className="text-sm font-medium text-primary hover:text-primary/80">
+              <Link to="/forgot-password" className="text-sm font-medium text-primary hover:text-primary/80">
                 Mot de passe oublié?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}

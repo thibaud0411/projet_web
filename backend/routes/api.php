@@ -29,9 +29,8 @@ use App\Http\Controllers\StatistiqueController;
 |--------------------------------------------------------------------------
 */
 
-// Authentication routes
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+// Laravel Breeze Authentication routes
+require __DIR__.'/auth.php';
 
 
 // Public product/category routes use ArticleController and CategorieController
@@ -60,9 +59,20 @@ Route::get('/evenements/{id}', [EvenementController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     
-    // Auth routes
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
+    // Auth routes - user endpoint
+    Route::get('/user', function (Request $request) {
+        $user = $request->user();
+        $user->load('role');
+        return response()->json([
+            'id' => $user->id_utilisateur,
+            'nom' => $user->nom,
+            'prenom' => $user->prenom,
+            'email' => $user->email,
+            'telephone' => $user->telephone,
+            'role' => $user->role->nom_role ?? null,
+            'points_fidelite' => $user->points_fidelite,
+        ]);
+    });
     
     /*
     |--------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
   LayoutDashboard, 
@@ -16,13 +16,9 @@ import {
 } from 'lucide-react';
 
 const AdminLayout = () => {
-  const { user, logout, isAdmin, isGerant } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  if (!user || (!isAdmin && !isGerant)) {
-    return <Navigate to="/login" replace />;
-  }
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
