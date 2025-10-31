@@ -17,11 +17,24 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // C'était déjà correct
+        
+        // --- DÉBUT DE LA CORRECTION ---
+        // Ajout des middleware nécessaires pour l'authentification SPA de Sanctum
         $middleware->api(append: [
-       // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,'throttle:api',
-        \Illuminate\Routing\Middleware\SubstituteBindings::class,
-    ]);
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // 'throttle:api', // Vous pouvez décommenter ceci plus tard pour la limitation de requêtes
+        ]);
+        // --- FIN DE LA CORRECTION ---
+
+        $middleware->web(append: [
+            // Vous pouvez ajouter des middleware web ici si nécessaire
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

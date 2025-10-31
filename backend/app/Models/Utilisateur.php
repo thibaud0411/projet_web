@@ -21,6 +21,7 @@ class Utilisateur extends Authenticatable // ou Model
      * Indique à Laravel que les timestamps sont activés.
      */
     public $timestamps = true; // C'était 'false'
+    
 
     /**
      * Définit le nom de la colonne "created_at" personnalisée.
@@ -71,4 +72,12 @@ class Utilisateur extends Authenticatable // ou Model
         'date_modification' => 'datetime',
         'statut_compte' => 'boolean',
     ];
+    public function getAuthPassword()
+    {
+        return $this->mot_de_passe; // Doit correspondre à votre colonne DB
+    }
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'id_role', 'id_role');
+    }
 }

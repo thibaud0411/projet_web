@@ -9,14 +9,15 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
-            UtilisateurSeeder::class,
+            StaffAndDefaultUserSeeder::class, // <<<--- AJOUTÉ ICI
+            UtilisateurSeeder::class,         // (Ceci crée Alice et Bob)
             CategorieSeeder::class,
             ArticleSeeder::class,
             CommandeSeeder::class,
-            PaiementSeeder::class,      // <<<--- AJOUTÉ (après Commande)
-            ParrainageSeeder::class,    // <<<--- AJOUTÉ (après Utilisateur)
+            PaiementSeeder::class,      
+            ParrainageSeeder::class,    
             ReclamationSeeder::class,
-            TodayDataSeeder::class,    // <<<--- AJOUTÉ (dernier pour données "aujourd'hui")
+            TodayDataSeeder::class,    
         ]);
          $this->command->info('Tous les seeders principaux ont été exécutés.');
     }
