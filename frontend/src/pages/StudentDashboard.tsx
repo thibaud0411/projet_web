@@ -210,7 +210,7 @@ export function StudentDashboard({ onLogout, onNavigate }: StudentDashboardProps
     const [orderHistory, setOrderHistory] = useState<Order[]>([]);
     const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
-    // 🛑 NOUVEAUX ÉTATS POUR LA RECHERCHE ET LES FILTRES 🛑
+    //  NOUVEAUX ÉTATS POUR LA RECHERCHE ET LES FILTRES 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedRestaurant, setSelectedRestaurant] = useState('all'); 
@@ -220,7 +220,7 @@ export function StudentDashboard({ onLogout, onNavigate }: StudentDashboardProps
         return orderHistory.reduce((sum, order) => sum + order.points, 0);
     }, [orderHistory]);
 
-    // 🛑 LOGIQUE DE FILTRAGE 🛑
+    // LOGIQUE DE FILTRAGE 
     const filteredMenuItems = useMemo(() => {
         return menuItems.filter(item => {
             const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -265,32 +265,20 @@ export function StudentDashboard({ onLogout, onNavigate }: StudentDashboardProps
         setTimeout(() => setNotification(null), 3000);
     };
 
-    // Fonction de validation de la commande
-    const checkout = () => {
-        if (cart.length === 0) return;
+// Fonction de navigation vers la page de paiement
+const goToCheckout = () => {
+    // On vérifie juste si le panier n'est pas vide avant de naviguer
+    if (cart.length === 0) {
+        setNotification({ message: 'Ajoutez des articles avant de valider.', type: 'error' });
+        setTimeout(() => setNotification(null), 3000);
+        return;
+    }
+    
+ 
+    onNavigate('checkout'); 
+    
 
-        const total = cartTotal;
-        const pointsGained = pointsToGain;
-
-        const newOrder: Order = {
-            id: Date.now().toString().slice(-4),
-            date: new Date().toLocaleDateString('fr-FR'),
-            time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-            items: cart.map(item => `${item.name} (x${item.quantity})`),
-            total: total,
-            status: 'delivered', 
-            points: pointsGained
-        };
-
-        setOrderHistory(prevHistory => [newOrder, ...prevHistory]);
-        setCart([]);
-
-        setNotification({ message: `Commande #${newOrder.id} validée avec succès ! Vous avez gagné ${pointsGained} points.`, type: 'success' });
-        setTimeout(() => setNotification(null), 5000);
-
-        setActivePage('overview');
-    };
-
+};
     // Fonction de soumission de réclamation (remplace l'alert)
     const submitComplaint = (e: React.FormEvent) => {
         e.preventDefault();
@@ -333,7 +321,7 @@ const OverviewContent = () => (
                 <h3 className="text-white mb-2">Points Fidélité</h3>
                 <p className="text-4xl mb-2">{totalLoyaltyPoints}</p>
                 <p className="text-white/80 text-sm">
-                    Plus que {totalLoyaltyPoints >= 100 ? 0 : 100 - (totalLoyaltyPoints % 100)} pts pour un repas gratuit
+                    Plus que {totalLoyaltyPoints >= 15 ? 0 : 15 - (totalLoyaltyPoints % 15)} pts pour un repas gratuit
                 </p>
             </Card>
             
@@ -389,7 +377,7 @@ const OverviewContent = () => (
     </div>
 );
 
-// 🛑 NOUVEAU COMPOSANT MenuContent AVEC LA RECHERCHE ET LE FILTRE 🛑
+//  NOUVEAU COMPOSANT MenuContent AVEC LA RECHERCHE ET LE FILTRE 
 const MenuContent = ({ 
     searchTerm, 
     setSearchTerm, 
@@ -555,11 +543,12 @@ const CartContent = () => (
                         <span className="text-[#8A9A5B]">+{pointsToGain} pts</span>
                     </div>
                     <Button 
-                        className="w-full h-14 bg-[#cfbd97] hover:bg-[#cfbd97] text-white rounded-2xl text-lg shadow-lg"
-                        onClick={checkout}
-                        disabled={cart.length === 0}
+                       className="w-full h-14 bg-[#cfbd97] hover:bg-[#cfbd97] text-white rounded-2xl text-lg shadow-lg"
+                     // Anciennement: onClick={checkout}
+                       onClick={goToCheckout} // <-- Utilisez la nouvelle fonction
+                       disabled={cart.length === 0}
                     >
-                        Valider ma commande
+                     Valider ma commande
                     </Button>
                 </div>
             </div>
@@ -619,7 +608,7 @@ const LoyaltyContent = () => (
                 <Award className="w-20 h-20 mx-auto mb-6" />
                 <h2 className="text-white text-4xl mb-4">{totalLoyaltyPoints} Points</h2>
                 <p className="text-white/90 text-lg mb-8">
-                    Plus que {totalLoyaltyPoints >= 100 ? 0 : 100 - (totalLoyaltyPoints % 100)} points pour ton prochain repas gratuit !
+                    Plus que {totalLoyaltyPoints >= 15 ? 0 : 15 - (totalLoyaltyPoints % 15 )} points pour ton prochain repas gratuit !
                 </p>
                 <Progress value={(totalLoyaltyPoints % 100)} className="h-4 bg-white/20" />
             </div>
@@ -652,7 +641,7 @@ const LoyaltyContent = () => (
                     </div>
                     <div>
                         <h4 className="text-[#000000] mb-1">Échange tes points</h4>
-                        <p className="text-[#5E4B3C]">100 points = 1 repas gratuit</p>
+                        <p className="text-[#5E4B3C]">15 points = 1 repas gratuit</p>
                     </div>
                 </div>
             </div>
