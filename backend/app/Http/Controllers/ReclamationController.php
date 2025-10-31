@@ -13,42 +13,52 @@ class ReclamationController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Reclamation::with(['utilisateur', 'commande', 'employe']);
+        try {
+            $query = Reclamation::with(['utilisateur', 'commande', 'employe']);
 
-        // Filter by user
-        if ($request->has('id_utilisateur')) {
-            $query->where('id_utilisateur', $request->id_utilisateur);
+            // Filter by user
+            if ($request->has('id_utilisateur')) {
+                $query->where('id_utilisateur', $request->id_utilisateur);
+            }
+
+            // Filter by order
+            if ($request->has('id_commande')) {
+                $query->where('id_commande', $request->id_commande);
+            }
+
+            // Filter by status
+            if ($request->has('statut')) {
+                $query->where('statut', $request->statut);
+            }
+
+            // Filter by priority
+            if ($request->has('priorite')) {
+                $query->where('priorite', $request->priorite);
+            }
+
+            // Filter by employee
+            if ($request->has('id_employe_traitement')) {
+                $query->where('id_employe_traitement', $request->id_employe_traitement);
+            }
+
+            // Order by priority and date
+            $query->orderByRaw("FIELD(priorite, 'urgent', 'haute', 'moyenne', 'basse')")
+                  ->orderBy('date_reclamation', 'desc');
+
+            // Pagination
+            $perPage = $request->get('per_page', 15);
+            $reclamations = $query->paginate($perPage);
+
+            return response()->json($reclamations);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des réclamations',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        // Filter by order
-        if ($request->has('id_commande')) {
-            $query->where('id_commande', $request->id_commande);
-        }
-
-        // Filter by status
-        if ($request->has('statut')) {
-            $query->where('statut', $request->statut);
-        }
-
-        // Filter by priority
-        if ($request->has('priorite')) {
-            $query->where('priorite', $request->priorite);
-        }
-
-        // Filter by employee
-        if ($request->has('id_employe_traitement')) {
-            $query->where('id_employe_traitement', $request->id_employe_traitement);
-        }
-
-        // Order by priority and date
-        $query->orderByRaw("FIELD(priorite, 'urgent', 'haute', 'moyenne', 'basse')")
-              ->orderBy('date_reclamation', 'desc');
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $reclamations = $query->paginate($perPage);
-
-        return response()->json($reclamations);
     }
 
     /**

@@ -13,37 +13,47 @@ class EvenementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Evenement::with('participations');
+        try {
+            $query = Evenement::query();
 
-        // Filter by active status
-        if ($request->has('est_actif')) {
-            $query->where('est_actif', $request->est_actif);
+            // Filter by active status
+            if ($request->has('est_actif')) {
+                $query->where('est_actif', $request->est_actif);
+            }
+
+            // Filter by event type
+            if ($request->has('type_evenement')) {
+                $query->where('type_evenement', $request->type_evenement);
+            }
+
+            // Filter by current/upcoming events
+            if ($request->has('upcoming')) {
+                $query->where('date_debut', '>=', now());
+            }
+
+            // Filter by ongoing events
+            if ($request->has('ongoing')) {
+                $query->where('date_debut', '<=', now())
+                      ->where('date_fin', '>=', now());
+            }
+
+            // Order by start date
+            $query->orderBy('date_debut', 'desc');
+
+            // Pagination
+            $perPage = $request->get('per_page', 15);
+            $evenements = $query->paginate($perPage);
+
+            return response()->json($evenements);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des événements',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        // Filter by event type
-        if ($request->has('type_evenement')) {
-            $query->where('type_evenement', $request->type_evenement);
-        }
-
-        // Filter by current/upcoming events
-        if ($request->has('upcoming')) {
-            $query->where('date_debut', '>=', now());
-        }
-
-        // Filter by ongoing events
-        if ($request->has('ongoing')) {
-            $query->where('date_debut', '<=', now())
-                  ->where('date_fin', '>=', now());
-        }
-
-        // Order by start date
-        $query->orderBy('date_debut', 'desc');
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $evenements = $query->paginate($perPage);
-
-        return response()->json($evenements);
     }
 
     /**

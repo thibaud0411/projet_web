@@ -1,24 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import Button from '../components/common/Button';
+import { AuthErrors, ResetPasswordFormData } from '../types/auth';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ResetPasswordFormData>({
     email: searchParams.get('email') || '',
     password: '',
     password_confirmation: '',
     token: searchParams.get('token') || '',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [errors, setErrors] = useState<AuthErrors>({});
 
   useEffect(() => {
     if (!formData.token) {
@@ -27,8 +28,8 @@ const ResetPassword = () => {
     }
   }, [formData.token, navigate]);
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: AuthErrors = {};
 
     if (!formData.email) {
       newErrors.email = 'L\'email est requis';
@@ -52,7 +53,7 @@ const ResetPassword = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -65,7 +66,7 @@ const ResetPassword = () => {
       setTimeout(() => {
         navigate('/login');
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       if (error.response?.status === 422) {
         setErrors(error.response.data.errors || {});
       } else {
@@ -76,17 +77,20 @@ const ResetPassword = () => {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: undefined,
-      }));
+    
+    // Clear error when user types
+    if (errors[name as keyof AuthErrors]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name as keyof AuthErrors];
+        return newErrors;
+      });
     }
   };
 
@@ -141,15 +145,20 @@ const ResetPassword = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                readOnly
                 className={`
                   block w-full px-3 py-3 border rounded-lg bg-gray-50
                   focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
                   ${errors.email ? 'border-red-500' : 'border-gray-300'}
                 `}
                 placeholder="admin@monmiammiam.com"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p id="email-error" className="mt-1 text-sm text-red-600">
+                  {errors.email}
+                </p>
               )}
             </div>
 
@@ -174,11 +183,14 @@ const ResetPassword = () => {
                     ${errors.password ? 'border-red-500' : 'border-gray-300'}
                   `}
                   placeholder="••••••••"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  aria-label={showPassword ? 'Cacher le mot de passe' : 'Afficher le mot de passe'}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -188,7 +200,9 @@ const ResetPassword = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p id="password-error" className="mt-1 text-sm text-red-600">
+                  {errors.password}
+                </p>
               )}
             </div>
 
@@ -213,11 +227,14 @@ const ResetPassword = () => {
                     ${errors.password_confirmation ? 'border-red-500' : 'border-gray-300'}
                   `}
                   placeholder="••••••••"
+                  aria-invalid={!!errors.password_confirmation}
+                  aria-describedby={errors.password_confirmation ? 'password-confirmation-error' : undefined}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  aria-label={showConfirmPassword ? 'Cacher la confirmation du mot de passe' : 'Afficher la confirmation du mot de passe'}
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -227,7 +244,9 @@ const ResetPassword = () => {
                 </button>
               </div>
               {errors.password_confirmation && (
-                <p className="mt-1 text-sm text-red-600">{errors.password_confirmation}</p>
+                <p id="password-confirmation-error" className="mt-1 text-sm text-red-600">
+                  {errors.password_confirmation}
+                </p>
               )}
             </div>
 
@@ -238,16 +257,22 @@ const ResetPassword = () => {
               size="lg"
               loading={loading}
               className="w-full"
+              disabled={loading}
             >
               Réinitialiser le mot de passe
             </Button>
+
+            {/* Back to Login */}
+            <div className="text-center">
+              <Link 
+                to="/login" 
+                className="text-sm text-gray-600 hover:text-primary transition-colors"
+              >
+                Retour à la connexion
+              </Link>
+            </div>
           </form>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-gray-600 mt-6">
-          © 2024 ZeDuc@Space. Tous droits réservés.
-        </p>
       </div>
     </div>
   );

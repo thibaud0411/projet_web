@@ -20,11 +20,11 @@ class AdminUserSeeder extends Seeder
                 'prenom' => 'System',
                 'email' => 'admin@monmiammiam.com',
                 'mot_de_passe' => Hash::make('admin123'), // Change this to a secure password in production
-                'role' => 'administrateur',
+                'id_role' => '1',
                 'telephone' => '0600000000',
                 'date_inscription' => now(),
                 'date_modification' => now(),
-                'est_actif' => true,
+                'statut_compte' => true,
             ]);
 
             $this->command->info('Admin user created successfully!');

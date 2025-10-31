@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\StatisticsController;
+use App\Http\Controllers\Admin\SettingsController;
 
 // Import new controllers
 use App\Http\Controllers\ArticleController;
@@ -192,6 +193,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/statistiques/user/{idUtilisateur}', [StatistiqueController::class, 'getByUser']);
         Route::post('/statistiques/user/{idUtilisateur}/increment-order', [StatistiqueController::class, 'incrementOrder']);
         Route::post('/statistiques/user/{idUtilisateur}/update-rating', [StatistiqueController::class, 'updateAverageRating']);
+        
+        // Settings Management
+        Route::get('/settings', [SettingsController::class, 'index']);
+        Route::put('/settings', [SettingsController::class, 'update']);
+        Route::get('/settings/horaires', [SettingsController::class, 'getHoraires']);
+        Route::put('/settings/horaires', [SettingsController::class, 'updateHoraires']);
         
     });
 });

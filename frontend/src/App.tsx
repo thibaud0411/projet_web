@@ -11,8 +11,8 @@ import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
 import Menu from './pages/Menu';
-import Orders from './pages/Orders';
-import Promotions from './pages/Promotions';
+import Orders from './pages/orders';
+import Promotions from './pages/promotions';
 import Events from './pages/Events';
 import Complaints from './pages/Complaints';
 import Settings from './pages/Settings';
@@ -51,27 +51,11 @@ function App() {
               <Route path="complaints" element={<Complaints />} />
               <Route path="settings" element={<Settings />} />
             </Route>
-
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            
+            <Route path="/" element={<Navigate to="/admin" replace />} />
+            <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
-
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#cfbd97',
-                  secondary: '#fff',
-                },
-              },
-            }}
-          />
+          <Toaster position="top-right" />
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

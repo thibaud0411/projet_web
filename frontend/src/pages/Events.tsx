@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { Plus, Search, Edit, Trash2, Users, Calendar as CalendarIcon, Trophy, MapPin } from 'lucide-react';
 import api from '../api/axios';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Event, EventFormData, EventStatus, EventType, Participation, EventStats } from '../types/event';
 
 const Events = () => {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [participants, setParticipants] = useState([]);
-  const [formData, setFormData] = useState({
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showParticipantsModal, setShowParticipantsModal] = useState<boolean>(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [participants, setParticipants] = useState<Participation[]>([]);
+  const [formData, setFormData] = useState<EventFormData>({
     titre: '',
     description: '',
     type_evenement: 'jeu',
@@ -32,26 +33,36 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (): Promise<void> => {
     try {
-      // Backend admin route is /admin/evenements-admin
-      const response = await api.get('/admin/evenements-admin');
-      const data = Array.isArray(response.data) ? response.data : response.data.data ?? [];
+      interface ApiResponse {
+        data?: Event[];
+        [key: string]: any;
+      }
+      
+      const response = await api.get<Event[] | ApiResponse>('/admin/evenements-admin');
+      const responseData = response.data;
+      const data = Array.isArray(responseData) 
+        ? responseData 
+        : Array.isArray(responseData?.data) 
+          ? responseData.data 
+          : [];
 
       // Normalize fields: backend uses image_url, nombre_participants_max
-      const normalized = data.map(ev => ({
+      const normalized = data.map((ev: any) => ({
         id: ev.id_evenement ?? ev.id ?? null,
         titre: ev.titre,
         description: ev.description,
         type_evenement: ev.type_evenement,
         date_debut: ev.date_debut,
         date_fin: ev.date_fin,
-  lieu: ev.lieu || 'ZeDuc@Space',
-  recompenses: ev.recompense_points || ev.recompenses || '',
-  limite_participants: ev.nombre_participants_max || ev.limite_participants || '',
+        lieu: ev.lieu || 'ZeDuc@Space',
+        recompenses: ev.recompense_points || ev.recompenses || '',
+        limite_participants: ev.nombre_participants_max || ev.limite_participants || '',
         image_affiche: ev.image_url || ev.image_affiche || '',
         est_actif: ev.est_actif ?? true,
         nombre_participants: ev.participations ? ev.participations.length : (ev.nombre_participants || 0),
+        participations: ev.participations || [],
       }));
 
       setEvents(normalized);
@@ -63,12 +74,10 @@ const Events = () => {
     }
   };
 
-  const fetchParticipants = async (eventId) => {
+  const fetchParticipants = async (eventId: number): Promise<void> => {
     try {
-      // Backend provides participations on the event show route
-      const response = await api.get(`/evenements/${eventId}`);
-      const event = response.data;
-      setParticipants(event.participations || []);
+      const response = await api.get<Event>(`/evenements/${eventId}`);
+      setParticipants(response.data.participations || []);
       setShowParticipantsModal(true);
     } catch (error) {
       console.error(error);
@@ -76,7 +85,7 @@ const Events = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
 
     // Validate dates
@@ -99,7 +108,7 @@ const Events = () => {
         est_actif: formData.est_actif,
       };
 
-      if (editingEvent) {
+      if (editingEvent && editingEvent.id) {
         await api.put(`/admin/evenements-admin/${editingEvent.id}`, payload);
         toast.success('Événement modifié avec succès');
       } else {
@@ -110,13 +119,13 @@ const Events = () => {
       setShowModal(false);
       resetForm();
       fetchEvents();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       toast.error(error.response?.data?.message || 'Erreur lors de l\'opération');
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number): Promise<void> => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) return;
 
     try {
@@ -129,7 +138,7 @@ const Events = () => {
     }
   };
 
-  const openEditModal = (event) => {
+  const openEditModal = (event: Event): void => {
     setEditingEvent(event);
     setFormData({
       titre: event.titre,
@@ -139,14 +148,14 @@ const Events = () => {
       date_fin: format(new Date(event.date_fin), "yyyy-MM-dd'T'HH:mm"),
       lieu: event.lieu || 'ZeDuc@Space',
       recompenses: event.recompenses || event.recompense_points || '',
-      limite_participants: event.limite_participants || event.nombre_participants_max || '',
+      limite_participants: event.limite_participants?.toString() || '',
       image_affiche: event.image_affiche || event.image_url || '',
       est_actif: event.est_actif,
     });
     setShowModal(true);
   };
 
-  const resetForm = () => {
+  const resetForm = (): void => {
     setEditingEvent(null);
     setFormData({
       titre: '',
@@ -162,8 +171,8 @@ const Events = () => {
     });
   };
 
-  const getEventTypeLabel = (type) => {
-    const types = {
+  const getEventTypeLabel = (type: EventType): string => {
+    const types: Record<EventType, string> = {
       jeu: 'Jeu',
       concours: 'Concours',
       soiree_thematique: 'Soirée thématique',
@@ -173,8 +182,8 @@ const Events = () => {
     return types[type] || type;
   };
 
-  const getEventTypeColor = (type) => {
-    const colors = {
+  const getEventTypeColor = (type: EventType): string => {
+    const colors: Record<EventType, string> = {
       jeu: 'bg-purple-100 text-purple-800',
       concours: 'bg-blue-100 text-blue-800',
       soiree_thematique: 'bg-pink-100 text-pink-800',
@@ -184,7 +193,7 @@ const Events = () => {
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
 
-  const getEventStatus = (event) => {
+  const getEventStatus = (event: Event): EventStatus => {
     const now = new Date();
     const start = new Date(event.date_debut);
     const end = new Date(event.date_fin);
@@ -199,6 +208,28 @@ const Events = () => {
     event.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const stats: EventStats[] = [
+    { label: 'Total', count: events.length, color: 'bg-blue-500' },
+    {
+      label: 'En cours',
+      count: events.filter(e => {
+        const now = new Date();
+        return new Date(e.date_debut) <= now && new Date(e.date_fin) >= now && e.est_actif;
+      }).length,
+      color: 'bg-green-500'
+    },
+    {
+      label: 'À venir',
+      count: events.filter(e => new Date(e.date_debut) > new Date() && e.est_actif).length,
+      color: 'bg-yellow-500'
+    },
+    {
+      label: 'Participants',
+      count: events.reduce((sum, e) => sum + (e.nombre_participants || 0), 0),
+      color: 'bg-purple-500'
+    },
+  ];
 
   if (loading) {
     return (
@@ -232,17 +263,7 @@ const Events = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Total', count: events.length, color: 'bg-blue-500' },
-          {
-            label: 'En cours', count: events.filter(e => {
-              const now = new Date();
-              return new Date(e.date_debut) <= now && new Date(e.date_fin) >= now && e.est_actif;
-            }).length, color: 'bg-green-500'
-          },
-          { label: 'À venir', count: events.filter(e => new Date(e.date_debut) > new Date() && e.est_actif).length, color: 'bg-yellow-500' },
-          { label: 'Participants', count: events.reduce((sum, e) => sum + (e.nombre_participants || 0), 0), color: 'bg-purple-500' },
-        ].map((stat, idx) => (
+        {stats.map((stat, idx) => (
           <div key={idx} className="bg-white rounded-xl shadow-sm p-4">
             <div className={`${stat.color} w-10 h-10 rounded-lg flex items-center justify-center mb-3`}>
               <CalendarIcon className="text-white" size={20} />
@@ -261,7 +282,7 @@ const Events = () => {
             type="text"
             placeholder="Rechercher un événement..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
@@ -271,8 +292,8 @@ const Events = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEvents.map((event) => {
           const status = getEventStatus(event);
-          const participationRate = event.limite_participants
-            ? ((event.nombre_participants || 0) / event.limite_participants) * 100
+          const participationRate = event.limite_participants && typeof event.limite_participants === 'number' && event.nombre_participants
+            ? (event.nombre_participants / event.limite_participants) * 100
             : 0;
 
           return (
@@ -375,7 +396,9 @@ const Events = () => {
                     size="sm"
                     onClick={() => {
                       setSelectedEvent(event);
-                      fetchParticipants(event.id);
+                      if (event.id) {
+                        fetchParticipants(event.id);
+                      }
                     }}
                     className="flex-1 flex items-center justify-center gap-1"
                   >
@@ -386,13 +409,15 @@ const Events = () => {
                   <button
                     onClick={() => openEditModal(event)}
                     className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                    aria-label="Modifier l'événement"
                   >
                     <Edit size={18} />
                   </button>
 
                   <button
-                    onClick={() => handleDelete(event.id)}
+                    onClick={() => event.id && handleDelete(event.id)}
                     className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                    aria-label="Supprimer l'événement"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -427,7 +452,7 @@ const Events = () => {
                     type="text"
                     required
                     value={formData.titre}
-                    onChange={(e) => setFormData({ ...formData, titre: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, titre: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Ex: Tournoi de billard"
                   />
@@ -438,9 +463,9 @@ const Events = () => {
                     Description
                   </label>
                   <textarea
-                    rows="3"
+                    rows={3}
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Décrivez l'événement..."
                   />
@@ -453,7 +478,7 @@ const Events = () => {
                   <select
                     required
                     value={formData.type_evenement}
-                    onChange={(e) => setFormData({ ...formData, type_evenement: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, type_evenement: e.target.value as EventType })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="jeu">Jeu</option>
@@ -471,7 +496,7 @@ const Events = () => {
                   <input
                     type="text"
                     value={formData.lieu}
-                    onChange={(e) => setFormData({ ...formData, lieu: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, lieu: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="ZeDuc@Space"
                   />
@@ -485,7 +510,7 @@ const Events = () => {
                     type="datetime-local"
                     required
                     value={formData.date_debut}
-                    onChange={(e) => setFormData({ ...formData, date_debut: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, date_debut: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
@@ -498,67 +523,66 @@ const Events = () => {
                     type="datetime-local"
                     required
                     value={formData.date_fin}
-                    onChange={(e) => setFormData({ ...formData, date_fin: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, date_fin: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Limite de participants
+                    Limite de participants (optionnel)
                   </label>
                   <input
                     type="number"
-                    min="0"
+                    min="1"
                     value={formData.limite_participants}
-                    onChange={(e) => setFormData({ ...formData, limite_participants: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, limite_participants: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Laisser vide pour illimité"
+                    placeholder="Illimité si vide"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL de l'affiche
+                    Récompenses (optionnel)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.recompenses}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, recompenses: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Ex: 100 points de fidélité"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    URL de l'image (optionnel)
                   </label>
                   <input
                     type="url"
                     value={formData.image_affiche}
-                    onChange={(e) => setFormData({ ...formData, image_affiche: e.target.value })}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, image_affiche: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="https://example.com/event.jpg"
+                    placeholder="https://example.com/image.jpg"
                   />
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Récompenses
-                  </label>
-                  <textarea
-                    rows="2"
-                    value={formData.recompenses}
-                    onChange={(e) => setFormData({ ...formData, recompenses: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Ex: 1er prix: 10000 FCFA, 2ème prix: 5000 FCFA"
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="est_actif"
+                    checked={formData.est_actif}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, est_actif: e.target.checked })}
+                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                   />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.est_actif}
-                      onChange={(e) => setFormData({ ...formData, est_actif: e.target.checked })}
-                      className="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Événement actif
-                    </span>
+                  <label htmlFor="est_actif" className="ml-2 block text-sm text-gray-700">
+                    Événement actif
                   </label>
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex justify-end gap-3 pt-4 border-t mt-6">
                 <Button
                   type="button"
                   variant="ghost"
@@ -566,12 +590,11 @@ const Events = () => {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="flex-1"
                 >
                   Annuler
                 </Button>
-                <Button type="submit" variant="primary" className="flex-1">
-                  {editingEvent ? 'Modifier' : 'Créer'}
+                <Button type="submit" variant="primary">
+                  {editingEvent ? 'Enregistrer les modifications' : 'Créer l\'événement'}
                 </Button>
               </div>
             </form>
@@ -582,90 +605,53 @@ const Events = () => {
       {/* Participants Modal */}
       {showParticipantsModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl max-w-4xl w-full p-6 my-8">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold">Participants</h2>
-                <p className="text-gray-600">{selectedEvent.titre}</p>
-              </div>
+          <div className="bg-white rounded-xl max-w-2xl w-full p-6 my-8 max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">
+                Participants - {selectedEvent.titre}
+              </h2>
               <button
                 onClick={() => setShowParticipantsModal(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            {participants.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Participant
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Date d'inscription
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Score
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Statut
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {participants.map((participant) => (
-                      <tr key={participant.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
-                              {participant.prenom?.charAt(0)}{participant.nom?.charAt(0)}
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {participant.prenom} {participant.nom}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {participant.email}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {format(new Date(participant.date_participation), 'dd MMM yyyy HH:mm', { locale: fr })}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="text-sm font-medium text-gray-900">
-                            {participant.score || '-'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {participant.a_gagne ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                              <Trophy size={12} />
-                              Gagnant
-                            </span>
-                          ) : (
-                            <span className="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
-                              Participant
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Users className="mx-auto text-gray-400 mb-4" size={48} />
-                <p className="text-gray-500">Aucun participant pour le moment</p>
-              </div>
-            )}
+            <div className="flex-1 overflow-y-auto">
+              {participants.length > 0 ? (
+                <div className="space-y-2">
+                  {participants.map((participation) => (
+                    <div key={participation.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium">
+                          {participation.utilisateur.prenom} {participation.utilisateur.nom}
+                        </p>
+                        <p className="text-sm text-gray-500">{participation.utilisateur.email}</p>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        Inscrit le {format(new Date(participation.date_inscription), 'dd/MM/yyyy', { locale: fr })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Aucun participant pour le moment</p>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-4 mt-4 border-t flex justify-end">
+              <Button
+                onClick={() => setShowParticipantsModal(false)}
+                variant="outline"
+              >
+                Fermer
+              </Button>
+            </div>
           </div>
         </div>
       )}

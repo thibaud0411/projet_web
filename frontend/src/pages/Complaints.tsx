@@ -1,29 +1,33 @@
-import { useState, useEffect } from 'react';
-import { Search, MessageSquare, Eye, CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react';
+import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import { Search, MessageSquare, Eye, CheckCircle, Clock, XCircle, AlertCircle, LucideIcon } from 'lucide-react';
 import api from '../api/axios';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Complaint, StatusConfig, PriorityConfig, StatusOption, ComplaintStatus, ComplaintPriority } from '../types/complaint';
 
 const Complaints = () => {
-  const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedComplaint, setSelectedComplaint] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [responseText, setResponseText] = useState('');
+  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState<boolean>(false);
+  const [responseText, setResponseText] = useState<string>('');
 
   useEffect(() => {
     fetchComplaints();
   }, []);
 
-  const fetchComplaints = async () => {
+  const fetchComplaints = async (): Promise<void> => {
     try {
-      // Backend admin listing route is /admin/reclamations-all
-      const response = await api.get('/admin/reclamations-all');
-      const data = Array.isArray(response.data) ? response.data : response.data.data ?? [];
+      const response = await api.get<{ data: Complaint[] } | Complaint[]>('/admin/reclamations-all');
+      const data = Array.isArray(response.data) 
+        ? response.data 
+        : Array.isArray(response.data?.data) 
+          ? response.data.data 
+          : [];
       setComplaints(data);
     } catch (error) {
       console.error('Erreur lors du chargement des réclamations', error);
@@ -32,10 +36,10 @@ const Complaints = () => {
       setLoading(false);
     }
   };
-  const viewComplaintDetails = async (complaintId) => {
+
+  const viewComplaintDetails = async (complaintId: number): Promise<void> => {
     try {
-      // Get complaint details from /reclamations/{id}
-      const response = await api.get(`/reclamations/${complaintId}`);
+      const response = await api.get<Complaint>(`/reclamations/${complaintId}`);
       setSelectedComplaint(response.data);
       setResponseText(response.data.reponse || '');
       setShowDetailsModal(true);
@@ -44,9 +48,9 @@ const Complaints = () => {
       toast.error('Erreur lors du chargement des détails');
     }
   };
-  const updateComplaintStatus = async (complaintId, newStatus) => {
+
+  const updateComplaintStatus = async (complaintId: number, newStatus: ComplaintStatus): Promise<void> => {
     try {
-      // Backend supports updating via PATCH /reclamations/{id}
       await api.patch(`/reclamations/${complaintId}`, { statut: newStatus });
       toast.success('Statut mis à jour');
       fetchComplaints();
@@ -59,7 +63,7 @@ const Complaints = () => {
     }
   };
 
-  const submitResponse = async (e) => {
+  const submitResponse = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     
     if (!responseText.trim()) {
@@ -67,8 +71,9 @@ const Complaints = () => {
       return;
     }
 
+    if (!selectedComplaint) return;
+
     try {
-      // Backend provides /reclamations/{id}/resolve to mark as resolved with a response
       await api.post(`/reclamations/${selectedComplaint.id}/resolve`, {
         reponse: responseText
       });
@@ -81,7 +86,7 @@ const Complaints = () => {
     }
   };
 
-  const statusOptions = [
+  const statusOptions: StatusOption[] = [
     { value: 'all', label: 'Toutes', color: 'bg-gray-500' },
     { value: 'en_attente', label: 'En attente', color: 'bg-yellow-500' },
     { value: 'en_cours', label: 'En cours', color: 'bg-blue-500' },
@@ -89,8 +94,8 @@ const Complaints = () => {
     { value: 'rejetee', label: 'Rejetée', color: 'bg-red-500' },
   ];
 
-  const getStatusConfig = (status) => {
-    const configs = {
+  const getStatusConfig = (status: string): StatusConfig => {
+    const configs: Record<string, StatusConfig> = {
       en_attente: { 
         label: 'En attente', 
         color: 'bg-yellow-100 text-yellow-800',
@@ -116,17 +121,17 @@ const Complaints = () => {
         iconColor: 'text-red-600'
       },
     };
-    return configs[status] || configs.en_attente;
+    return configs[status as keyof typeof configs] || configs.en_attente;
   };
 
-  const getPriorityConfig = (priority) => {
-    const configs = {
+  const getPriorityConfig = (priority: string): PriorityConfig => {
+    const configs: Record<string, PriorityConfig> = {
       basse: { label: 'Basse', color: 'bg-gray-100 text-gray-800' },
       moyenne: { label: 'Moyenne', color: 'bg-blue-100 text-blue-800' },
       haute: { label: 'Haute', color: 'bg-orange-100 text-orange-800' },
       urgente: { label: 'Urgente', color: 'bg-red-100 text-red-800' },
     };
-    return configs[priority] || configs.basse;
+    return configs[priority as keyof typeof configs] || configs.basse;
   };
 
   const filteredComplaints = complaints.filter(complaint => {
@@ -188,14 +193,14 @@ const Complaints = () => {
               type="text"
               placeholder="Rechercher une réclamation..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
           
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => setStatusFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           >
             {statusOptions.map(status => (
@@ -276,6 +281,7 @@ const Complaints = () => {
                       <button
                         onClick={() => viewComplaintDetails(complaint.id)}
                         className="text-primary hover:text-primary/80"
+                        aria-label="Voir les détails"
                       >
                         <Eye size={18} />
                       </button>
@@ -308,6 +314,7 @@ const Complaints = () => {
                   setResponseText('');
                 }}
                 className="text-gray-400 hover:text-gray-600"
+                aria-label="Fermer"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -377,7 +384,7 @@ const Complaints = () => {
                 {statusOptions.slice(1).map((status) => (
                   <Button
                     key={status.value}
-                    onClick={() => updateComplaintStatus(selectedComplaint.id, status.value)}
+                    onClick={() => updateComplaintStatus(selectedComplaint.id, status.value as ComplaintStatus)}
                     variant={selectedComplaint.statut === status.value ? 'primary' : 'outline'}
                     size="sm"
                   >
@@ -405,9 +412,9 @@ const Complaints = () => {
               ) : (
                 <form onSubmit={submitResponse}>
                   <textarea
-                    rows="4"
+                    rows={4}
                     value={responseText}
-                    onChange={(e) => setResponseText(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setResponseText(e.target.value)}
                     placeholder="Entrez votre réponse..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary mb-3"
                     required

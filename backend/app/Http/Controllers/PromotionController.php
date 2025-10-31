@@ -13,38 +13,48 @@ class PromotionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Promotion::query();
+        try {
+            $query = Promotion::query();
 
-        // Filter by active status
-        if ($request->has('active')) {
-            $query->where('active', $request->active);
+            // Filter by active status
+            if ($request->has('active')) {
+                $query->where('active', $request->active);
+            }
+
+            // Filter by current/active promotions
+            if ($request->has('current')) {
+                $query->where('date_debut', '<=', now())
+                      ->where('date_fin', '>=', now())
+                      ->where('active', true);
+            }
+
+            // Filter by upcoming promotions
+            if ($request->has('upcoming')) {
+                $query->where('date_debut', '>', now());
+            }
+
+            // Search by code
+            if ($request->has('code_promo')) {
+                $query->where('code_promo', $request->code_promo);
+            }
+
+            // Order by creation date
+            $query->orderBy('date_creation', 'desc');
+
+            // Pagination
+            $perPage = $request->get('per_page', 15);
+            $promotions = $query->paginate($perPage);
+
+            return response()->json($promotions);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des promotions',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        // Filter by current/active promotions
-        if ($request->has('current')) {
-            $query->where('date_debut', '<=', now())
-                  ->where('date_fin', '>=', now())
-                  ->where('active', true);
-        }
-
-        // Filter by upcoming promotions
-        if ($request->has('upcoming')) {
-            $query->where('date_debut', '>', now());
-        }
-
-        // Search by code
-        if ($request->has('code_promo')) {
-            $query->where('code_promo', $request->code_promo);
-        }
-
-        // Order by creation date
-        $query->orderBy('date_creation', 'desc');
-
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $promotions = $query->paginate($perPage);
-
-        return response()->json($promotions);
     }
 
     /**
