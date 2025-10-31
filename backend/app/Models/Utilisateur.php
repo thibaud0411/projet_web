@@ -3,42 +3,27 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// Si vous utilisez l'authentification Laravel, 'Authenticatable' est meilleur
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+// On utilise Authenticatable car c'est notre modèle d'utilisateur principal
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-// Changez 'Model' en 'Authenticatable' si c'est votre modèle d'authentification
-class Utilisateur extends Authenticatable // ou Model
+class Utilisateur extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'utilisateur';
     protected $primaryKey = 'id_utilisateur';
-
-    // --- DÉBUT DES MODIFICATIONS ---
-
-    /**
-     * Indique à Laravel que les timestamps sont activés.
-     */
-    public $timestamps = true; // C'était 'false'
     
-
-    /**
-     * Définit le nom de la colonne "created_at" personnalisée.
-     */
+    // Correspondance pour les timestamps personnalisés de votre SQL
     const CREATED_AT = 'date_inscription';
-
-    /**
-     * Définit le nom de la colonne "updated_at" personnalisée.
-     */
     const UPDATED_AT = 'date_modification';
 
-    // --- FIN DES MODIFICATIONS ---
-
-
     /**
-     * The attributes that are mass assignable.
-     * Met à jour 'fillable' pour correspondre à votre nouvelle migration.
+     * Les attributs qui peuvent être assignés en masse.
      */
     protected $fillable = [
         'nom',
@@ -46,38 +31,83 @@ class Utilisateur extends Authenticatable // ou Model
         'email',
         'mot_de_passe',
         'telephone',
-        'localisation', // Ajouté depuis votre migration
-        'points_fidelite', // Ajouté
-        'code_parrainage', // Ajouté
-        'id_parrain', // Ajouté
+        'localisation',
+        'points_fidelite',
+        'code_parrainage',
+        'id_parrain',
         'id_role',
-        'statut_compte', // Ajouté
+        'statut_compte',
+        'est_actif',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Get the password for the user.
+     */
+    public function getAuthPassword()
+    {
+        return $this->mot_de_passe;
+    }
+
+    /**
+     * Get the name of the unique identifier for the user.
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'id_utilisateur';
+    }
+
+    /**
+     * Les attributs à cacher lors de la conversion en JSON (ex: réponses API).
      */
     protected $hidden = [
         'mot_de_passe',
-        'remember_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Un Utilisateur APPARTIENT A un Rôle.
      */
-    protected $casts = [
-        'mot_de_passe' => 'hashed',
-        'date_inscription' => 'datetime',
-        'derniere_connexion' => 'datetime',
-        'date_modification' => 'datetime',
-        'statut_compte' => 'boolean',
-    ];
-    public function getAuthPassword()
-    {
-        return $this->mot_de_passe; // Doit correspondre à votre colonne DB
-    }
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'id_role', 'id_role');
+    }
+
+    /**
+     * Un Utilisateur (parrain) PEUT AVOIR plusieurs Parrainages.
+     */
+    public function parrainages(): HasMany
+    {
+        return $this->hasMany(Parrainage::class, 'id_parrain', 'id_utilisateur');
+    }
+
+    /**
+     * Un Utilisateur PEUT AVOIR plusieurs Commandes.
+     */
+    public function commandes(): HasMany
+    {
+        return $this->hasMany(Commande::class, 'id_utilisateur', 'id_utilisateur');
+    }
+
+    /**
+     * Un Utilisateur PEUT AVOIR plusieurs Réclamations.
+     */
+    public function reclamations(): HasMany
+    {
+        return $this->hasMany(Reclamation::class, 'id_utilisateur', 'id_utilisateur');
+    }
+    
+    /**
+     * Un Utilisateur PEUT AVOIR une fiche Employe (relation 1-1).
+     */
+    public function employe(): HasOne
+    {
+        return $this->hasOne(Employe::class, 'id_utilisateur', 'id_utilisateur');
+    }
+
+    /**
+     * Un Utilisateur PEUT AVOIR une fiche Statistique (relation 1-1).
+     */
+    public function statistique(): HasOne
+    {
+        return $this->hasOne(Statistique::class, 'id_utilisateur', 'id_utilisateur');
     }
 }

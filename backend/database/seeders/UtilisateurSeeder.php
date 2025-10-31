@@ -3,38 +3,84 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Utilisateur;
-use App\Models\Role;
-use Illuminate\Support\Facades\Hash; // Pour hasher le mot de passe
+use Illuminate\Support\Facades\Hash;
 
 class UtilisateurSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $roleEtudiant = Role::where('nom_role', 'Etudiant')->first();
+        // Create test users with different roles
+        $users = [
+            [
+                'nom' => 'Admin',
+                'prenom' => 'User',
+                'email' => 'admin@teste.com',
+                'mot_de_passe' => Hash::make('password'),
+                'telephone' => '0123456789',
+                'localisation' => 'Admin Location',
+                'points_fidelite' => 0,
+                'code_parrainage' => 'ADMIN1234',
+                'id_parrain' => null,
+                'id_role' => 1, // Administrateur
+                'statut_compte' => true,
+                'date_inscription' => now(),
+                'date_modification' => now()
+            ],
+            [
+                'nom' => 'Gérant',
+                'prenom' => 'User',
+                'email' => 'gerant@test.com',
+                'mot_de_passe' => Hash::make('password'),
+                'telephone' => '0123456788',
+                'localisation' => 'Gérant Location',
+                'points_fidelite' => 0,
+                'code_parrainage' => 'GERANT123',
+                'id_parrain' => null,
+                'id_role' => 2, // Gérant
+                'statut_compte' => true,
+             
+                'date_inscription' => now(),
+                'date_modification' => now()
+            ],
+            [
+                'nom' => 'Employé',
+                'prenom' => 'User',
+                'email' => 'employe@test.com',
+                'mot_de_passe' => Hash::make('password'),
+                'telephone' => '0123456787',
+                'localisation' => 'Employé Location',
+                'points_fidelite' => 0,
+                'code_parrainage' => 'EMPLOYE123',
+                'id_parrain' => null,
+                'id_role' => 3, // Employé
+                'statut_compte' => true,
+                
+                'date_inscription' => now(),
+                'date_modification' => now()
+            ],
+            [
+                'nom' => 'Étudiant',
+                'prenom' => 'User',
+                'email' => 'etudiant@test.com',
+                'mot_de_passe' => Hash::make('password'),
+                'telephone' => '0123456786',
+                'localisation' => 'Étudiant Location',
+                'points_fidelite' => 0,
+                'code_parrainage' => 'ETUDIANT123',
+                'id_parrain' => null,
+                'id_role' => 4, // Étudiant
+                'statut_compte' => true,
+            
+                'date_inscription' => now(),
+                'date_modification' => now()
+            ]
+        ];
 
-        if (!$roleEtudiant) {
-            $this->command->error("Le rôle 'Etudiant' n'existe pas. Lancez RoleSeeder d'abord.");
-            return;
+        foreach ($users as $user) {
+            Utilisateur::create($user);
         }
-
-        Utilisateur::create([
-            'nom' => 'Dupont',
-            'prenom' => 'Alice',
-            'email' => 'alice.dupont@etu.test',
-            'mot_de_passe' => Hash::make('password123'), // Utilise un mot de passe sécurisé
-            'telephone' => '123456789',
-            'id_role' => $roleEtudiant->id_role,
-        ]);
-
-        Utilisateur::create([
-            'nom' => 'Martin',
-            'prenom' => 'Bob',
-            'email' => 'bob.martin@etu.test',
-            'mot_de_passe' => Hash::make('password123'),
-            'telephone' => '987654321',
-            'id_role' => $roleEtudiant->id_role,
-        ]);
-
-        $this->command->info('UtilisateurSeeder exécuté.');
     }
 }

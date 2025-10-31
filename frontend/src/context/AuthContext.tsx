@@ -1,105 +1,120 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import apiClient, { initSanctum } from '../apiClient';
-import { Navigate } from 'react-router-dom';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { User, AuthContextType } from '../types';
 
-// --- DÉBUT MODIFICATION ---
-// Type pour le Rôle (doit correspondre à la DB)
-interface Role {
-  id_role: number;
-  nom_role: 'Gerant' | 'Employe' | 'Etudiant' | 'Administrateur';
-  description: string | null;
-}
-
-// Type pour l'utilisateur (maintenant avec le rôle)
-interface User {
-  id_utilisateur: number; // Correspond à votre modèle
-  nom: string;
-  prenom: string;
-  email: string;
-  role: Role; // Attend l'objet Rôle imbriqué
-  // ... autres champs
-}
-// --- FIN MODIFICATION ---
-
-// Type pour le contexte
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<User>; // <<< MODIFIÉ: Renvoie l'utilisateur
-  logout: () => Promise<void>;
-}
-
-// Création du contexte
+// Create context with default values
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// --- DÉBUT DE LA CORRECTION (Hook useAuth) ---
-// Voici la définition complète et correcte du hook useAuth
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth doit être utilisé à l\'intérieur d\'un AuthProvider');
-  }
-  return context;
-};
-// --- FIN DE LA CORRECTION ---
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
-
-// Composant "Fournisseur"
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
+  // Set up axios defaults
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        // Tente de récupérer l'utilisateur (qui inclut le rôle grâce à notre modif Laravel)
-        const response = await apiClient.get<User>('/user'); // Attend le type User
-        setUser(response.data);
-      } catch (error) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkUser();
+    axios.defaults.baseURL = 'http://localhost:8000';
+    axios.defaults.headers.common['Accept'] = 'application/json';
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.withCredentials = true; // Important for cookies
   }, []);
 
-  // Fonction de Connexion (Modifiée pour renvoyer l'utilisateur)
-  const login = async (email: string, password: string): Promise<User> => {
+  useEffect(() => {
+    // Check for existing token
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchUser = async (): Promise<void> => {
     try {
-      // 1. Initialise le cookie CSRF (Sanctum)
-      await initSanctum();
-      
-      // 2. Tente de se connecter (POST /login)
-      await apiClient.post('/login', { email, password });
+      const response: AxiosResponse<{ data: User }> = await axios.get('/api/user');
+      setUser(response.data.data);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      // 3. Récupère les infos de l'utilisateur connecté (GET /user)
-      const response = await apiClient.get<User>('/user');
-      setUser(response.data);
-      return response.data; // <<<--- RENVOIE L'UTILISATEUR
+  const login = async (email: string, password: string, remember: boolean = false): Promise<void> => {
+    try {
+      // Get CSRF cookie first
+      await axios.get('/sanctum/csrf-cookie');
 
-    } catch (error: any) {
-      console.error("Erreur de connexion:", error);
+      // Then login
+      const response = await axios.post<{ token: string; user: User }>('/api/login', {
+        email,
+        password,
+        remember
+      });
+
+      // Store token
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      setUser(user);
+    } catch (error) {
+      console.error('Login error:', error);
       throw error;
     }
   };
 
-  // Fonction de Déconnexion (Inchangée)
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
-      await apiClient.post('/logout');
+      await axios.post('/api/logout');
     } catch (error) {
-      console.error("Erreur de déconnexion:", error);
+      console.error('Logout error:', error);
     } finally {
       setUser(null);
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common['Authorization'];
     }
   };
 
-  const value = { user, loading, login, logout };
+  const register = async (userData: any): Promise<void> => {
+    try {
+      await axios.get('/sanctum/csrf-cookie');
+      const response = await axios.post<{ token: string; user: User }>('/api/register', userData);
+      
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      setUser(user);
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
+  };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  const value: AuthContextType = {
+    user,
+    loading,
+    login,
+    logout,
+    register,
+    isAuthenticated: !!user,
+    isAdmin: user?.role === 'administrateur',
+    isGerant: user?.role === 'gerant'
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthContextType {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

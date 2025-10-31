@@ -1,24 +1,30 @@
+// src/index.tsx (ou main.tsx)
+
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-// 1. Importer le BON routeur (celui dans le dossier /router/)
-import { AppRouter } from './router/AppRouter'; 
+// 1. Importer le SEUL composant App (le Fichier 2)
+import App from './App';
 
-// 2. Importer le Fournisseur d'Authentification (la "bouteille")
-import { AuthProvider } from './context/AuthContext';
-
-// 3. Importer tous les styles
+// 2. Importer tous les styles
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'aos/dist/aos.css';
-import './index.css'; // Tes styles, toujours en dernier
+import './index.css'; // Vos styles, toujours en dernier
 
-// 4. Rendu de l'application
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    {/* 5. On enveloppe le BON routeur avec la "bouteille" */}
-    <AuthProvider>
-      <AppRouter />
-    </AuthProvider>
-  </StrictMode>
-);
+initSanctum().finally(() => {
+  
+  // 3. Rendre l'application SEULEMENT APRÈS que initSanctum soit terminé
+  const container = document.getElementById('root');
+  if (!container) {
+    throw new Error('Failed to find the root element');
+  }
+  const root = createRoot(container);
+
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+
+});
