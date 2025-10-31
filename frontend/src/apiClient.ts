@@ -28,17 +28,24 @@ export const initSanctum = () => {
   });
 };
 
-// 3.5. Intercepteur de REQUÊTE - Ajoute le token CSRF depuis les cookies
+// 3.5. Request Interceptor - Add CSRF token from cookies
 apiClient.interceptors.request.use((config) => {
-  // Lire le cookie XSRF-TOKEN
-  const token = document.cookie
+  // Get the CSRF token from the meta tag (set by Laravel)
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  
+  // If we have a token, set the X-XSRF-TOKEN header
+  if (csrfToken) {
+    config.headers['X-XSRF-TOKEN'] = csrfToken;
+  }
+  
+  // Also try to get the XSRF-TOKEN from cookies as a fallback
+  const xsrfToken = document.cookie
     .split('; ')
     .find(row => row.startsWith('XSRF-TOKEN='))
     ?.split('=')[1];
-  
-  // Si le token existe, l'ajouter au header X-XSRF-TOKEN
-  if (token) {
-    config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
+    
+  if (xsrfToken) {
+    config.headers['X-XSRF-TOKEN'] = decodeURIComponent(xsrfToken);
   }
   
   return config;
