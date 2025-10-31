@@ -127,7 +127,7 @@ export function ContactPage({ onNavigate, userRole }: { onNavigate: (page: strin
                 <h3 className="text-2xl text-[#000000] mb-3">Nos coordonnées</h3>
                 <ul className="space-y-2">
                   <li><strong>📍 Adresse :</strong> ZeDuc@Space, Institut UCAC-ICAM</li>
-                  <li><strong>📞 Téléphone :</strong> +237 697 58 76 48</li>
+                  <li><strong>📞 Téléphone :</strong> +237 6 87 48 52 95</li>
                   <li>
                     <strong>📧 Email :</strong>{" "}
                     <a href="mailto:majournee321@gmail.com" className="text-[#cfbd97] hover:underline">

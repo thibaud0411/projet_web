@@ -81,14 +81,13 @@ const Progress = ({ value, className = '' }) => (
 const Textarea = ({ id, value, onChange, placeholder, className, required }) => (
     <textarea 
         id={id} 
-        value={value} 
-        onChange={onChange} 
+        value={value} // Utilise la prop 'value' reçue (qui sera 'complaint')
+        onChange={onChange} // Utilise la prop 'onChange' reçue (qui sera 'setComplaint')
         placeholder={placeholder} 
         className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
         required={required}
     />
 );
-
 // Minimal Input Stub
 const Input = ({ id, value, onChange, placeholder, className, required }) => (
     <input 
@@ -202,9 +201,49 @@ interface StudentDashboardProps {
 }
 
 
-export function StudentDashboard({ onLogout, onNavigate }: StudentDashboardProps) {
+const ComplaintsContent = ({ complaint, setComplaint, submitComplaint }) => ( 
+    <div className="space-y-6">
+        <Card className="p-8 bg-white border-0 rounded-3xl shadow-lg">
+            <h2 className="text-3xl text-[#000000] mb-6">Soumettre une Réclamation</h2>
+            
+            {/* Le reste de votre JSX est correct */}
+            <form className="space-y-6" onSubmit={submitComplaint}>
+                <div className="space-y-3">
+                    <Label htmlFor="complaint" className="text-[#000000]">Décris ton problème</Label>
+                    <Textarea
+                        id="complaint"
+                        value={complaint}
+                        onChange={(e) => setComplaint(e.target.value)}
+                        placeholder="Explique-nous ce qui s'est passé..."
+                        className="min-h-32 rounded-2xl border-2 border-[#EFD9A7] focus:border-[#cfbd97] bg-white"
+                        required
+                    />
+                </div>
+                <Button 
+                    type="submit"
+                    className="w-full h-14 bg-[#cfbd97] hover:bg-[#cfbd97] text-white rounded-2xl text-lg"
+                >
+                    Envoyer la réclamation
+                </Button>
+            </form>
+        </Card>
+
+        <Card className="p-8 bg-[#EFD9A7]/30 border-0 rounded-3xl">
+            <h3 className="text-[#000000] mb-4">Besoin d'aide ?</h3>
+            <p className="text-[#5E4B3C] mb-6">
+                Notre équipe est là pour t'aider. Nous répondons généralement dans les 24 heures.
+            </p>
+            <div className="space-y-2 text-sm text-[#5E4B3C]">
+                <p>📧 contact : majournee123@gmail.com</p>
+                <p>📞 +237 6 87 48 52 95</p>
+            </div>
+        </Card>
+    </div>
+);
+
+
+export function StudentDashboard({ onLogout, onNavigate, cart, setCart, orderHistory, setOrderHistory }: StudentDashboardProps) {
     // État du panier et de la page active (activeTab devient activePage)
-    const [cart, setCart] = useState<CartItem[]>([]);
     const [activePage, setActivePage] = useState('overview'); // Renommage de activeTab
     const [complaint, setComplaint] = useState('');
     const [orderHistory, setOrderHistory] = useState<Order[]>([]);
@@ -292,7 +331,7 @@ const goToCheckout = () => {
         
 // --- START: Content Renderers (Abstracted from TabsContent) ---
 
-const NotificationBanner = () => {
+const NotificationBanner = ({ notification, setNotification }) => { 
     if (!notification) return null;
 
     const baseClasses = "fixed bottom-4 right-4 p-4 rounded-xl shadow-2xl flex items-center gap-3 z-[9999] transition-all transform";
@@ -649,45 +688,6 @@ const LoyaltyContent = () => (
     </div>
 );
 
-const ComplaintsContent = () => (
-    <div className="space-y-6">
-        <Card className="p-8 bg-white border-0 rounded-3xl shadow-lg">
-            <h2 className="text-3xl text-[#000000] mb-6">Soumettre une Réclamation</h2>
-            
-            <form className="space-y-6" onSubmit={submitComplaint}>
-                <div className="space-y-3">
-                    <Label htmlFor="complaint" className="text-[#000000]">Décris ton problème</Label>
-                    <Textarea
-                        id="complaint"
-                        value={complaint}
-                        onChange={(e) => setComplaint(e.target.value)}
-                        placeholder="Explique-nous ce qui s'est passé..."
-                        className="min-h-32 rounded-2xl border-2 border-[#EFD9A7] focus:border-[#cfbd97] bg-white"
-                        required
-                    />
-                </div>
-                <Button 
-                    type="submit"
-                    className="w-full h-14 bg-[#cfbd97] hover:bg-[#cfbd97] text-white rounded-2xl text-lg"
-                >
-                    Envoyer la réclamation
-                </Button>
-            </form>
-        </Card>
-
-        <Card className="p-8 bg-[#EFD9A7]/30 border-0 rounded-3xl">
-            <h3 className="text-[#000000] mb-4">Besoin d'aide ?</h3>
-            <p className="text-[#5E4B3C] mb-6">
-                Notre équipe est là pour t'aider. Nous répondons généralement dans les 24 heures.
-            </p>
-            <div className="space-y-2 text-sm text-[#5E4B3C]">
-                <p>📧 contact : majournee123@gmail.com</p>
-                <p>📞 +237 6 97 58 76 48</p>
-            </div>
-        </Card>
-    </div>
-);
-
 // --- END: Content Renderers ---
 
 // Navigation items definition for the new header structure
@@ -705,7 +705,7 @@ const renderContent = () => {
         case 'overview':
             return <OverviewContent />;
         case 'menu':
-            // 🛑 Passage des props de filtre au MenuContent 🛑
+            //  Passage des props de filtre au MenuContent 
             return (
                 <MenuContent 
                     searchTerm={searchTerm} 
@@ -723,7 +723,13 @@ const renderContent = () => {
         case 'loyalty':
             return <LoyaltyContent />;
         case 'complaints':
-            return <ComplaintsContent />;
+            return (
+                <ComplaintsContent 
+                    complaint={complaint} 
+                    setComplaint={setComplaint} 
+                    submitComplaint={submitComplaint} 
+                />
+            );
         default:
             return <OverviewContent />;
     }
@@ -731,7 +737,10 @@ const renderContent = () => {
 
     return (
         <div className="min-h-screen bg-[#FAF3E0] font-sans">
-            <NotificationBanner />
+            <NotificationBanner 
+    notification={notification} 
+    setNotification={setNotification} 
+/>
 
           {/* Header (Main bar + Navigation bar) */}
           <header className="sticky top-0 z-50 bg-white shadow-xl">
@@ -744,7 +753,7 @@ const renderContent = () => {
                   </div>
                   <div>
                     <h1 className="text-[#cfbd97] text-2xl font-bold">Mon Miam Miam</h1>
-
+                    <p className="text-xs text-[#5E4B3C]">Espace Etudiant</p>
                   </div>
                 </div>
                 
