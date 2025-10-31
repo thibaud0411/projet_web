@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './components/layout/AdminLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import SignUp from './pages/SignUp';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
@@ -44,6 +45,7 @@ function App() {
             {/* Routes publiques */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             
@@ -64,9 +66,9 @@ function App() {
               <Route path="settings" element={<Settings />} />
             </Route>
             
-            {/* Rediriger la racine "/" et tout autre chemin vers "/admin" */}
-            <Route path="/" element={<Navigate to="/admin" replace />} />
-            <Route path="*" element={<Navigate to="/admin" replace />} />
+            {/* Rediriger la racine "/" vers login */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
           
           {/* 5. Composant pour afficher les notifications (Toasts) */}

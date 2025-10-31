@@ -1,12 +1,12 @@
-// User type
+// User type (matches backend response)
 export interface User {
   id: number;
-  name: string;
+  nom: string;
+  prenom: string;
   email: string;
+  telephone?: string;
   role: 'administrateur' | 'gerant' | 'client';
-  email_verified_at?: string;
-  created_at?: string;
-  updated_at?: string;
+  points_fidelite?: number;
 }
 
 // Form error type

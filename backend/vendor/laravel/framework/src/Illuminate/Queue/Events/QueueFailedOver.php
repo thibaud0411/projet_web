@@ -2,8 +2,6 @@
 
 namespace Illuminate\Queue\Events;
 
-use Throwable;
-
 class QueueFailedOver
 {
     /**
@@ -15,7 +13,6 @@ class QueueFailedOver
     public function __construct(
         public ?string $connectionName,
         public mixed $command,
-        public Throwable $exception,
     ) {
     }
 }

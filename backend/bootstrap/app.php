@@ -25,12 +25,17 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\Session\Middleware\AuthenticateSession::class,
+            // AuthenticateSession removed - incompatible with Sanctum token auth
             \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             // 'throttle:api', // Vous pouvez décommenter ceci plus tard pour la limitation de requêtes
         ]);
         // --- FIN DE LA CORRECTION ---
+
+        // Register custom middleware aliases
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+        ]);
 
         $middleware->web(append: [
             // Vous pouvez ajouter des middleware web ici si nécessaire

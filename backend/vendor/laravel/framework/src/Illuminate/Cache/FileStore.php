@@ -220,7 +220,7 @@ class FileStore implements Store, LockProvider
 
         return new FileLock(
             new static($this->files, $this->lockDirectory ?? $this->directory, $this->filePermission),
-            "file-store-lock:{$name}",
+            $name,
             $seconds,
             $owner
         );

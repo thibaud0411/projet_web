@@ -204,10 +204,6 @@ class StartSession
             ! $request->prefetch() &&
             ! $request->isPrecognitive()) {
             $session->setPreviousUrl($request->fullUrl());
-
-            if (method_exists($session, 'setPreviousRoute')) {
-                $session->setPreviousRoute($request->route()->getName());
-            }
         }
     }
 

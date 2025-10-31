@@ -163,22 +163,6 @@ class FailoverStore extends TaggableStore implements LockProvider
     }
 
     /**
-     * Remove all expired tag set entries.
-     *
-     * @return void
-     */
-    public function flushStaleTags()
-    {
-        foreach ($this->stores as $store) {
-            if ($this->store($store)->getStore() instanceof RedisStore) {
-                $this->store($store)->flushStaleTags();
-
-                break;
-            }
-        }
-    }
-
-    /**
      * Get the cache key prefix.
      *
      * @return string
@@ -211,10 +195,10 @@ class FailoverStore extends TaggableStore implements LockProvider
     /**
      * Get the cache store for the given store name.
      *
-     * @return \Illuminate\Contracts\Cache\Repository
+     * @return \Illuminate\Contracts\Cache\Store
      */
     protected function store(string $store)
     {
-        return $this->cache->store($store);
+        return $this->cache->store($store)->getStore();
     }
 }

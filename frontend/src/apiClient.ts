@@ -2,33 +2,49 @@
 
 import axios from 'axios';
 
-// 1. Récupérer l'URL de l'API depuis les variables d'environnement (de Fichier 1)
-const API_URL = import.meta.env.VITE_API_URL; // Exemple : http://127.0.0.1:8000
+// 1. Get API URL from environment - MUST use direct URL for CSRF to work
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // 2. Créer l'instance axios
 const apiClient = axios.create({
-  // URL de base pour toutes les requêtes API (de Fichier 1)
+  // URL de base pour toutes les requêtes API - MUST be direct URL
   baseURL: `${API_URL}/api`,
   
-  // Essentiel pour l'authentification par cookie Sanctum (des deux fichiers)
+  // Essentiel pour l'authentification par cookie Sanctum
   withCredentials: true,
   
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    // Header important volé au Fichier 2 (indique à Laravel que c'est une requête AJAX)
     'X-Requested-With': 'XMLHttpRequest',
   },
 });
 
-// 3. Fonction pour initialiser Sanctum (de Fichier 1, vitale)
-//    Elle doit être appelée UNE SEULE FOIS au démarrage de l'application
+// 3. Fonction pour initialiser Sanctum
 export const initSanctum = () => {
-  // L'URL /sanctum/csrf-cookie n'est PAS dans /api
+  // L'URL /sanctum/csrf-cookie n'est PAS dans /api - MUST be direct URL
   return axios.get(`${API_URL}/sanctum/csrf-cookie`, {
     withCredentials: true,
   });
 };
+
+// 3.5. Intercepteur de REQUÊTE - Ajoute le token CSRF depuis les cookies
+apiClient.interceptors.request.use((config) => {
+  // Lire le cookie XSRF-TOKEN
+  const token = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('XSRF-TOKEN='))
+    ?.split('=')[1];
+  
+  // Si le token existe, l'ajouter au header X-XSRF-TOKEN
+  if (token) {
+    config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
+  }
+  
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
 // 4. Intercepteur de RÉPONSE (volé au Fichier 2, excellente idée)
 //    Il s'exécute APRÈS avoir reçu une réponse du serveur

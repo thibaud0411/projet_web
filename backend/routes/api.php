@@ -39,40 +39,12 @@ use App\Http\Controllers\StatistiqueController;
 /*
 |--------------------------------------------------------------------------
 | ROUTES D'AUTHENTIFICATION PUBLIQUES
-| (Provenant du Fichier 1, remplaçant auth.php)
+| (Using Laravel Breeze Controllers)
 |--------------------------------------------------------------------------
 */
 
-Route::post('/login', function (Request $request) {
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
-
-    // --- CORRECTION : Mapper 'password' (requête) vers 'mot_de_passe' (DB) ---
-    $credentials = [
-        'email' => $request->email,
-        'mot_de_passe' => $request->password,
-    ];
-
-    if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-        throw ValidationException::withMessages([
-            'email' => __('auth.failed'),
-        ]);
-    }
-
-    $request->session()->regenerate();
-
-    // Renvoie une réponse 204 (No Content) pour indiquer le succès
-    return response()->noContent(); 
-});
-
-Route::post('/logout', function (Request $request) {
-    Auth::guard('web')->logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return response()->noContent();
-})->middleware('auth:sanctum'); // Le logout nécessite d'être authentifié
+// Include Breeze auth routes
+require __DIR__.'/auth.php';
 
 
 /*
@@ -105,7 +77,7 @@ Route::get('/evenements/{id}', [EvenementController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     
-    // --- Route /user (Version Fichier 2) ---
+    // --- Route /user (Get authenticated user) ---
     Route::get('/user', function (Request $request) {
         $user = $request->user();
         $user->load('role'); // S'assurer que le rôle est chargé
@@ -115,7 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'prenom' => $user->prenom,
             'email' => $user->email,
             'telephone' => $user->telephone,
-            'role' => $user->role->nom_role ?? null,
+            'role' => $user->role->nom_role ?? 'client',
             'points_fidelite' => $user->points_fidelite,
         ]);
     });
