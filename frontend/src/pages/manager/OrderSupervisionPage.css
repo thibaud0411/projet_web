@@ -1,7 +1,0 @@
-/* Style pour les boutons de filtre */
-.filter-button {
-  flex-grow: 1; 
-  text-transform: capitalize;
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-}
