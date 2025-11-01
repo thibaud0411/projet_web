@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HomePage } from './pages/HomePage';
 import { MenuPage } from './pages/MenuPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
-import { StudentDashboard } from './pages/StudentDashboard';
+import StudentDashboard from './pages/StudentDashboard';
 import { ContactPage } from './pages/ContactPage';
+import { authService, UserRole, AuthUser } from './services/authService';
 // import { EmployeeDashboard } from './components/EmployeeDashboard';
 // import { AdminDashboard } from './components/AdminDashboard';
 // import { GerantDashboard } from './components/GerantDashboard'; // à venir
 
-type UserRole = 'guest' | 'student' | 'employee' | 'admin' | 'gerant';
 type Page =
   | 'home'
   | 'menu'
@@ -26,10 +26,48 @@ type Page =
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [userRole, setUserRole] = useState<UserRole>('guest');
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // --- Load persistent auth on mount ---
+  useEffect(() => {
+    const loadPersistedAuth = () => {
+      const auth = authService.loadAuth();
+      
+      if (auth && auth.isAuthenticated) {
+        setUserRole(auth.role);
+        setCurrentUser(auth.user);
+        
+        // Navigate to appropriate dashboard
+        switch (auth.role) {
+          case 'student':
+            setCurrentPage('student');
+            break;
+          case 'employee':
+            setCurrentPage('employee');
+            break;
+          case 'admin':
+            setCurrentPage('admin');
+            break;
+          case 'gerant':
+            setCurrentPage('gerant');
+            break;
+          default:
+            setCurrentPage('home');
+        }
+      }
+      
+      setIsLoading(false);
+    };
+
+    loadPersistedAuth();
+  }, []);
 
   // --- Login handler ---
-  const handleLogin = (role: UserRole) => {
+  const handleLogin = (role: UserRole, user?: AuthUser) => {
     setUserRole(role);
+    if (user) setCurrentUser(user);
+    
     switch (role) {
       case 'student':
         setCurrentPage('student');
@@ -49,8 +87,10 @@ export default function App() {
   };
 
   // --- Logout handler ---
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await authService.logout();
     setUserRole('guest');
+    setCurrentUser(null);
     setCurrentPage('home');
   };
 
@@ -90,6 +130,18 @@ export default function App() {
         return <HomePage onNavigate={secureNavigate} userRole={userRole} />;
     }
   };
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#FAF3E0] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#cfbd97] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#5E4B3C] text-lg">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return <div className="min-h-screen bg-[#FAF3E0]">{renderPage()}</div>;
 }

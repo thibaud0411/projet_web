@@ -4,66 +4,149 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
-/**
- * Gère les opérations CRUD pour la ressource Article, 
- * en se concentrant sur les vues publiques (index et show) pour le catalogue.
- */
 class ArticleController extends Controller
 {
     /**
-     * Affiche une liste paginée des Articles disponibles.
-     * Inclut le filtrage et la recherche.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * Display a listing of articles.
      */
     public function index(Request $request)
     {
-        // Récupérer uniquement les articles 'disponible' par défaut
-        $query = Article::where('disponible', true)
-                         ->with('categorie'); // Chargement Eager de la catégorie
+        $query = Article::with('categorie');
 
-        // Exemple de filtrage par catégorie (si l'ID est fourni)
+        // Filter by category
         if ($request->has('id_categorie')) {
-            $query->where('id_categorie', $request->input('id_categorie'));
+            $query->where('id_categorie', $request->id_categorie);
         }
 
-        // Exemple de recherche par nom ou description
-        if ($request->has('search')) {
-            $searchTerm = $request->input('search');
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('nom', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
-            });
+        // Filter by availability
+        if ($request->has('disponible')) {
+            $query->where('disponible', $request->disponible);
         }
-        
-        // Trier par nom ou par date de création (ex: les plus récents en premier)
-        $articles = $query->orderBy('date_creation', 'desc')->paginate(15);
+
+        // Filter by promotion
+        if ($request->has('est_promotion')) {
+            $query->where('est_promotion', $request->est_promotion);
+        }
+
+        // Search by name
+        if ($request->has('search')) {
+            $query->where('nom', 'like', '%' . $request->search . '%');
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 15);
+        $articles = $query->paginate($perPage);
 
         return response()->json($articles);
     }
 
     /**
-     * Affiche les détails d'un Article spécifique par son ID.
-     *
-     * @param  int  $id_article
-     * @return \Illuminate\Http\JsonResponse
+     * Store a newly created article in storage.
      */
-    public function show(int $id_article)
+    public function store(Request $request)
     {
-        $article = Article::where('id_article', $id_article)
-                          ->where('disponible', true) // S'assurer qu'il est disponible
-                          ->with('categorie')
-                          ->first();
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:150',
+            'description' => 'nullable|string',
+            'prix' => 'required|numeric|min:0',
+            'id_categorie' => 'required|exists:categorie,id_categorie',
+            'disponible' => 'boolean',
+            'image_url' => 'nullable|string|max:255',
+            'est_promotion' => 'boolean',
+            'stock_disponible' => 'nullable|integer|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $article = Article::create($request->all());
+        $article->load('categorie');
+
+        return response()->json([
+            'message' => 'Article créé avec succès',
+            'data' => $article
+        ], 201);
+    }
+
+    /**
+     * Display the specified article.
+     */
+    public function show($id)
+    {
+        $article = Article::with('categorie')->find($id);
 
         if (!$article) {
-            return response()->json(['message' => 'Article non trouvé ou non disponible.'], 404);
+            return response()->json([
+                'message' => 'Article non trouvé'
+            ], 404);
         }
 
         return response()->json($article);
     }
-    
-    // NOTE: Les méthodes 'store', 'update', 'destroy' pour la gestion 
-    // par l'administrateur seraient ajoutées ici, potentiellement dans un AdminController.
+
+    /**
+     * Update the specified article in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $article = Article::find($id);
+
+        if (!$article) {
+            return response()->json([
+                'message' => 'Article non trouvé'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'nom' => 'sometimes|string|max:150',
+            'description' => 'nullable|string',
+            'prix' => 'sometimes|numeric|min:0',
+            'id_categorie' => 'sometimes|exists:categorie,id_categorie',
+            'disponible' => 'boolean',
+            'image_url' => 'nullable|string|max:255',
+            'est_promotion' => 'boolean',
+            'stock_disponible' => 'nullable|integer|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $article->update($request->all());
+        $article->load('categorie');
+
+        return response()->json([
+            'message' => 'Article mis à jour avec succès',
+            'data' => $article
+        ]);
+    }
+
+    /**
+     * Remove the specified article from storage.
+     */
+    public function destroy($id)
+    {
+        $article = Article::find($id);
+
+        if (!$article) {
+            return response()->json([
+                'message' => 'Article non trouvé'
+            ], 404);
+        }
+
+        $article->delete();
+
+        return response()->json([
+            'message' => 'Article supprimé avec succès'
+        ]);
+    }
 }

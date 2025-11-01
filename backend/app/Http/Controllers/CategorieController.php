@@ -4,47 +4,148 @@ namespace App\Http\Controllers;
 
 use App\Models\Categorie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
-/**
- * Gère la lecture des Catégories pour l'affichage du menu/catalogue.
- */
 class CategorieController extends Controller
 {
     /**
-     * Affiche une liste de toutes les Catégories actives.
-     * * @return \Illuminate\Http\JsonResponse
+     * Display a listing of categories.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Récupérer uniquement les catégories 'active' et les trier
-        $categories = Categorie::where('active', true)
-                               ->orderBy('ordre_affichage')
-                               ->with('articles') // Optionnel: charger les articles de chaque catégorie
-                               ->get();
+        $query = Categorie::query();
+
+        // Filter by active status
+        if ($request->has('active')) {
+            $query->where('active', $request->active);
+        }
+
+        // Order by display order
+        $query->orderBy('ordre_affichage');
+
+        $categories = $query->get();
 
         return response()->json($categories);
     }
 
     /**
-     * Affiche les détails d'une Catégorie spécifique et ses articles.
-     *
-     * @param  int  $id_categorie
-     * @return \Illuminate\Http\JsonResponse
+     * Get category with its articles.
      */
-    public function show(int $id_categorie)
+    public function withArticles($id)
     {
-        $categorie = Categorie::where('id_categorie', $id_categorie)
-                              ->where('active', true)
-                              ->with(['articles' => function ($query) {
-                                  // Filtrer les articles pour n'afficher que ceux qui sont disponibles
-                                  $query->where('disponible', true);
-                              }])
-                              ->first();
+        $categorie = Categorie::with('articles')->find($id);
 
         if (!$categorie) {
-            return response()->json(['message' => 'Catégorie non trouvée ou inactive.'], 404);
+            return response()->json([
+                'message' => 'Catégorie non trouvée'
+            ], 404);
         }
 
         return response()->json($categorie);
+    }
+
+    /**
+     * Store a newly created category in storage.
+     */
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nom_categorie' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'ordre_affichage' => 'nullable|integer|min:0',
+            'active' => 'boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $categorie = Categorie::create($request->all());
+
+        return response()->json([
+            'message' => 'Catégorie créée avec succès',
+            'data' => $categorie
+        ], 201);
+    }
+
+    /**
+     * Display the specified category.
+     */
+    public function show($id)
+    {
+        $categorie = Categorie::find($id);
+
+        if (!$categorie) {
+            return response()->json([
+                'message' => 'Catégorie non trouvée'
+            ], 404);
+        }
+
+        return response()->json($categorie);
+    }
+
+    /**
+     * Update the specified category in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $categorie = Categorie::find($id);
+
+        if (!$categorie) {
+            return response()->json([
+                'message' => 'Catégorie non trouvée'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'nom_categorie' => 'sometimes|string|max:100',
+            'description' => 'nullable|string',
+            'ordre_affichage' => 'nullable|integer|min:0',
+            'active' => 'boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $categorie->update($request->all());
+
+        return response()->json([
+            'message' => 'Catégorie mise à jour avec succès',
+            'data' => $categorie
+        ]);
+    }
+
+    /**
+     * Remove the specified category from storage.
+     */
+    public function destroy($id)
+    {
+        $categorie = Categorie::find($id);
+
+        if (!$categorie) {
+            return response()->json([
+                'message' => 'Catégorie non trouvée'
+            ], 404);
+        }
+
+        // Check if category has articles
+        if ($categorie->articles()->count() > 0) {
+            return response()->json([
+                'message' => 'Impossible de supprimer une catégorie contenant des articles'
+            ], 400);
+        }
+
+        $categorie->delete();
+
+        return response()->json([
+            'message' => 'Catégorie supprimée avec succès'
+        ]);
     }
 }

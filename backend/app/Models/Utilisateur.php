@@ -37,7 +37,24 @@ class Utilisateur extends Authenticatable
         'id_parrain',
         'id_role',
         'statut_compte',
+        'est_actif',
     ];
+
+    /**
+     * Get the password for the user.
+     */
+    public function getAuthPassword()
+    {
+        return $this->mot_de_passe;
+    }
+
+    /**
+     * Get the name of the unique identifier for the user.
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'id_utilisateur';
+    }
 
     /**
      * Les attributs à cacher lors de la conversion en JSON (ex: réponses API).

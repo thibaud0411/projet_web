@@ -4,32 +4,33 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card } from '../components/ui/card';
-import { api } from '../lib/apiClient';
+import { authService, UserRole, AuthUser } from '../services/authService';
 
 interface LoginPageProps {
-  onLogin: (role: 'student' | 'employee' | 'admin' | 'gerant') => void;
+  onLogin: (role: UserRole, user?: AuthUser) => void;
   onNavigate: (page: string) => void;
 }
 
 export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
     try {
-      const response = await api.post('/login', { email, password });
-      const user = response.data.user;
-
-      alert(`Bienvenue ${user.name} !`);
-
-      if (user.email.includes('admin')) onLogin('admin');
-      else if (user.email.includes('employee') || user.email.includes('employe')) onLogin('employee');
-      else if (user.email.includes('gerant')) onLogin('gerant');
-      else onLogin('student');
+      const { user, role } = await authService.login(email, password);
+      
+      // Success - call parent handler
+      onLogin(role, user);
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Erreur de connexion');
+      setError(error.message || 'Erreur de connexion');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,6 +52,12 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-3">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -83,8 +90,12 @@ export function LoginPage({ onLogin, onNavigate }: LoginPageProps) {
               </div>
             </div>
 
-            <Button type="submit" className="w-full h-14 bg-[#cfbd97] text-white rounded-2xl shadow-lg text-lg">
-              Se connecter
+            <Button 
+              type="submit" 
+              className="w-full h-14 bg-[#cfbd97] text-white rounded-2xl shadow-lg text-lg"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Connexion...' : 'Se connecter'}
             </Button>
           </form>
 
