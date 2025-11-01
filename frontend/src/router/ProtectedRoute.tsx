@@ -1,8 +1,13 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
-import { Navigate, Outlet } from 'react-router-dom';
+// import { useAuth } from '../context/AuthContext';
+// import { Navigate, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 export const ProtectedRoute: React.FC = () => {
+  // 🔓 PROTECTION DÉSACTIVÉE - Accès libre pour la démo
+  return <Outlet />;
+  
+  /* CODE ORIGINAL COMMENTÉ:
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -23,4 +28,5 @@ export const ProtectedRoute: React.FC = () => {
 
   // Affiche le contenu (ManagerLayout ou EmployeeLayout) si l'utilisateur est connecté
   return <Outlet />;
+  */
 };

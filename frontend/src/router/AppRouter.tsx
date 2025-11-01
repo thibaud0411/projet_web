@@ -1,5 +1,5 @@
 import React from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // --- Importer TOUS les Layouts ---
 import { ManagerLayout } from '../components/layout/ManagerLayout';
@@ -7,7 +7,6 @@ import { EmployeeLayout } from '../components/layout/EmployeeLayout';
 
 // --- Importer les nouvelles pages/composants d'authentification ---
 import { LandingPage } from '../pages/public/LandingPage';
-import { LoginPage } from '../pages/public/LoginPage';
 import { ProtectedRoute } from './ProtectedRoute';
 
 // --- Importer les pages Gérant ---
@@ -26,6 +25,9 @@ import { EmployeeStatsPage } from '../pages/employee/EmployeeStatsPage';
 // --- Importer la page 404 ---
 import { NotFoundPage } from '../pages/NotFoundPage';
 
+// --- Importer la page Demo ---
+import Demo from '../pages/Demo';
+
 // Configuration du routeur
 const router = createBrowserRouter([
   // --- Routes Publiques ---
@@ -34,8 +36,8 @@ const router = createBrowserRouter([
     element: <LandingPage />,
   },
   {
-    path: '/login',
-    element: <LoginPage />,
+    path: '/demo',
+    element: <Demo />,
   },
   {
     path: '*',

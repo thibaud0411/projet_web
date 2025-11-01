@@ -13,7 +13,7 @@ export interface User {
   prenom: string;
   email: string;
   telephone: string;
-  role: 'administrateur' | 'gerant' | 'employe' | 'client';
+  role: 'administrateur' | 'gerant' | 'employe' | 'etudiant';
   statut_compte: 'actif' | 'inactif' | 'en_attente';
   email_verified_at: string | null;
   created_at: string;
@@ -79,7 +79,7 @@ export interface User {
   prenom: string;
   email: string;
   telephone: string;
-  role: 'administrateur' | 'gerant' | 'employe' | 'client';
+  role: 'administrateur' | 'gerant' | 'employe' | 'etudiant';
   statut_compte: 'actif' | 'inactif' | 'en_attente';
   adresse: string;
   code_postal: string;

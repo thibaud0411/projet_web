@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import axios from 'axios';
 import type { AxiosResponse } from 'axios';
-import apiClient, { initSanctum } from '../apiClient';
+import apiClient from '../apiClient';
 import type { User, AuthContextType } from '../types';
 
 // Create context with default values
@@ -44,35 +43,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string, remember: boolean = false): Promise<void> => {
     try {
-      console.log('AuthContext: Initializing CSRF protection...');
-      // First, get the CSRF token from the server
-      await initSanctum();
+      // Clear any old data first
+      localStorage.removeItem('auth_token');
+      delete apiClient.defaults.headers.common['Authorization'];
       
-      // Get the CSRF token from the meta tag (set by your Laravel backend)
-      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-      
-      console.log('AuthContext: Sending login request with CSRF token...');
-      // Then login with the CSRF token in the headers
+      // Login request
       const response = await apiClient.post<{ token: string; user: User; message: string }>('/login', 
-        { email, password, remember },
-        {
-          headers: csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {},
-          withCredentials: true
-        }
+        { email, password, remember }
       );
-      console.log('AuthContext: Login response received:', response.data);
 
-      // Store token
       const { token, user } = response.data;
-      console.log('AuthContext: Storing token and user data');
+      
+      // Store token (keep it small to avoid 431 errors)
       localStorage.setItem('auth_token', token);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      // Set user state - this will trigger re-renders
+      // Set user state
       setUser(user);
-      console.log('AuthContext: User state updated, login complete');
     } catch (error) {
-      console.error('AuthContext: Login error:', error);
+      console.error('Login failed:', error);
       throw error;
     }
   };
@@ -91,19 +80,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = async (userData: any): Promise<void> => {
     try {
-      // Get CSRF cookie first (not under /api) - MUST use direct URL
-      await axios.get('http://localhost:8000/sanctum/csrf-cookie', { withCredentials: true });
+      // Clear any old data first
+      localStorage.removeItem('auth_token');
+      delete apiClient.defaults.headers.common['Authorization'];
 
-      // Then register
+      // Register
       const response = await apiClient.post<{ token: string; user: User; message: string }>('/register', userData);
 
       const { token, user } = response.data;
+      
+      // Store token
       localStorage.setItem('auth_token', token);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       setUser(user);
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration failed:', error);
       throw error;
     }
   };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { 
   TrendingUp, 
@@ -14,7 +14,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { DashboardStats, RevenueDataPoint, StatCard, Period } from '../types/dashboard';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth(); // AuthContext supprimé
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenueData, setRevenueData] = useState<RevenueDataPoint[]>([]);
   const [loading, setLoading] = useState(true);

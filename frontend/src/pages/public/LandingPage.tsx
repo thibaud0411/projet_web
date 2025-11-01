@@ -27,6 +27,25 @@ export const LandingPage: React.FC = () => {
             Espace Étudiant
           </Link>
         </div>
+
+        {/* Demo Button */}
+        <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e0e0e0' }}>
+          <Link 
+            to="/demo" 
+            className="btn btn-outline-primary btn-lg landing-btn"
+            style={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              border: 'none',
+              fontWeight: 'bold'
+            }}
+          >
+            🎭 Mode Démonstration - Voir tous les rôles
+          </Link>
+          <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#666' }}>
+            Accès libre à toutes les interfaces sans restriction
+          </p>
+        </div>
       </div>
     </div>
   );

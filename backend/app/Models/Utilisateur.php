@@ -61,7 +61,40 @@ class Utilisateur extends Authenticatable
      */
     protected $hidden = [
         'mot_de_passe',
+        'id_role', // Hide raw role ID
     ];
+
+    /**
+     * Les attributs à ajouter lors de la conversion en JSON.
+     */
+    protected $appends = [
+        'id',
+    ];
+
+    /**
+     * Get the user's ID as 'id' for frontend compatibility.
+     */
+    public function getIdAttribute(): int
+    {
+        return $this->id_utilisateur;
+    }
+
+    /**
+     * Get the user's role name for frontend.
+     * This automatically maps id_role to role name.
+     */
+    public function getRoleNameAttribute(): string
+    {
+        // Map role IDs to role names
+        $roleMap = [
+            1 => 'administrateur',
+            2 => 'gerant',
+            3 => 'employe',
+            4 => 'etudiant',
+        ];
+        
+        return $roleMap[$this->id_role] ?? 'etudiant';
+    }
 
     /**
      * Un Utilisateur APPARTIENT A un Rôle.

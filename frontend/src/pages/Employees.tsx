@@ -28,7 +28,7 @@ const Employees = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const response = await api.get<{ data: Employee[] }>('/admin/employees');
+      const response = await api.get<{ data: Employee[] }>('admin/employees');
       setEmployees(response.data.data || []);
     } catch (error: any) {
       console.error("Erreur chargement employés:", error);
@@ -101,7 +101,7 @@ const Employees = () => {
       if (editingEmployee) {
         // Update existing employee
         const { data } = await api.put<{ data: Employee }>(
-          `/admin/employees/${editingEmployee.id}`,
+          `admin/employees/${editingEmployee.id}`,
           formData
         );
         
@@ -113,7 +113,7 @@ const Employees = () => {
       } else {
         // Create new employee
         const { data } = await api.post<{ data: Employee }>(
-          '/admin/employees',
+          'admin/employees',
           formData
         );
         
@@ -163,7 +163,7 @@ const Employees = () => {
     }
 
     try {
-      await api.delete(`/admin/employees/${id}`);
+      await api.delete(`admin/employees/${id}`);
       setEmployees(employees.filter(emp => emp.id !== id));
       toast.success('Employé supprimé avec succès');
     } catch (error: any) {
@@ -177,7 +177,7 @@ const Employees = () => {
       const newStatus = employee.statut_compte === 'actif' ? 'inactif' : 'actif';
       
       const { data } = await api.patch<{ data: Employee }>(
-        `/admin/employees/${employee.id}/status`,
+        `admin/employees/${employee.id}/status`,
         { status: newStatus }
       );
       

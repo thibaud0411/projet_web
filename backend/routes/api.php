@@ -80,14 +80,22 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Route /user (Get authenticated user) ---
     Route::get('/user', function (Request $request) {
         $user = $request->user();
-        $user->load('role'); // S'assurer que le rôle est chargé
+        
+        // Map role ID to role name (same as login)
+        $roleMap = [
+            1 => 'administrateur',
+            2 => 'gerant',
+            3 => 'employe',
+            4 => 'etudiant',
+        ];
+        
         return response()->json([
             'id' => $user->id_utilisateur,
             'nom' => $user->nom,
             'prenom' => $user->prenom,
             'email' => $user->email,
             'telephone' => $user->telephone,
-            'role' => $user->role->nom_role ?? 'client',
+            'role' => $roleMap[$user->id_role] ?? 'etudiant',
             'points_fidelite' => $user->points_fidelite,
         ]);
     });

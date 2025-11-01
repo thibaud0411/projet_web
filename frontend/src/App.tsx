@@ -3,10 +3,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './context/AuthContext';
+// import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './components/layout/AdminLayout';
-import Login from './pages/Login';
 import Register from './pages/Register';
 import SignUp from './pages/SignUp';
 import ForgotPassword from './pages/ForgotPassword';
@@ -19,6 +18,21 @@ import Promotions from './pages/promotions';
 import Events from './pages/Events';
 import Complaints from './pages/Complaints';
 import Settings from './pages/Settings';
+import Demo from './pages/Demo';
+import { LandingPage } from './pages/public/LandingPage';
+
+// Import Manager & Employee layouts and pages
+import { ManagerLayout } from './components/layout/ManagerLayout';
+import { EmployeeLayout } from './components/layout/EmployeeLayout';
+import { GeneralStatsPage } from './pages/manager/GeneralStatsPage';
+import { ClaimsValidationPage } from './pages/manager/ClaimsValidationPage';
+import { EmployeeCreatePage } from './pages/manager/EmployeeCreatePage';
+import { OrdersPage as ManagerOrdersPage } from './pages/manager/OrdersPage';
+import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
+import { EmployeeMenuPage } from './pages/employee/EmployeeMenuPage';
+import { EmployeeOrdersPage } from './pages/employee/EmployeeOrdersPage';
+import { EmployeeClaimsPage } from './pages/employee/EmployeeClaimsPage';
+import { EmployeeStatsPage } from './pages/employee/EmployeeStatsPage';
 
 // Configuration de React Query
 const queryClient = new QueryClient({
@@ -37,17 +51,16 @@ function App() {
     <QueryClientProvider client={queryClient}>
       {/* 2. Fournisseur de routes (Router) */}
       <BrowserRouter>
-        {/* 3. Fournisseur d'authentification */}
-        <AuthProvider>
+        {/* 3. AuthProvider supprimé - pas d'authentification */}
 
           {/* 4. Définition de toutes les routes de l'application */}
           <Routes>
             {/* Routes publiques */}
-            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/demo" element={<Demo />} />
             
             {/* Routes Admin protégées */}
             <Route path="/admin" element={
@@ -65,16 +78,32 @@ function App() {
               <Route path="complaints" element={<Complaints />} />
               <Route path="settings" element={<Settings />} />
             </Route>
+
+            {/* Routes Manager - Accès libre sans protection */}
+            <Route path="/manager" element={<ManagerLayout />}>
+              <Route index element={<GeneralStatsPage />} />
+              <Route path="orders" element={<ManagerOrdersPage />} />
+              <Route path="claims" element={<ClaimsValidationPage />} />
+              <Route path="create-employee" element={<EmployeeCreatePage />} />
+            </Route>
+
+            {/* Routes Employee - Accès libre sans protection */}
+            <Route path="/employee" element={<EmployeeLayout />}>
+              <Route index element={<EmployeeDashboard />} />
+              <Route path="menu" element={<EmployeeMenuPage />} />
+              <Route path="orders" element={<EmployeeOrdersPage />} />
+              <Route path="claims" element={<EmployeeClaimsPage />} />
+              <Route path="stats" element={<EmployeeStatsPage />} />
+            </Route>
             
-            {/* Rediriger la racine "/" vers login */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            {/* Page d'accueil */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           
           {/* 5. Composant pour afficher les notifications (Toasts) */}
           <Toaster position="top-right" />
 
-        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );

@@ -49,8 +49,29 @@ class AuthController extends Controller
             // Generate token
             $token = $user->createToken('auth-token')->plainTextToken;
 
+            // Map role ID to role name for frontend
+            $roleMap = [
+                1 => 'administrateur',
+                2 => 'gerant',
+                3 => 'employe',
+                4 => 'etudiant',
+            ];
+
+            // Prepare user data with role name
+            $userData = $user->toArray();
+            $userData['id'] = $user->id_utilisateur;
+            $userData['role'] = $roleMap[$user->id_role] ?? 'etudiant';
+            unset($userData['id_role']); // Remove raw ID
+
+            // Debug logging
+            Log::info('Login successful', [
+                'email' => $user->email,
+                'id_role' => $user->id_role,
+                'mapped_role' => $userData['role']
+            ]);
+
             return response()->json([
-                'user' => $user,
+                'user' => $userData,
                 'token' => $token,
                 'message' => 'Connexion réussie'
             ]);

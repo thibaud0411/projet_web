@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Browser Storage</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        .status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .info {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clear Browser Storage</h1>
+        <p>Click the button below to clear all stored data and fix the 431 error.</p>
+        
+        <button onclick="clearEverything()">Clear All Storage</button>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="info">
+            <p>This will clear:</p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>Local Storage</li>
+                <li>Session Storage</li>
+                <li>All Cookies</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function clearEverything() {
+            try {
+                // Clear localStorage
+                localStorage.clear();
+                
+                // Clear sessionStorage
+                sessionStorage.clear();
+                
+                // Clear all cookies
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                // Show success message
+                const status = document.getElementById('status');
+                status.className = 'status success';
+                status.innerHTML = '✅ All storage cleared successfully!<br><br>Redirecting to home...';
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+                
+            } catch (error) {
+                alert('Error clearing storage: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

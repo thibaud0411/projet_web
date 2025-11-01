@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
+import DemoModeBanner from '../DemoModeBanner';
 import { 
   LayoutDashboard, 
   Users, 
@@ -23,9 +24,14 @@ interface NavigationItem {
 }
 
 const AdminLayout = () => {
-  const { user, logout, isAdmin } = useAuth();
+  // const { user, logout, isAdmin } = useAuth(); // AuthContext supprimé
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Mock user for demo
+  const user = { prenom: 'Demo', nom: 'User', role: 'administrateur' };
+  const isAdmin = true;
+  const logout = () => console.log('Logout disabled');
 
   const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -46,6 +52,9 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Demo Mode Banner */}
+      <DemoModeBanner />
+      
       {/* Mobile menu button */}
       <button
         type="button"
@@ -100,10 +109,10 @@ const AdminLayout = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                  {user?.name?.charAt(0) || 'U'}
+                  {user?.prenom?.charAt(0) || user?.nom?.charAt(0) || 'U'}
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium">{user?.name || 'Utilisateur'}</p>
+                  <p className="text-sm font-medium">{user ? `${user.prenom} ${user.nom}` : 'Utilisateur'}</p>
                   <p className="text-xs text-gray-400">{user?.role || 'Rôle'}</p>
                 </div>
               </div>

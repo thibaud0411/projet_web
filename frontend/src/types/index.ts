@@ -5,7 +5,7 @@ export interface User {
   prenom: string;
   email: string;
   telephone?: string;
-  role: 'administrateur' | 'gerant' | 'client';
+  role: 'administrateur' | 'gerant' | 'employe' | 'etudiant';
   points_fidelite?: number;
 }
 
