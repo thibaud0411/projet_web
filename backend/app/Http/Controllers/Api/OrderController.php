@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Models\Commande; // Importer le modèle Commande
+use App\Models\LigneCommande; // Importer le modèle LigneCommande
+use App\Models\Paiement; // Importer le modèle Paiement
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule; // Pour la validation 'in'
 // --- AJOUT DE LA MODIFICATION ---
@@ -95,8 +98,113 @@ class OrderController extends Controller
     // --- FIN DE LA MÉTHODE MODIFIÉE ---
 
 
-    // --- Les autres méthodes restent vides ou minimales ---
-    public function store(Request $request) { return response()->json(['message' => 'Non implémenté'], 501); }
+    /**
+     * Créer une nouvelle commande
+     * (POST /api/orders)
+     */
+public function store(Request $request)
+{
+    try {
+        // Valider les données de la requête
+        $validated = $request->validate([
+            'user_id' => 'required|integer|exists:utilisateur,id_utilisateur',
+            'items' => 'required|array|min:1',
+            'items.*.article_id' => 'required|integer|exists:article,id_article',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric|min:0',
+            'items.*.name' => 'required|string',
+            'total_amount' => 'required|numeric|min:0',
+            'service_type' => 'required|in:sur place,à emporter,livraison',
+            'arrival_time' => 'nullable|date_format:H:i',
+            'payment_method' => 'required|in:especes,cinetpay',
+        ]);
+
+        // Vérifier la disponibilité des articles
+        foreach ($validated['items'] as $item) {
+            $article = \App\Models\Article::find($item['article_id']);
+            if (!$article || !$article->disponible || $article->stock_disponible < $item['quantity']) {
+                return response()->json([
+                    'message' => "L'article {$item['name']} n'est pas disponible en quantité suffisante",
+                    'article_id' => $item['article_id']
+                ], 400);
+            }
+        }
+
+        // Démarrer une transaction
+        \DB::beginTransaction();
+
+        // Créer la commande
+        $heureArrivee = $validated['arrival_time'] ?? null;
+        
+        // Si une heure d'arrivée est fournie, créer un objet DateTime avec la date d'aujourd'hui
+        if ($heureArrivee) {
+            $aujourdHui = now()->format('Y-m-d');
+            $heureArrivee = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $aujourdHui . ' ' . $heureArrivee);
+        }
+        
+        $commande = new Commande([
+            'id_utilisateur' => $validated['user_id'],
+            'montant_total' => $validated['total_amount'],
+            'points_gagnes' => floor($validated['total_amount'] / 1000),
+            'type_service' => $validated['service_type'],
+            'heure_arrivee' => $heureArrivee,
+            'statut' => 'En attente',
+            'numero_commande' => 'CMD-' . time() . '-' . Str::upper(Str::random(4)),
+        ]);
+        $commande->save();
+
+        // Créer les lignes de commande et mettre à jour les stocks
+        foreach ($validated['items'] as $item) {
+            $article = \App\Models\Article::find($item['article_id']);
+            
+            // Créer la ligne de commande
+            $ligneCommande = new LigneCommande([
+                'id_article' => $item['article_id'],
+                'quantite' => $item['quantity'],
+                'prix_unitaire' => $item['price'],
+                'sous_total' => $item['price'] * $item['quantity'],
+                'commentaire_article' => $item['comment'] ?? null,
+            ]);
+            $commande->lignes()->save($ligneCommande);
+
+            // Mettre à jour le stock
+            $article->decrement('stock_disponible', $item['quantity']);
+        }
+
+        // Créer le paiement
+        $paiement = new Paiement([
+            'montant' => $validated['total_amount'],
+            'methode_paiement' => $validated['payment_method'],
+            'statut' => $validated['payment_method'] === 'cinetpay' ? 'en attente' : 'payé',
+            'date_paiement' => now(),
+        ]);
+        $commande->paiement()->save($paiement);
+
+        \DB::commit();
+
+        // Charger les relations pour la réponse
+        $commande->load(['utilisateur:id_utilisateur,nom,prenom', 'lignes.article:id_article,nom']);
+
+        return response()->json([
+            'message' => 'Commande créée avec succès',
+            'data' => $commande
+        ], 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        \DB::rollBack();
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        \DB::rollBack();
+        \Log::error('Erreur création commande: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+        return response()->json([
+            'message' => 'Une erreur est survenue lors de la création de la commande',
+            'error' => config('app.debug') ? $e->getMessage() : 'Erreur serveur'
+        ], 500);
+    }
+}
     
     // Modification: Gérer "show" manuellement aussi si vous l'utilisez
     public function show($id) {

@@ -1,4 +1,6 @@
 import { useState } from 'react'; // Retrait de useEffect car l'état local items est retiré
+import { api } from '../lib/apiClient';
+import { AuthUser } from '../services/authService';
 import { 
     ArrowLeft, MapPin, Phone, CreditCard, Wallet, 
     Building2, Check, ShoppingBag, User, Home, Utensils,
@@ -6,7 +8,15 @@ import {
 } from 'lucide-react';
 
 // --- STUBBED UI COMPONENTS (Requis pour la lisibilité) ---
-const Button = ({ children, className = '', variant, onClick, disabled }) => (
+interface ButtonProps {
+    children: React.ReactNode;
+    className?: string;
+    variant?: string;
+    onClick?: () => void;
+    disabled?: boolean;
+}
+
+const Button = ({ children, className = '', variant = 'primary', onClick, disabled = false }: ButtonProps) => (
     <button 
         className={`px-4 py-2 font-medium rounded-lg transition-colors ${className}`}
         onClick={onClick}
@@ -15,54 +25,119 @@ const Button = ({ children, className = '', variant, onClick, disabled }) => (
         {children}
     </button>
 );
-const Card = ({ children, className = '' }) => (
-    <div className={`rounded-xl border bg-card text-card-foreground shadow ${className}`}>
+
+interface CardProps {
+    children: React.ReactNode;
+    className?: string;
+}
+
+const Card = ({ children, className = '' }: CardProps) => (
+    <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
         {children}
     </div>
 );
-const Badge = ({ children, className = '' }) => (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${className}`}>
+
+interface BadgeProps {
+    children: React.ReactNode;
+    className?: string;
+}
+
+const Badge = ({ children, className = '' }: BadgeProps) => (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
         {children}
     </span>
 );
-const Input = ({ id, value, onChange, placeholder, className, required, type }) => (
-    <input 
-        id={id} 
-        value={value} 
-        onChange={onChange} 
-        placeholder={placeholder} 
+
+interface InputProps {
+    id: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder?: string;
+    className?: string;
+    required?: boolean;
+    type?: string;
+}
+
+const Input = ({ id, value, onChange, placeholder, className = '', required = false, type = 'text' }: InputProps) => (
+    <input
         type={type}
-        className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+        id={id}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 border rounded-md ${className}`}
         required={required}
     />
 );
-const Label = ({ htmlFor, children, className }) => (
-    <label 
-        htmlFor={htmlFor} 
-        className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}
-    >
+
+interface LabelProps {
+    htmlFor: string;
+    children: React.ReactNode;
+    className?: string;
+}
+
+const Label = ({ htmlFor, children, className = '' }: LabelProps) => (
+    <label htmlFor={htmlFor} className={`block text-sm font-medium text-gray-700 mb-1 ${className}`}>
         {children}
     </label>
 );
-const RadioGroup = ({ children, value, onValueChange, className = '' }) => (
-    <div className={className} role="radiogroup" aria-activedescendant={value}>
+
+interface RadioGroupProps {
+    children: React.ReactNode;
+    value?: string;
+    onValueChange?: (value: string) => void;
+    className?: string;
+}
+
+const RadioGroup = ({ children, value, onValueChange, className = '' }: RadioGroupProps) => (
+    <div className={`space-y-2 ${className}`}>
         {children}
     </div>
 );
-const RadioGroupItem = ({ value, id, className = '' }) => (
-    <input type="radio" id={id} value={value} checked={false} readOnly className={`h-4 w-4 text-[#cfbd97] border-[#cfbd97] focus:ring-[#cfbd97] ${className}`} />
+
+interface RadioGroupItemProps {
+    value: string;
+    id: string;
+    className?: string;
+    checked?: boolean;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const RadioGroupItem = ({ value, id, className = '', checked, onChange }: RadioGroupItemProps) => (
+    <div className={`flex items-center space-x-2 ${className}`}>
+        <input 
+            type="radio" 
+            id={id} 
+            value={value} 
+            checked={checked}
+            onChange={onChange}
+            className="h-4 w-4 text-blue-600" 
+        />
+    </div>
 );
-const ImageWithFallback = ({ src, alt, className }) => (
-    <img 
-        src={src} 
-        alt={alt} 
-        className={className}
-        onError={(e) => {
-            e.currentTarget.src = 'https://placehold.co/400x300/EFD9A7/5E4B3C?text=Plat';
-            e.currentTarget.onerror = null; 
-        }}
-    />
-);
+
+interface ImageWithFallbackProps {
+    src: string;
+    alt: string;
+    className?: string;
+}
+
+const ImageWithFallback = ({ src, alt, className = '' }: ImageWithFallbackProps) => {
+    const [imgSrc, setImgSrc] = useState(src);
+    
+    const handleError = () => {
+        setImgSrc('https://placehold.co/400x300/EFD9A7/5E4B3C?text=Plat');
+    };
+    
+    return (
+        <img
+            src={imgSrc}
+            alt={alt}
+            className={className}
+            onError={handleError}
+        />
+    );
+};
 // --- END STUBBED UI COMPONENTS ---
 
 // --- INTERFACES (pour la cohérence) ---
@@ -86,19 +161,35 @@ interface Order {
     points: number;
 }
 
+// Interface User pour la page de paiement
+interface User {
+    id: number;
+    email: string;
+    // Champs optionnels pour la compatibilité avec différentes sources de données
+    nom?: string;
+    prenom?: string;
+    telephone?: string;
+    role?: string;
+    points_fidelite?: number;
+    name?: string;
+    points_balance?: number;
+}
+
 interface CheckoutPageProps {
     onNavigate: (page: string) => void;
     userRole: string; 
     cart: CartItem[]; // Le panier centralisé
     setCart: React.Dispatch<React.SetStateAction<CartItem[]>>; // Pour vider/modifier le panier
     setOrderHistory: React.Dispatch<React.SetStateAction<Order[]>>; // Pour ajouter la commande
+    currentUser: User | null; // Ajout de l'utilisateur actuel
 }
 
 export function CheckoutPage({ 
     onNavigate, 
     cart, // 🔑 Utilisation du panier des props
     setCart,
-    setOrderHistory
+    setOrderHistory,
+    currentUser // Utilisateur actuel
 }: CheckoutPageProps) {
 
     // Suppression de l'état local 'items'. On utilise 'cart' directement.
@@ -127,8 +218,24 @@ export function CheckoutPage({
     const pointsGained = Math.floor(total / 1000);
     // ---------------------------------
 
-    const handleConfirmOrder = () => {
+    const handleConfirmOrder = async () => {
         if (cart.length === 0) return;
+
+        // Vérifier si l'utilisateur est connecté
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Veuillez vous connecter pour passer une commande');
+            onNavigate('login');
+            return;
+        }
+
+        // Utiliser l'utilisateur passé en props
+        if (!currentUser || !currentUser.id) {
+            alert('Utilisateur non identifié. Veuillez vous reconnecter.');
+            localStorage.removeItem('token');
+            onNavigate('login');
+            return;
+        }
 
         // 1. Logique de validation (simple)
         if (deliveryMethod === 'delivery' && (!building || !phone)) {
@@ -136,26 +243,74 @@ export function CheckoutPage({
             return;
         }
 
-        // 2. Création de l'objet de commande
-        const newOrder: Order = {
-            id: `ORD-${Date.now().toString().slice(-4)}`, // ID plus court pour l'exemple
-            date: new Date().toLocaleDateString('fr-FR'),
-            time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-            items: cart.map(i => `${i.name} (x${i.quantity})`), // Utilise la prop cart
-            total: total,
-            status: 'delivered', // On considère qu'après confirmation/paiement, c'est "Livré" ou "En cours" (pending est plus réaliste)
-            points: pointsGained,
-        };
+        try {
+            // 2. Préparer les données de la commande
+            const orderData = {
+                user_id: currentUser.id, // Ajout de l'ID de l'utilisateur
+                items: cart.map(item => ({
+                    article_id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    comment: ''
+                })),
+                total_amount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                service_type: deliveryMethod === 'delivery' ? 'livraison' : 'à emporter',
+                arrival_time: new Date().toTimeString().slice(0, 5), // Format HH:MM
+                payment_method: paymentMethod === 'cash' ? 'especes' : 'cinetpay',
+                building: building || '',
+                phone: phone || '',
+                // Ajout d'informations supplémentaires pour le débogage
+                user_email: currentUser.email,
+                user_name: `${currentUser.prenom} ${currentUser.nom}`
+            };
+            
+            console.log('Envoi de la commande avec les données:', {
+                ...orderData,
+                items: orderData.items.map(i => `${i.quantity}x ${i.name}`)
+            });
 
-        // 3. Mise à jour de l'historique dans App.tsx
-        setOrderHistory(prevHistory => [newOrder, ...prevHistory]);
+            // 3. Envoyer la commande au backend avec l'api client
+            const response = await api.post('/orders', orderData);
 
-        // 4. Vider le panier dans App.tsx
-        setCart([]); 
+            const data = response.data;
 
-        // 5. Redirection et notification
-        alert(`Commande #${newOrder.id} confirmée ! Paiement par ${paymentMethod === 'cash' ? 'espèces' : 'CinetPay'}.`);
-        onNavigate('student'); // Retourne au dashboard
+            // 4. Mise à jour de l'historique dans App.tsx avec la réponse du serveur
+            const newOrder: Order = {
+                id: data.data.id_commande.toString(),
+                date: new Date().toLocaleDateString('fr-FR'),
+                time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                items: cart.map(i => `${i.name} (x${i.quantity})`),
+                total: data.data.montant_total,
+                status: 'pending',
+                points: data.data.points_gagnes,
+            };
+
+            setOrderHistory(prevHistory => [newOrder, ...prevHistory]);
+            
+            // 5. Vider le panier
+            setCart([]);
+
+            // 6. Redirection et notification
+            alert(`Commande #${newOrder.id} confirmée ! Paiement par ${paymentMethod === 'cash' ? 'espèces' : 'CinetPay'}.`);
+            onNavigate('student'); // Retourne au dashboard
+
+        } catch (error: any) {
+            console.error('Erreur lors de la confirmation de la commande:', error);
+            
+            if (error.response?.status === 401) {
+                // Token invalide ou expiré, rediriger vers la page de connexion
+                alert('Votre session a expiré. Veuillez vous reconnecter.');
+                localStorage.removeItem('token');
+                onNavigate('login');
+            } else if (error.response?.data?.message) {
+                // Afficher le message d'erreur du serveur
+                alert(`Erreur: ${error.response.data.message}`);
+            } else {
+                // Erreur générique
+                alert('Une erreur est survenue lors de la commande. Veuillez réessayer.');
+            }
+        }
     };
 
     return (

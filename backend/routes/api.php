@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\DashboardEmployeeController;
 
 // --- Contrôleurs de Fichier 2 (principaux) ---
 use App\Http\Controllers\AuthController; // Note : Non utilisé dans la version finale, mais conservé au cas où
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -45,6 +46,14 @@ use App\Http\Controllers\StatistiqueController;
 
 // Include Breeze auth routes
 require __DIR__.'/auth.php';
+
+// Order routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('orders', 'App\Http\Controllers\Api\OrderController');
+    
+    // Additional order status update route
+    Route::patch('orders/{order}/status', 'App\Http\Controllers\Api\OrderController@updateStatus');
+});
 
 
 /*

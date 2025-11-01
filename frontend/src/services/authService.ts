@@ -32,8 +32,17 @@ export const authService = {
       role,
       isAuthenticated: true,
     };
+    // Stocker l'état d'authentification complet
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
+    // Stocker également le token directement pour un accès facile
+    localStorage.setItem('token', token);
+    // Configurer le token dans l'API client
     setAuthToken(token);
+    
+    console.log('Token saved to localStorage:', { 
+      authData: { ...authData, token: '***' },
+      tokenStored: token ? 'Token stored' : 'No token provided'
+    });
   },
 
   /**
@@ -41,16 +50,45 @@ export const authService = {
    */
   loadAuth(): AuthState | null {
     try {
+      // Essayer de charger depuis l'objet d'authentification
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (!stored) return null;
-
-      const authData: AuthState = JSON.parse(stored);
+      const directToken = localStorage.getItem('token');
       
-      // Set the token in API client
-      if (authData.token) {
-        setAuthToken(authData.token);
+      if (!stored && !directToken) return null;
+      
+      let authData: AuthState | null = null;
+      
+      if (stored) {
+        try {
+          authData = JSON.parse(stored);
+        } catch (e) {
+          console.error('Error parsing stored auth data:', e);
+        }
       }
-
+      
+      // Si on a un token direct mais pas d'objet d'authentification valide
+      if (directToken && (!authData || !authData.token)) {
+        authData = {
+          user: authData?.user || null,
+          token: directToken,
+          role: authData?.role || 'student', // Valeur par défaut
+          isAuthenticated: true
+        };
+        // Sauvegarder l'état complet pour la prochaine fois
+        if (authData.user) {
+          this.saveAuth(authData.user, directToken, authData.role);
+        }
+      }
+      
+      // Configurer le token dans l'API client
+      if (authData?.token) {
+        setAuthToken(authData.token);
+        console.log('Token loaded from localStorage:', { 
+          hasToken: !!authData.token,
+          user: authData.user ? { id: authData.user.id, email: authData.user.email } : 'No user'
+        });
+      }
+      
       return authData;
     } catch (error) {
       console.error('Error loading auth from localStorage:', error);
@@ -62,8 +100,16 @@ export const authService = {
    * Clear auth state (logout)
    */
   clearAuth(): void {
+    console.log('Clearing auth data from localStorage');
     localStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem('token');
     setAuthToken(null);
+    
+    // Vérifier que tout a été supprimé
+    console.log('Auth data cleared. Verification:', {
+      hasAuthData: !!localStorage.getItem(AUTH_STORAGE_KEY),
+      hasToken: !!localStorage.getItem('token')
+    });
   },
 
   /**
@@ -119,8 +165,27 @@ export const authService = {
    * Check if user is authenticated
    */
   isAuthenticated(): boolean {
-    const auth = this.loadAuth();
-    return auth !== null && auth.isAuthenticated && auth.token !== null;
+    // Vérifier d'abord le token direct pour une meilleure fiabilité
+    const directToken = localStorage.getItem('token');
+    
+    // Si on a un token direct, on considère que l'utilisateur est authentifié
+    if (directToken) {
+      console.log('Auth check: Direct token found');
+      return true;
+    }
+    
+    // Sinon, vérifier l'état d'authentification stocké
+    const auth = this.getCurrentAuth();
+    const isAuthenticated = !!auth?.isAuthenticated && !!auth.token;
+    
+    console.log('Auth check:', { 
+      hasDirectToken: !!directToken,
+      hasAuthState: !!auth,
+      isAuthenticated,
+      hasTokenInAuth: auth?.token ? 'Yes' : 'No'
+    });
+    
+    return isAuthenticated;
   },
 
   /**
